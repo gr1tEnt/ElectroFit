@@ -1,15 +1,25 @@
+"use client";
+
+import { useCart } from "@/context/CartContext";
+import { lineUnitPrice } from "@/lib/cartUtils";
 import type { Product } from "@/types/product";
+import { useState } from "react";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { addProduct } = useCart();
+  const [added, setAdded] = useState(false);
   const isFrame = product.type === "FRAME";
-  const price =
-    typeof product.price === "number"
-      ? product.price
-      : Number(product.price);
+  const price = lineUnitPrice(product);
+
+  const handleAdd = () => {
+    addProduct(product, 1);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
@@ -71,11 +81,20 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </ul>
 
-        <div className="mt-auto flex items-end justify-between pt-4">
-          <p className="text-lg font-bold text-ink">€{price.toFixed(2)}</p>
-          <span className="rounded-md bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700">
-            {product.type}
-          </span>
+        <div className="mt-auto space-y-3 pt-4">
+          <div className="flex items-end justify-between">
+            <p className="text-lg font-bold text-ink">€{price.toFixed(2)}</p>
+            <span className="rounded-md bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700">
+              {product.type}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="w-full rounded-lg border border-brand-600 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
+          >
+            {added ? "Added ✓" : "Add to cart"}
+          </button>
         </div>
       </div>
     </article>

@@ -1,3 +1,4 @@
+import type { OrderConfirmation, SubmitOrderPayload } from "@/types/cart";
 import type { ConfiguratorSet } from "@/types/configurator";
 import type { Product } from "@/types/product";
 
@@ -64,5 +65,22 @@ export async function fetchConfiguratorSets(
   if (!response.ok) {
     throw new Error(`Configurator request failed (${response.status})`);
   }
+  return response.json();
+}
+
+export async function submitOrder(payload: SubmitOrderPayload): Promise<OrderConfirmation> {
+  const url = `${API_BASE}/api/orders`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(detail || `Order submission failed (${response.status})`);
+  }
+
   return response.json();
 }

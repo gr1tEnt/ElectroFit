@@ -164,7 +164,10 @@ export function Configurator() {
 
           {added && (
             <p className="text-center text-sm font-medium text-emerald-700">
-              Added to cart — {itemCount} item{itemCount !== 1 ? "s" : ""} total
+              Modular set added —{" "}
+              <a href="/cart" className="underline hover:text-emerald-900">
+                view cart ({itemCount} items)
+              </a>
             </p>
           )}
         </div>

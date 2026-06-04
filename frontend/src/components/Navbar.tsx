@@ -11,7 +11,7 @@ const navLinks = [
 ];
 
 export function Navbar() {
-  const { itemCount } = useCart();
+  const { itemCount, subtotal } = useCart();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-white/90 backdrop-blur-md">
@@ -47,18 +47,26 @@ export function Navbar() {
           )}
         </nav>
 
-        <div className="flex items-center gap-3">
-          {itemCount > 0 && (
-            <span className="rounded-full bg-brand-100 px-2.5 py-1 text-xs font-semibold text-brand-700">
-              Cart ({itemCount})
-            </span>
-          )}
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link
-            href="/catalog"
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+            href="/cart"
+            className="relative rounded-lg border border-border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            Browse catalog
+            Cart
+            {itemCount > 0 && (
+              <span className="ml-1.5 inline-flex min-w-[1.25rem] justify-center rounded-full bg-brand-600 px-1.5 py-0.5 text-xs font-bold text-white">
+                {itemCount}
+              </span>
+            )}
           </Link>
+          {itemCount > 0 && (
+            <Link
+              href="/checkout"
+              className="hidden rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 sm:inline-flex"
+            >
+              Checkout · €{subtotal.toFixed(2)}
+            </Link>
+          )}
         </div>
       </div>
     </header>
