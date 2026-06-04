@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Layout } from "@/components/Layout";
+import { StoreShell } from "@/components/StoreShell";
 import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
 
@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <CartProvider>
-          <Layout>{children}</Layout>
+          <StoreShell>{children}</StoreShell>
         </CartProvider>
       </body>
     </html>

@@ -1,0 +1,27 @@
+package com.electricalstore.dto;
+
+import com.electricalstore.entity.IpRating;
+import com.electricalstore.entity.ProductType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.util.List;
+
+public record CreateProductRequest(
+        @NotBlank String sku,
+        @NotBlank String name,
+        String description,
+        @NotNull BigDecimal price,
+        @NotNull ProductType type,
+        boolean lowVoltage,
+        String imageUrl,
+        @NotBlank String brandName,
+        @NotBlank String seriesName,
+        @NotBlank String categoryName,
+        @NotNull IpRating ipRating,
+        @NotNull Integer maxAmps,
+        boolean hasChildProtection,
+        boolean hasGrounding,
+        Integer framePostsCount,
+        @NotEmpty List<String> compatibleRoomTypes) {}

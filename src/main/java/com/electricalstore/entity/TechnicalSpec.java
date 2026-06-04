@@ -1,6 +1,8 @@
 package com.electricalstore.entity;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -11,6 +13,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -49,4 +53,12 @@ public class TechnicalSpec {
 
     @Column(name = "frame_posts_count")
     private Integer framePostsCount;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "technical_spec_room_compatibility",
+            joinColumns = @JoinColumn(name = "technical_spec_id"))
+    @Column(name = "room_type")
+    @Builder.Default
+    private List<String> compatibleRoomTypes = new ArrayList<>();
 }

@@ -6,6 +6,7 @@ import com.electricalstore.entity.ProductType;
 import com.electricalstore.entity.TechnicalSpec;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 @Schema(description = "Product summary for API responses")
@@ -24,7 +25,8 @@ public record ProductResponse(
         @Schema(example = "IP44") IpRating ipRating,
         @Schema(example = "16") Integer maxAmps,
         @Schema(example = "true") Boolean hasChildProtection,
-        @Schema(example = "2") Integer framePostsCount) {
+        @Schema(example = "2") Integer framePostsCount,
+        @Schema(example = "[\"BEDROOM\", \"LIVING_ROOM\"]") List<String> compatibleRoomTypes) {
 
     public static ProductResponse from(Product product, TechnicalSpec spec) {
         String brandName = null;
@@ -39,6 +41,10 @@ public record ProductResponse(
         Integer maxAmps = spec != null ? spec.getMaxAmps() : null;
         Boolean hasChildProtection = spec != null ? spec.isHasChildProtection() : null;
         Integer framePostsCount = spec != null ? spec.getFramePostsCount() : null;
+        List<String> compatibleRoomTypes =
+                spec != null && spec.getCompatibleRoomTypes() != null
+                        ? spec.getCompatibleRoomTypes()
+                        : Collections.emptyList();
 
         return new ProductResponse(
                 product.getId(),
@@ -55,7 +61,8 @@ public record ProductResponse(
                 ipRating,
                 maxAmps,
                 hasChildProtection,
-                framePostsCount);
+                framePostsCount,
+                compatibleRoomTypes);
     }
 
     public static List<ProductResponse> fromList(List<Product> products) {

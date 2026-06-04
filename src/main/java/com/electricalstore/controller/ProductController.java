@@ -1,6 +1,7 @@
 package com.electricalstore.controller;
 
 import com.electricalstore.dto.ConfiguratorSetResponse;
+import com.electricalstore.dto.CreateProductRequest;
 import com.electricalstore.dto.ProductResponse;
 import com.electricalstore.dto.SmartSelectRequest;
 import com.electricalstore.service.ConfiguratorService;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -60,6 +63,15 @@ public class ProductController {
                     @RequestParam(required = false)
                     String category) {
         return productResponseMapper.toResponses(productService.findProducts(brand, series, category));
+    }
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create product", description = "Creates a product with brand, category, and technical specifications.")
+    public ProductResponse createProduct(@Valid @RequestBody CreateProductRequest request) {
+        return productResponseMapper
+                .toResponses(List.of(productService.createProduct(request)))
+                .get(0);
     }
 
     @PostMapping(

@@ -18,6 +18,7 @@ export interface Product {
   maxAmps: number | null;
   hasChildProtection: boolean | null;
   framePostsCount: number | null;
+  compatibleRoomTypes?: string[];
 }
 
 export interface CatalogFilters {

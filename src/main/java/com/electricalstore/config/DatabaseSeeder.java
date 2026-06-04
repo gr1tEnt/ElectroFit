@@ -11,6 +11,7 @@ import com.electricalstore.repository.CategoryRepository;
 import com.electricalstore.repository.ProductRepository;
 import com.electricalstore.repository.TechnicalSpecRepository;
 import java.math.BigDecimal;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -74,7 +75,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 spec -> spec.ipRating(IpRating.IP20)
                         .maxAmps(16)
                         .hasChildProtection(false)
-                        .hasGrounding(true));
+                        .hasGrounding(true),
+                List.of("BEDROOM", "LIVING_ROOM"));
 
         saveMechanism(
                 "SKT-VL-IP20-1P",
@@ -84,7 +86,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 legrand,
                 sockets,
                 false,
-                spec -> spec.ipRating(IpRating.IP20).maxAmps(16).hasChildProtection(false).hasGrounding(true));
+                spec -> spec.ipRating(IpRating.IP20).maxAmps(16).hasChildProtection(false).hasGrounding(true),
+                List.of("BEDROOM", "LIVING_ROOM"));
 
         saveMechanism(
                 "SKT-AF-IP20-2P",
@@ -94,7 +97,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 schneider,
                 sockets,
                 false,
-                spec -> spec.ipRating(IpRating.IP20).maxAmps(16).hasChildProtection(false).hasGrounding(true));
+                spec -> spec.ipRating(IpRating.IP20).maxAmps(16).hasChildProtection(false).hasGrounding(true),
+                List.of("BEDROOM", "LIVING_ROOM"));
 
         for (int posts : new int[] {1, 2, 3, 4, 5}) {
             saveFrame(
@@ -104,7 +108,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                     BigDecimal.valueOf(6.20 * posts),
                     legrand,
                     frames,
-                    posts);
+                    posts,
+                    List.of("BEDROOM", "LIVING_ROOM"));
         }
 
         for (int posts : new int[] {1, 2, 3}) {
@@ -115,7 +120,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                     BigDecimal.valueOf(5.80 * posts),
                     schneider,
                     frames,
-                    posts);
+                    posts,
+                    List.of("BEDROOM", "LIVING_ROOM"));
         }
     }
 
@@ -131,7 +137,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 spec -> spec.ipRating(IpRating.IP44)
                         .maxAmps(16)
                         .hasChildProtection(false)
-                        .hasGrounding(true));
+                        .hasGrounding(true),
+                List.of("BATHROOM", "KITCHEN"));
 
         saveMechanism(
                 "SKT-AF-IP44-SPL",
@@ -141,7 +148,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 schneider,
                 sockets,
                 false,
-                spec -> spec.ipRating(IpRating.IP44).maxAmps(16).hasChildProtection(false).hasGrounding(true));
+                spec -> spec.ipRating(IpRating.IP44).maxAmps(16).hasChildProtection(false).hasGrounding(true),
+                List.of("BATHROOM", "KITCHEN"));
 
         saveMechanism(
                 "SKT-VL-SELV-12V",
@@ -151,7 +159,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 legrand,
                 sockets,
                 true,
-                spec -> spec.ipRating(IpRating.IP44).maxAmps(3).hasChildProtection(false).hasGrounding(false));
+                spec -> spec.ipRating(IpRating.IP44).maxAmps(3).hasChildProtection(false).hasGrounding(false),
+                List.of("BATHROOM"));
     }
 
     private void seedKidsRoomProducts(Brand legrand, Brand schneider, Category sockets) {
@@ -166,7 +175,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 spec -> spec.ipRating(IpRating.IP20)
                         .maxAmps(16)
                         .hasChildProtection(true)
-                        .hasGrounding(true));
+                        .hasGrounding(true),
+                List.of("KIDS_ROOM", "BEDROOM"));
 
         saveMechanism(
                 "SKT-AF-KIDS",
@@ -176,7 +186,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 schneider,
                 sockets,
                 false,
-                spec -> spec.ipRating(IpRating.IP20).maxAmps(16).hasChildProtection(true).hasGrounding(true));
+                spec -> spec.ipRating(IpRating.IP20).maxAmps(16).hasChildProtection(true).hasGrounding(true),
+                List.of("KIDS_ROOM", "BEDROOM"));
     }
 
     private void seedOutdoorProducts(
@@ -189,7 +200,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 legrand,
                 switches,
                 false,
-                spec -> spec.ipRating(IpRating.IP65).maxAmps(20).hasChildProtection(false).hasGrounding(true));
+                spec -> spec.ipRating(IpRating.IP65).maxAmps(20).hasChildProtection(false).hasGrounding(true),
+                List.of("OUTDOOR", "GARAGE"));
 
         saveMechanism(
                 "SW-AF-IP55",
@@ -199,7 +211,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 schneider,
                 switches,
                 false,
-                spec -> spec.ipRating(IpRating.IP55).maxAmps(20).hasChildProtection(false).hasGrounding(true));
+                spec -> spec.ipRating(IpRating.IP55).maxAmps(20).hasChildProtection(false).hasGrounding(true),
+                List.of("OUTDOOR", "GARAGE"));
 
         saveMechanism(
                 "SKT-AF-IP54-OUT",
@@ -209,7 +222,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 schneider,
                 sockets,
                 false,
-                spec -> spec.ipRating(IpRating.IP54).maxAmps(16).hasChildProtection(false).hasGrounding(true));
+                spec -> spec.ipRating(IpRating.IP54).maxAmps(16).hasChildProtection(false).hasGrounding(true),
+                List.of("OUTDOOR", "GARAGE"));
     }
 
     private void seedKitchenProducts(Brand legrand, Category sockets) {
@@ -221,7 +235,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 legrand,
                 sockets,
                 false,
-                spec -> spec.ipRating(IpRating.IP44).maxAmps(16).hasChildProtection(false).hasGrounding(true));
+                spec -> spec.ipRating(IpRating.IP44).maxAmps(16).hasChildProtection(false).hasGrounding(true),
+                List.of("KITCHEN"));
     }
 
     private Brand saveBrand(String name, String series) {
@@ -239,7 +254,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             BigDecimal price,
             Brand brand,
             Category category,
-            int posts) {
+            int posts,
+            List<String> compatibleRooms) {
         Product frame = productRepository.save(Product.builder()
                 .sku(sku)
                 .name(name)
@@ -258,6 +274,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .hasChildProtection(false)
                 .hasGrounding(true)
                 .framePostsCount(posts)
+                .compatibleRoomTypes(compatibleRooms)
                 .build());
     }
 
@@ -269,7 +286,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             Brand brand,
             Category category,
             boolean lowVoltage,
-            java.util.function.Function<TechnicalSpec.TechnicalSpecBuilder, TechnicalSpec.TechnicalSpecBuilder> specCustomizer) {
+            java.util.function.Function<TechnicalSpec.TechnicalSpecBuilder, TechnicalSpec.TechnicalSpecBuilder> specCustomizer,
+            List<String> compatibleRooms) {
         Product product = productRepository.save(Product.builder()
                 .sku(sku)
                 .name(name)
@@ -282,6 +300,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .build());
 
         TechnicalSpec.TechnicalSpecBuilder specBuilder = TechnicalSpec.builder().product(product);
-        technicalSpecRepository.save(specCustomizer.apply(specBuilder).build());
+        technicalSpecRepository.save(
+                specCustomizer.apply(specBuilder).compatibleRoomTypes(compatibleRooms).build());
     }
 }
