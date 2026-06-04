@@ -44,6 +44,17 @@ public class ProductController {
         this.configuratorService = configuratorService;
     }
 
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+            summary = "Get product by id",
+            description = "Returns full product details including image gallery and technical specifications.")
+    @ApiResponse(responseCode = "200", description = "Product found")
+    @ApiResponse(responseCode = "404", description = "Product not found")
+    public ProductResponse getProduct(
+            @Parameter(description = "Product id", example = "1") @PathVariable Long id) {
+        return productResponseMapper.toResponse(productService.findProductById(id));
+    }
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
             summary = "List products",

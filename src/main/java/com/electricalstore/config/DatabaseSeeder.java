@@ -10,22 +10,34 @@ import com.electricalstore.repository.BrandRepository;
 import com.electricalstore.repository.CategoryRepository;
 import com.electricalstore.repository.ProductRepository;
 import com.electricalstore.repository.TechnicalSpecRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class DatabaseSeeder implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(DatabaseSeeder.class);
 
+    private static final String VALENA_DOUBLE_SOCKET_IMAGE =
+            "/images/products/Valena Life double socket IP20.jpg";
+    private static final String VALENA_SINGLE_SOCKET_IMAGE =
+            "/images/products/Valena Life single socket IP20.jpg";
+
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final TechnicalSpecRepository technicalSpecRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public DatabaseSeeder(
             BrandRepository brandRepository,
@@ -39,11 +51,10 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) {
-        if (productRepository.count() > 0) {
-            log.info("Database already contains products — skipping seed.");
-            return;
-        }
+        log.info("Clearing catalog data and re-seeding…");
+        clearCatalogData();
 
         log.info("Seeding electrical store catalog…");
 
@@ -76,7 +87,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                         .maxAmps(16)
                         .hasChildProtection(false)
                         .hasGrounding(true),
-                List.of("BEDROOM", "LIVING_ROOM"));
+                List.of("BEDROOM", "LIVING_ROOM"),
+                List.of(VALENA_DOUBLE_SOCKET_IMAGE));
 
         saveMechanism(
                 "SKT-VL-IP20-1P",
@@ -87,7 +99,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 sockets,
                 false,
                 spec -> spec.ipRating(IpRating.IP20).maxAmps(16).hasChildProtection(false).hasGrounding(true),
-                List.of("BEDROOM", "LIVING_ROOM"));
+                List.of("BEDROOM", "LIVING_ROOM"),
+                List.of(VALENA_SINGLE_SOCKET_IMAGE));
 
         saveMechanism(
                 "SKT-AF-IP20-2P",
@@ -239,12 +252,40 @@ public class DatabaseSeeder implements CommandLineRunner {
                 List.of("KITCHEN"));
     }
 
+    private void clearCatalogData() {
+        entityManager
+                .createNativeQuery(
+                        """
+                        TRUNCATE TABLE
+                          order_items,
+                          orders,
+                          technical_spec_room_compatibility,
+                          technical_specs,
+                          product_image_urls,
+                          products,
+                          brands,
+                          categories
+                        RESTART IDENTITY CASCADE
+                        """)
+                .executeUpdate();
+        entityManager.flush();
+        entityManager.clear();
+    }
+
     private Brand saveBrand(String name, String series) {
         return brandRepository.save(Brand.builder().name(name).seriesName(series).build());
     }
 
     private Category saveCategory(String name) {
         return categoryRepository.save(Category.builder().name(name).build());
+    }
+
+    private List<String> sampleImageUrls(String sku) {
+        String key = sku.toLowerCase().replace('_', '-');
+        return List.of(
+                "https://picsum.photos/seed/" + key + "-1/800/600",
+                "https://picsum.photos/seed/" + key + "-2/800/600",
+                "https://picsum.photos/seed/" + key + "-3/800/600");
     }
 
     private void saveFrame(
@@ -256,11 +297,14 @@ public class DatabaseSeeder implements CommandLineRunner {
             Category category,
             int posts,
             List<String> compatibleRooms) {
+        List<String> imageUrls = sampleImageUrls(sku);
         Product frame = productRepository.save(Product.builder()
                 .sku(sku)
                 .name(name)
                 .description(description)
                 .price(price)
+                .imageUrl(imageUrls.get(0))
+                .imageUrls(new ArrayList<>(imageUrls))
                 .type(ProductType.FRAME)
                 .brand(brand)
                 .category(category)
@@ -288,11 +332,39 @@ public class DatabaseSeeder implements CommandLineRunner {
             boolean lowVoltage,
             java.util.function.Function<TechnicalSpec.TechnicalSpecBuilder, TechnicalSpec.TechnicalSpecBuilder> specCustomizer,
             List<String> compatibleRooms) {
+        saveMechanism(
+                sku,
+                name,
+                description,
+                price,
+                brand,
+                category,
+                lowVoltage,
+                specCustomizer,
+                compatibleRooms,
+                null);
+    }
+
+    private void saveMechanism(
+            String sku,
+            String name,
+            String description,
+            String price,
+            Brand brand,
+            Category category,
+            boolean lowVoltage,
+            java.util.function.Function<TechnicalSpec.TechnicalSpecBuilder, TechnicalSpec.TechnicalSpecBuilder> specCustomizer,
+            List<String> compatibleRooms,
+            List<String> imageUrlsOverride) {
+        List<String> imageUrls =
+                imageUrlsOverride != null ? new ArrayList<>(imageUrlsOverride) : sampleImageUrls(sku);
         Product product = productRepository.save(Product.builder()
                 .sku(sku)
                 .name(name)
                 .description(description)
                 .price(new BigDecimal(price))
+                .imageUrl(imageUrls.get(0))
+                .imageUrls(new ArrayList<>(imageUrls))
                 .type(ProductType.MECHANISM)
                 .brand(brand)
                 .category(category)

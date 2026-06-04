@@ -1,6 +1,7 @@
 "use client";
 
 import { ProductGrid } from "@/components/catalog/ProductGrid";
+import { ProductQuickViewModal } from "@/components/product/ProductQuickViewModal";
 import { RoomIcon } from "@/components/smart-select/RoomIcon";
 import { WizardProgress } from "@/components/smart-select/WizardProgress";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -24,6 +25,7 @@ export function SmartSelectWizard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const hasChildrenForApi = room === "KIDS_ROOM" || hasChildren;
 
@@ -278,7 +280,10 @@ export function SmartSelectWizard() {
               </div>
 
               <div className="mt-8">
-                <ProductGrid products={products} />
+                <ProductGrid
+                  products={products}
+                  onProductSelect={setSelectedProduct}
+                />
               </div>
 
               <div className="mt-10 flex flex-wrap justify-center gap-4">
@@ -300,6 +305,12 @@ export function SmartSelectWizard() {
           )}
         </section>
       )}
+
+      <ProductQuickViewModal
+        isOpen={selectedProduct != null}
+        onClose={() => setSelectedProduct(null)}
+        product={selectedProduct}
+      />
     </div>
   );
 }

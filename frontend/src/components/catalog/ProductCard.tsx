@@ -4,23 +4,47 @@ import { useCart } from "@/context/CartContext";
 import { lineUnitPrice } from "@/lib/cartUtils";
 import { toastAddedToCart } from "@/lib/toast";
 import type { Product } from "@/types/product";
+import type { MouseEvent } from "react";
 
 interface ProductCardProps {
   product: Product;
+  onSelect?: (product: Product) => void;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, onSelect }: ProductCardProps) {
   const { addProduct } = useCart();
   const isFrame = product.type === "FRAME";
   const price = lineUnitPrice(product);
 
-  const handleAdd = () => {
+  const handleOpenQuickView = () => {
+    onSelect?.(product);
+  };
+
+  const handleAdd = (e: MouseEvent) => {
+    e.stopPropagation();
     addProduct(product, 1);
     toastAddedToCart(product.name);
   };
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <article
+      role={onSelect ? "button" : undefined}
+      tabIndex={onSelect ? 0 : undefined}
+      onClick={onSelect ? handleOpenQuickView : undefined}
+      onKeyDown={
+        onSelect
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleOpenQuickView();
+              }
+            }
+          : undefined
+      }
+      className={`group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+        onSelect ? "cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" : ""
+      }`}
+    >
       <div className="relative aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200">
         {product.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -90,6 +114,7 @@ export function ProductCard({ product }: ProductCardProps) {
             type="button"
             onClick={handleAdd}
             className="w-full rounded-lg border border-brand-600 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
+            onMouseDown={(e) => e.stopPropagation()}
           >
             Add to cart
           </button>

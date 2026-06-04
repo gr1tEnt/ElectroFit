@@ -19,6 +19,12 @@ public class ProductResponseMapper {
         this.technicalSpecRepository = technicalSpecRepository;
     }
 
+    public ProductResponse toResponse(Product product) {
+        TechnicalSpec spec =
+                technicalSpecRepository.findByProductId(product.getId()).orElse(null);
+        return ProductResponse.from(product, spec);
+    }
+
     public List<ProductResponse> toResponses(List<Product> products) {
         Map<Long, TechnicalSpec> specsByProductId = technicalSpecRepository.findAll().stream()
                 .collect(Collectors.toMap(spec -> spec.getProduct().getId(), Function.identity(), (a, b) -> a));

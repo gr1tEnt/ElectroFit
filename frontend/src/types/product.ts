@@ -2,6 +2,16 @@ export type ProductType = "MECHANISM" | "FRAME";
 
 export type IpRating = "IP20" | "IP44" | "IP54" | "IP55" | "IP65";
 
+export interface TechnicalSpec {
+  id: number;
+  ipRating: IpRating;
+  maxAmps: number;
+  hasChildProtection: boolean;
+  hasGrounding: boolean;
+  framePostsCount: number | null;
+  compatibleRoomTypes: string[];
+}
+
 export interface Product {
   id: number;
   sku: string;
@@ -9,14 +19,17 @@ export interface Product {
   description: string | null;
   price: number;
   imageUrl: string | null;
+  imageUrls?: string[];
   type: ProductType;
   lowVoltage: boolean;
   brandName: string | null;
   seriesName: string | null;
   categoryName: string | null;
+  technicalSpec?: TechnicalSpec | null;
   ipRating: IpRating | null;
   maxAmps: number | null;
   hasChildProtection: boolean | null;
+  hasGrounding: boolean | null;
   framePostsCount: number | null;
   compatibleRoomTypes?: string[];
 }

@@ -11,11 +11,14 @@ import com.electricalstore.repository.CategoryRepository;
 import com.electricalstore.repository.ProductRepository;
 import com.electricalstore.repository.TechnicalSpecRepository;
 import com.electricalstore.repository.spec.ProductSpecifications;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ProductService {
@@ -37,6 +40,13 @@ public class ProductService {
         this.brandRepository = brandRepository;
         this.categoryRepository = categoryRepository;
         this.technicalSpecRepository = technicalSpecRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public Product findProductById(Long id) {
+        return productRepository
+                .findByIdWithDetails(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: " + id));
     }
 
     @Transactional(readOnly = true)
@@ -76,12 +86,14 @@ public class ProductService {
                         .name(request.categoryName().trim())
                         .build()));
 
+        List<String> imageUrls = resolveImageUrlsForCreate(request.imageUrls(), request.imageUrl());
         Product product = productRepository.save(Product.builder()
                 .sku(request.sku().trim())
                 .name(request.name().trim())
                 .description(request.description())
                 .price(request.price())
-                .imageUrl(request.imageUrl())
+                .imageUrl(imageUrls.isEmpty() ? null : imageUrls.get(0))
+                .imageUrls(new ArrayList<>(imageUrls))
                 .type(request.type())
                 .brand(brand)
                 .category(category)
@@ -102,5 +114,18 @@ public class ProductService {
                 .build());
 
         return product;
+    }
+
+    private static List<String> resolveImageUrlsForCreate(List<String> imageUrls, String imageUrl) {
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            return imageUrls.stream()
+                    .filter(StringUtils::hasText)
+                    .map(String::trim)
+                    .toList();
+        }
+        if (StringUtils.hasText(imageUrl)) {
+            return List.of(imageUrl.trim());
+        }
+        return List.of();
     }
 }

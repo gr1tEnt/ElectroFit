@@ -17,14 +17,18 @@ public record ProductResponse(
         @Schema(example = "16A double socket outlet") String description,
         @Schema(example = "24.99") BigDecimal price,
         @Schema(example = "https://cdn.example.com/skt-001.jpg") String imageUrl,
+        @Schema(example = "[\"https://cdn.example.com/skt-001-1.jpg\", \"https://cdn.example.com/skt-001-2.jpg\"]")
+                List<String> imageUrls,
         @Schema(example = "MECHANISM") ProductType type,
         @Schema(example = "false") boolean lowVoltage,
         @Schema(example = "Legrand") String brandName,
         @Schema(example = "Valena Life") String seriesName,
         @Schema(example = "Sockets") String categoryName,
+        TechnicalSpecResponse technicalSpec,
         @Schema(example = "IP44") IpRating ipRating,
         @Schema(example = "16") Integer maxAmps,
         @Schema(example = "true") Boolean hasChildProtection,
+        @Schema(example = "true") Boolean hasGrounding,
         @Schema(example = "2") Integer framePostsCount,
         @Schema(example = "[\"BEDROOM\", \"LIVING_ROOM\"]") List<String> compatibleRoomTypes) {
 
@@ -37,9 +41,14 @@ public record ProductResponse(
         }
         String categoryName = product.getCategory() != null ? product.getCategory().getName() : null;
 
+        List<String> imageUrls = resolveImageUrls(product);
+        String primaryImageUrl = imageUrls.isEmpty() ? product.getImageUrl() : imageUrls.get(0);
+
+        TechnicalSpecResponse technicalSpecResponse = TechnicalSpecResponse.from(spec);
         IpRating ipRating = spec != null ? spec.getIpRating() : null;
         Integer maxAmps = spec != null ? spec.getMaxAmps() : null;
         Boolean hasChildProtection = spec != null ? spec.isHasChildProtection() : null;
+        Boolean hasGrounding = spec != null ? spec.isHasGrounding() : null;
         Integer framePostsCount = spec != null ? spec.getFramePostsCount() : null;
         List<String> compatibleRoomTypes =
                 spec != null && spec.getCompatibleRoomTypes() != null
@@ -52,17 +61,30 @@ public record ProductResponse(
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
-                product.getImageUrl(),
+                primaryImageUrl,
+                imageUrls,
                 product.getType(),
                 product.isLowVoltage(),
                 brandName,
                 seriesName,
                 categoryName,
+                technicalSpecResponse,
                 ipRating,
                 maxAmps,
                 hasChildProtection,
+                hasGrounding,
                 framePostsCount,
                 compatibleRoomTypes);
+    }
+
+    private static List<String> resolveImageUrls(Product product) {
+        if (product.getImageUrls() != null && !product.getImageUrls().isEmpty()) {
+            return List.copyOf(product.getImageUrls());
+        }
+        if (product.getImageUrl() != null && !product.getImageUrl().isBlank()) {
+            return List.of(product.getImageUrl());
+        }
+        return Collections.emptyList();
     }
 
     public static List<ProductResponse> fromList(List<Product> products) {

@@ -4,12 +4,17 @@ import com.electricalstore.entity.Product;
 import com.electricalstore.entity.ProductType;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
+
+    @EntityGraph(attributePaths = {"brand", "category", "imageUrls"})
+    @Query("SELECT p FROM Product p WHERE p.id = :id")
+    Optional<Product> findByIdWithDetails(@Param("id") Long id);
 
     Optional<Product> findBySku(String sku);
 

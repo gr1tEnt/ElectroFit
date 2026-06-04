@@ -16,6 +16,7 @@ public record CreateProductRequest(
         @NotNull ProductType type,
         boolean lowVoltage,
         String imageUrl,
+        List<String> imageUrls,
         @NotBlank String brandName,
         @NotBlank String seriesName,
         @NotBlank String categoryName,

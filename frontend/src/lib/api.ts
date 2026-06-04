@@ -17,6 +17,10 @@ export async function fetchProducts(params?: {
   return apiFetch<Product[]>(`/api/products${query ? `?${query}` : ""}`);
 }
 
+export async function fetchProductById(id: number): Promise<Product> {
+  return apiFetch<Product>(`/api/products/${id}`);
+}
+
 export interface SmartSelectPayload {
   roomType: string;
   nearWater: boolean;

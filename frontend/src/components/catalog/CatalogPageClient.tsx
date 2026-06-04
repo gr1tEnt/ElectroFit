@@ -2,6 +2,7 @@
 
 import { CatalogSidebar } from "@/components/catalog/CatalogSidebar";
 import { ProductGrid } from "@/components/catalog/ProductGrid";
+import { ProductQuickViewModal } from "@/components/product/ProductQuickViewModal";
 import {
   CatalogLoadingSkeleton,
   CatalogSidebarSkeleton,
@@ -23,6 +24,7 @@ export function CatalogPageClient() {
   const [filters, setFilters] = useState<CatalogFilters>(DEFAULT_FILTERS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
@@ -124,9 +126,22 @@ export function CatalogPageClient() {
             </div>
           )}
 
-          {loading ? <CatalogLoadingSkeleton /> : <ProductGrid products={filtered} />}
+          {loading ? (
+            <CatalogLoadingSkeleton />
+          ) : (
+            <ProductGrid
+              products={filtered}
+              onProductSelect={setSelectedProduct}
+            />
+          )}
         </section>
       </div>
+
+      <ProductQuickViewModal
+        isOpen={selectedProduct != null}
+        onClose={() => setSelectedProduct(null)}
+        product={selectedProduct}
+      />
     </div>
   );
 }

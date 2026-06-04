@@ -53,6 +53,26 @@ class ProductControllerTest {
     private UserRepository userRepository;
 
     @Test
+    void getProduct_returnsOk() throws Exception {
+        Product product = Product.builder()
+                .id(42L)
+                .sku("SKT-VL-IP20-2P")
+                .name("Valena Life double socket IP20")
+                .price(new BigDecimal("18.90"))
+                .type(ProductType.MECHANISM)
+                .brand(Brand.builder().name("Legrand").seriesName("Valena Life").build())
+                .build();
+
+        when(productService.findProductById(42L)).thenReturn(product);
+        when(productResponseMapper.toResponse(product)).thenReturn(ProductResponse.from(product, null));
+
+        mockMvc.perform(get("/api/products/42"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(42))
+                .andExpect(jsonPath("$.sku").value("SKT-VL-IP20-2P"));
+    }
+
+    @Test
     void listProducts_returnsOk() throws Exception {
         Product product = Product.builder()
                 .id(1L)
