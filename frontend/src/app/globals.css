@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@source "../components/**/*.{js,ts,jsx,tsx}";
+@source "../context/**/*.{js,ts,jsx,tsx}";
+@source "../lib/**/*.{js,ts,jsx,tsx}";
+@source "./**/*.{js,ts,jsx,tsx}";
+
 @theme {
   --font-sans: "Segoe UI", ui-sans-serif, system-ui, sans-serif;
   --color-brand-50: #f0f7ff;

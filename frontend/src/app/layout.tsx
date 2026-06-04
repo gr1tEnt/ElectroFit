@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AppToaster } from "@/components/ui/AppToaster";
 import { StoreShell } from "@/components/StoreShell";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
@@ -15,11 +16,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning>
+    <html lang="en" className="font-sans antialiased" suppressHydrationWarning>
+      <body className="min-h-screen bg-surface text-ink" suppressHydrationWarning>
         <AuthProvider>
           <CartProvider>
             <StoreShell>{children}</StoreShell>
+            <AppToaster />
           </CartProvider>
         </AuthProvider>
       </body>

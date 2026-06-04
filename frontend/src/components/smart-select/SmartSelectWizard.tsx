@@ -3,6 +3,8 @@
 import { ProductGrid } from "@/components/catalog/ProductGrid";
 import { RoomIcon } from "@/components/smart-select/RoomIcon";
 import { WizardProgress } from "@/components/smart-select/WizardProgress";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { SmartSelectLoadingSkeleton } from "@/components/ui/SmartSelectLoadingSkeleton";
 import { getErrorMessage } from "@/lib/apiError";
 import { fetchSmartSelectProducts } from "@/lib/api";
 import type { Product } from "@/types/product";
@@ -223,56 +225,79 @@ export function SmartSelectWizard() {
         </section>
       )}
 
-      {step === 3 && (
-        <section className="flex flex-col items-center py-16 text-center">
-          <div className="h-14 w-14 animate-spin rounded-full border-4 border-brand-200 border-t-brand-600" />
-          <h2 className="mt-6 text-xl font-semibold text-ink">Step 3 — Checking your environment</h2>
-          <p className="mt-2 max-w-md text-sm text-muted">
-            Applying IP rating, child protection, and zone rules to find suitable products…
-          </p>
-        </section>
-      )}
+      {step === 3 && loading && <SmartSelectLoadingSkeleton />}
 
       {step === 4 && room && (
         <section>
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-xl text-white">
-              ✓
-            </span>
-            <h2 className="mt-4 text-xl font-bold text-emerald-900">
-              These items are safe for your selected environment
-            </h2>
-            <p className="mt-2 text-sm text-emerald-800">
-              Recommendations for <strong>{ROOM_LABELS[room]}</strong>
-              {room === "BATHROOM" && (
-                <>
-                  {" "}
-                  — {nearWater ? "within 60 cm of water (low voltage)" : "Zone 3 (IP44+)"}
-                </>
-              )}
-              {hasChildrenForApi && " · child protection required"}
-            </p>
-          </div>
-
-          <div className="mt-8">
-            <ProductGrid products={products} />
-          </div>
-
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <button
-              type="button"
-              onClick={resetWizard}
-              className="rounded-xl border border-border px-5 py-3 text-sm font-medium text-slate-600 hover:bg-white"
+          {products.length === 0 ? (
+            <EmptyState
+              variant="warning"
+              title="No safe products for this setup"
+              description="For safety reasons, we do not recommend this configuration. Please choose IP44 or higher."
             >
-              Start over
-            </button>
-            <Link
-              href="/catalog"
-              className="rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-700"
-            >
-              Browse full catalog
-            </Link>
-          </div>
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="rounded-xl border border-amber-400 bg-white px-5 py-3 text-sm font-semibold text-amber-950 hover:bg-amber-50"
+              >
+                Change my answers
+              </button>
+              <button
+                type="button"
+                onClick={resetWizard}
+                className="rounded-xl border border-border bg-white px-5 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50"
+              >
+                Start over
+              </button>
+              <Link
+                href="/catalog"
+                className="rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-700"
+              >
+                Browse catalog
+              </Link>
+            </EmptyState>
+          ) : (
+            <>
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-xl text-white">
+                  ✓
+                </span>
+                <h2 className="mt-4 text-xl font-bold text-emerald-900">
+                  These items are safe for your selected environment
+                </h2>
+                <p className="mt-2 text-sm text-emerald-800">
+                  Recommendations for <strong>{ROOM_LABELS[room]}</strong>
+                  {room === "BATHROOM" && (
+                    <>
+                      {" "}
+                      — {nearWater ? "within 60 cm of water (low voltage)" : "Zone 3 (IP44+)"}
+                    </>
+                  )}
+                  {hasChildrenForApi && " · child protection required"}
+                </p>
+              </div>
+
+              <div className="mt-8">
+                <ProductGrid products={products} />
+              </div>
+
+              <div className="mt-10 flex flex-wrap justify-center gap-4">
+                <button
+                  type="button"
+                  onClick={resetWizard}
+                  className="rounded-xl border border-border px-5 py-3 text-sm font-medium text-slate-600 hover:bg-white"
+                >
+                  Start over
+                </button>
+                <Link
+                  href="/catalog"
+                  className="rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-700"
+                >
+                  Browse full catalog
+                </Link>
+              </div>
+            </>
+          )}
         </section>
       )}
     </div>

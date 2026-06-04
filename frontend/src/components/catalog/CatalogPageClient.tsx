@@ -3,6 +3,10 @@
 import { CatalogSidebar } from "@/components/catalog/CatalogSidebar";
 import { ProductGrid } from "@/components/catalog/ProductGrid";
 import {
+  CatalogLoadingSkeleton,
+  CatalogSidebarSkeleton,
+} from "@/components/ui/CatalogLoadingSkeleton";
+import {
   countActiveFilters,
   filterProducts,
   getAmpsBounds,
@@ -86,19 +90,23 @@ export function CatalogPageClient() {
       </div>
 
       <div className="flex flex-col gap-8 lg:flex-row">
-        <CatalogSidebar
-          filters={filters}
-          brands={brands}
-          series={series}
-          ampsBounds={ampsBounds}
-          onChange={setFilters}
-          onReset={handleReset}
-        />
+        {loading ? (
+          <CatalogSidebarSkeleton />
+        ) : (
+          <CatalogSidebar
+            filters={filters}
+            brands={brands}
+            series={series}
+            ampsBounds={ampsBounds}
+            onChange={setFilters}
+            onReset={handleReset}
+          />
+        )}
 
         <section className="min-w-0 flex-1">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted">
-              {loading ? "Loading…" : `${filtered.length} of ${products.length} products`}
+              {loading ? "Loading catalog…" : `${filtered.length} of ${products.length} products`}
               {activeFilterCount > 0 && (
                 <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
                   {activeFilterCount} filter{activeFilterCount !== 1 ? "s" : ""} active
@@ -116,18 +124,7 @@ export function CatalogPageClient() {
             </div>
           )}
 
-          {loading ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-80 animate-pulse rounded-2xl bg-slate-200/60"
-                />
-              ))}
-            </div>
-          ) : (
-            <ProductGrid products={filtered} />
-          )}
+          {loading ? <CatalogLoadingSkeleton /> : <ProductGrid products={filtered} />}
         </section>
       </div>
     </div>

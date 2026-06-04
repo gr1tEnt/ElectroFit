@@ -4,6 +4,7 @@ import { ModularSetPreview } from "@/components/configurator/ModularSetPreview";
 import { useCart } from "@/context/CartContext";
 import { getErrorMessage } from "@/lib/apiError";
 import { fetchConfiguratorSets } from "@/lib/api";
+import { toastAddedSet } from "@/lib/toast";
 import {
   BLOCK_SIZE_OPTIONS,
   type BlockSize,
@@ -18,12 +19,10 @@ export function Configurator() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [added, setAdded] = useState(false);
 
   const loadSets = useCallback(async (posts: BlockSize) => {
     setLoading(true);
     setError(null);
-    setAdded(false);
     try {
       const results = await fetchConfiguratorSets(posts, "Sockets");
       setSets(results);
@@ -50,7 +49,9 @@ export function Configurator() {
   const handleAddToCart = () => {
     if (!selectedSet) return;
     addFullSet(selectedSet);
-    setAdded(true);
+    toastAddedSet(
+      `Modular set (${selectedSet.mechanismQuantity}× ${selectedSet.mechanism.name})`,
+    );
   };
 
   const setPrice =
@@ -124,7 +125,6 @@ export function Configurator() {
                 value={selectedIndex}
                 onChange={(e) => {
                   setSelectedIndex(Number(e.target.value));
-                  setAdded(false);
                 }}
                 className="mt-2 w-full rounded-lg border border-border px-3 py-2 text-sm"
               >
@@ -163,14 +163,11 @@ export function Configurator() {
             Add full set to cart
           </button>
 
-          {added && (
-            <p className="text-center text-sm font-medium text-emerald-700">
-              Modular set added —{" "}
-              <a href="/cart" className="underline hover:text-emerald-900">
-                view cart ({itemCount} items)
-              </a>
-            </p>
-          )}
+          <p className="text-center text-sm text-muted">
+            <a href="/cart" className="font-medium text-brand-600 hover:underline">
+              View cart ({itemCount} items)
+            </a>
+          </p>
         </div>
       )}
     </div>

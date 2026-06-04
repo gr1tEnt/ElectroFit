@@ -2,8 +2,8 @@
 
 import { useCart } from "@/context/CartContext";
 import { lineUnitPrice } from "@/lib/cartUtils";
+import { toastAddedToCart } from "@/lib/toast";
 import type { Product } from "@/types/product";
-import { useState } from "react";
 
 interface ProductCardProps {
   product: Product;
@@ -11,14 +11,12 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addProduct } = useCart();
-  const [added, setAdded] = useState(false);
   const isFrame = product.type === "FRAME";
   const price = lineUnitPrice(product);
 
   const handleAdd = () => {
     addProduct(product, 1);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+    toastAddedToCart(product.name);
   };
 
   return (
@@ -93,7 +91,7 @@ export function ProductCard({ product }: ProductCardProps) {
             onClick={handleAdd}
             className="w-full rounded-lg border border-brand-600 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
           >
-            {added ? "Added ✓" : "Add to cart"}
+            Add to cart
           </button>
         </div>
       </div>
