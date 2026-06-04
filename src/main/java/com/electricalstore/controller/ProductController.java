@@ -1,9 +1,12 @@
 package com.electricalstore.controller;
 
+import com.electricalstore.dto.ConfiguratorSetResponse;
 import com.electricalstore.dto.ProductResponse;
 import com.electricalstore.dto.SmartSelectRequest;
+import com.electricalstore.service.ConfiguratorService;
 import com.electricalstore.service.ProductResponseMapper;
 import com.electricalstore.service.ProductService;
+import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,10 +30,15 @@ public class ProductController {
 
     private final ProductService productService;
     private final ProductResponseMapper productResponseMapper;
+    private final ConfiguratorService configuratorService;
 
-    public ProductController(ProductService productService, ProductResponseMapper productResponseMapper) {
+    public ProductController(
+            ProductService productService,
+            ProductResponseMapper productResponseMapper,
+            ConfiguratorService configuratorService) {
         this.productService = productService;
         this.productResponseMapper = productResponseMapper;
+        this.configuratorService = configuratorService;
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -68,6 +75,19 @@ public class ProductController {
     public List<ProductResponse> smartSelect(@Valid @RequestBody SmartSelectRequest request) {
         return productResponseMapper.toResponses(productService.recommendProducts(
                 request.roomType(), request.nearWater(), request.hasChildren()));
+    }
+
+    @GetMapping(path = "/configurator", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+            summary = "Modular set configurator",
+            description =
+                    "Returns frame and matching mechanism products for the same brand and series (e.g. 3-post frame + 3 sockets).")
+    @ApiResponse(responseCode = "200", description = "Compatible modular sets")
+    public List<ConfiguratorSetResponse> configurator(
+            @Parameter(description = "Number of posts / mechanisms", example = "3") @RequestParam int postsCount,
+            @Parameter(description = "Mechanism category name", example = "Sockets") @RequestParam(defaultValue = "Sockets")
+                    String category) {
+        return configuratorService.findCompatibleSets(postsCount, category);
     }
 
     @GetMapping(path = "/frames/compatible/{seriesName}", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -1,3 +1,4 @@
+import type { ConfiguratorSet } from "@/types/configurator";
 import type { Product } from "@/types/product";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
@@ -46,5 +47,22 @@ export async function fetchSmartSelectProducts(
     );
   }
 
+  return response.json();
+}
+
+export async function fetchConfiguratorSets(
+  postsCount: number,
+  category = "Sockets",
+): Promise<ConfiguratorSet[]> {
+  const search = new URLSearchParams({
+    postsCount: String(postsCount),
+    category,
+  });
+  const url = `${API_BASE}/api/products/configurator?${search}`;
+
+  const response = await fetch(url, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`Configurator request failed (${response.status})`);
+  }
   return response.json();
 }

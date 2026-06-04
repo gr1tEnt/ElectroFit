@@ -13,10 +13,16 @@ export default function HomePage() {
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <Link
-            href="/smart-select"
+            href="/configurator"
             className="inline-flex rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand-700"
           >
-            Smart Selector (beginners)
+            Modular configurator
+          </Link>
+          <Link
+            href="/smart-select"
+            className="inline-flex rounded-xl border border-border bg-white px-6 py-3 text-sm font-semibold text-ink shadow-sm transition hover:bg-slate-50"
+          >
+            Smart Selector
           </Link>
           <Link
             href="/catalog"

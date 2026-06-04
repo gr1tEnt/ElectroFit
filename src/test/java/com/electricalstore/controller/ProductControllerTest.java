@@ -12,6 +12,7 @@ import com.electricalstore.dto.ProductResponse;
 import com.electricalstore.entity.Brand;
 import com.electricalstore.entity.Product;
 import com.electricalstore.entity.ProductType;
+import com.electricalstore.service.ConfiguratorService;
 import com.electricalstore.service.ProductResponseMapper;
 import com.electricalstore.service.ProductService;
 import java.math.BigDecimal;
@@ -34,6 +35,9 @@ class ProductControllerTest {
 
     @MockitoBean
     private ProductResponseMapper productResponseMapper;
+
+    @MockitoBean
+    private ConfiguratorService configuratorService;
 
     @Test
     void listProducts_returnsOk() throws Exception {
