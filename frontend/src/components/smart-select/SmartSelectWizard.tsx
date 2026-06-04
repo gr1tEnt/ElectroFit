@@ -3,6 +3,7 @@
 import { ProductGrid } from "@/components/catalog/ProductGrid";
 import { RoomIcon } from "@/components/smart-select/RoomIcon";
 import { WizardProgress } from "@/components/smart-select/WizardProgress";
+import { getErrorMessage } from "@/lib/apiError";
 import { fetchSmartSelectProducts } from "@/lib/api";
 import type { Product } from "@/types/product";
 import {
@@ -40,7 +41,7 @@ export function SmartSelectWizard() {
       setProducts(results);
       setStep(4);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(getErrorMessage(err, "Something went wrong"));
       setStep(2);
     } finally {
       setLoading(false);

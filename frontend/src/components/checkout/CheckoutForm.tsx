@@ -2,6 +2,7 @@
 
 import { CartLineItem } from "@/components/cart/CartLineItem";
 import { useCart } from "@/context/CartContext";
+import { getErrorMessage } from "@/lib/apiError";
 import { submitOrder } from "@/lib/api";
 import { lineUnitPrice } from "@/lib/cartUtils";
 import type { OrderConfirmation } from "@/types/cart";
@@ -36,7 +37,7 @@ export function CheckoutForm() {
       setConfirmation(result);
       clearCart();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not submit order");
+      setError(getErrorMessage(err, "Could not submit order"));
     } finally {
       setSubmitting(false);
     }

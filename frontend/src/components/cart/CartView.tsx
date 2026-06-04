@@ -1,6 +1,7 @@
 "use client";
 
 import { CartLineItem } from "@/components/cart/CartLineItem";
+import { ExportEstimateButton } from "@/components/cart/ExportEstimateButton";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
@@ -43,6 +44,7 @@ export function CartView() {
         <span className="font-medium text-ink">Subtotal</span>
         <span className="text-xl font-bold text-ink">€{subtotal.toFixed(2)}</span>
       </div>
+      <ExportEstimateButton items={items} />
       <Link
         href="/checkout"
         className="block w-full rounded-xl bg-brand-600 py-3 text-center text-sm font-semibold text-white hover:bg-brand-700"

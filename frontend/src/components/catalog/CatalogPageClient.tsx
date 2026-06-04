@@ -9,6 +9,7 @@ import {
   getUniqueBrands,
   getUniqueSeries,
 } from "@/lib/filters";
+import { getErrorMessage } from "@/lib/apiError";
 import { fetchProducts } from "@/lib/api";
 import { DEFAULT_FILTERS, type CatalogFilters, type Product } from "@/types/product";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -29,7 +30,7 @@ export function CatalogPageClient() {
       });
       setProducts(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load catalog");
+      setError(getErrorMessage(err, "Failed to load catalog"));
       setProducts([]);
     } finally {
       setLoading(false);

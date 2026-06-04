@@ -1,6 +1,7 @@
 "use client";
 
 import { CreateProductModal } from "@/components/admin/CreateProductModal";
+import { getErrorMessage } from "@/lib/apiError";
 import { fetchAllProducts } from "@/lib/adminApi";
 import type { Product } from "@/types/product";
 import { useCallback, useEffect, useState } from "react";
@@ -18,7 +19,7 @@ export function ProductManager() {
       const data = await fetchAllProducts();
       setProducts(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load products");
+      setError(getErrorMessage(err, "Failed to load products"));
     } finally {
       setLoading(false);
     }

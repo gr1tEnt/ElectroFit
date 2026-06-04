@@ -1,5 +1,6 @@
 "use client";
 
+import { getErrorMessage } from "@/lib/apiError";
 import { createProduct } from "@/lib/adminApi";
 import {
   IP_RATING_OPTIONS,
@@ -69,7 +70,7 @@ export function CreateProductModal({ open, onClose, onCreated }: CreateProductMo
       onCreated();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create product");
+      setError(getErrorMessage(err, "Failed to create product"));
     } finally {
       setSubmitting(false);
     }

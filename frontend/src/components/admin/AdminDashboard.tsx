@@ -1,5 +1,6 @@
 "use client";
 
+import { getErrorMessage } from "@/lib/apiError";
 import { fetchAdminStats } from "@/lib/adminApi";
 import type { AdminStats } from "@/types/admin";
 import Link from "next/link";
@@ -13,7 +14,7 @@ export function AdminDashboard() {
   useEffect(() => {
     fetchAdminStats()
       .then(setStats)
-      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load stats"))
+      .catch((err) => setError(getErrorMessage(err, "Failed to load stats")))
       .finally(() => setLoading(false));
   }, []);
 

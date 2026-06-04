@@ -2,6 +2,7 @@
 
 import { ModularSetPreview } from "@/components/configurator/ModularSetPreview";
 import { useCart } from "@/context/CartContext";
+import { getErrorMessage } from "@/lib/apiError";
 import { fetchConfiguratorSets } from "@/lib/api";
 import {
   BLOCK_SIZE_OPTIONS,
@@ -34,7 +35,7 @@ export function Configurator() {
       }
     } catch (err) {
       setSets([]);
-      setError(err instanceof Error ? err.message : "Failed to load configurator data");
+      setError(getErrorMessage(err, "Failed to load configurator data"));
     } finally {
       setLoading(false);
     }

@@ -1,8 +1,7 @@
+import { apiFetch } from "@/lib/httpClient";
 import type { OrderConfirmation, SubmitOrderPayload } from "@/types/cart";
 import type { ConfiguratorSet } from "@/types/configurator";
 import type { Product } from "@/types/product";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 
 export async function fetchProducts(params?: {
   brand?: string;
@@ -15,13 +14,7 @@ export async function fetchProducts(params?: {
   if (params?.category) search.set("category", params.category);
 
   const query = search.toString();
-  const url = `${API_BASE}/api/products${query ? `?${query}` : ""}`;
-
-  const response = await fetch(url, { cache: "no-store" });
-  if (!response.ok) {
-    throw new Error(`Failed to load products (${response.status})`);
-  }
-  return response.json();
+  return apiFetch<Product[]>(`/api/products${query ? `?${query}` : ""}`);
 }
 
 export interface SmartSelectPayload {
@@ -33,22 +26,11 @@ export interface SmartSelectPayload {
 export async function fetchSmartSelectProducts(
   payload: SmartSelectPayload,
 ): Promise<Product[]> {
-  const url = `${API_BASE}/api/products/smart-select`;
-
-  const response = await fetch(url, {
+  return apiFetch<Product[]>("/api/products/smart-select", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(
-      detail || `Smart select failed (${response.status})`,
-    );
-  }
-
-  return response.json();
 }
 
 export async function fetchConfiguratorSets(
@@ -59,28 +41,13 @@ export async function fetchConfiguratorSets(
     postsCount: String(postsCount),
     category,
   });
-  const url = `${API_BASE}/api/products/configurator?${search}`;
-
-  const response = await fetch(url, { cache: "no-store" });
-  if (!response.ok) {
-    throw new Error(`Configurator request failed (${response.status})`);
-  }
-  return response.json();
+  return apiFetch<ConfiguratorSet[]>(`/api/products/configurator?${search}`);
 }
 
 export async function submitOrder(payload: SubmitOrderPayload): Promise<OrderConfirmation> {
-  const url = `${API_BASE}/api/orders`;
-
-  const response = await fetch(url, {
+  return apiFetch<OrderConfirmation>("/api/orders", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(detail || `Order submission failed (${response.status})`);
-  }
-
-  return response.json();
 }
