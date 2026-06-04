@@ -8,9 +8,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.electricalstore.dto.ProductResponse;
 import com.electricalstore.entity.Brand;
 import com.electricalstore.entity.Product;
 import com.electricalstore.entity.ProductType;
+import com.electricalstore.service.ProductResponseMapper;
 import com.electricalstore.service.ProductService;
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,6 +32,9 @@ class ProductControllerTest {
     @MockitoBean
     private ProductService productService;
 
+    @MockitoBean
+    private ProductResponseMapper productResponseMapper;
+
     @Test
     void listProducts_returnsOk() throws Exception {
         Product product = Product.builder()
@@ -42,6 +47,7 @@ class ProductControllerTest {
                 .build();
 
         when(productService.findProducts(null, null, null)).thenReturn(List.of(product));
+        when(productResponseMapper.toResponses(any())).thenReturn(List.of(ProductResponse.from(product, null)));
 
         mockMvc.perform(get("/api/products"))
                 .andExpect(status().isOk())

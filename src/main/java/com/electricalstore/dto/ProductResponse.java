@@ -1,7 +1,9 @@
 package com.electricalstore.dto;
 
+import com.electricalstore.entity.IpRating;
 import com.electricalstore.entity.Product;
 import com.electricalstore.entity.ProductType;
+import com.electricalstore.entity.TechnicalSpec;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,9 +20,13 @@ public record ProductResponse(
         @Schema(example = "false") boolean lowVoltage,
         @Schema(example = "Legrand") String brandName,
         @Schema(example = "Valena Life") String seriesName,
-        @Schema(example = "Sockets") String categoryName) {
+        @Schema(example = "Sockets") String categoryName,
+        @Schema(example = "IP44") IpRating ipRating,
+        @Schema(example = "16") Integer maxAmps,
+        @Schema(example = "true") Boolean hasChildProtection,
+        @Schema(example = "2") Integer framePostsCount) {
 
-    public static ProductResponse from(Product product) {
+    public static ProductResponse from(Product product, TechnicalSpec spec) {
         String brandName = null;
         String seriesName = null;
         if (product.getBrand() != null) {
@@ -28,6 +34,11 @@ public record ProductResponse(
             seriesName = product.getBrand().getSeriesName();
         }
         String categoryName = product.getCategory() != null ? product.getCategory().getName() : null;
+
+        IpRating ipRating = spec != null ? spec.getIpRating() : null;
+        Integer maxAmps = spec != null ? spec.getMaxAmps() : null;
+        Boolean hasChildProtection = spec != null ? spec.isHasChildProtection() : null;
+        Integer framePostsCount = spec != null ? spec.getFramePostsCount() : null;
 
         return new ProductResponse(
                 product.getId(),
@@ -40,10 +51,14 @@ public record ProductResponse(
                 product.isLowVoltage(),
                 brandName,
                 seriesName,
-                categoryName);
+                categoryName,
+                ipRating,
+                maxAmps,
+                hasChildProtection,
+                framePostsCount);
     }
 
     public static List<ProductResponse> fromList(List<Product> products) {
-        return products.stream().map(ProductResponse::from).toList();
+        return products.stream().map(product -> from(product, null)).toList();
     }
 }

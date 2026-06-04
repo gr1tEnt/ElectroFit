@@ -2,6 +2,7 @@ package com.electricalstore.controller;
 
 import com.electricalstore.dto.ProductResponse;
 import com.electricalstore.dto.SmartSelectRequest;
+import com.electricalstore.service.ProductResponseMapper;
 import com.electricalstore.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,9 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductResponseMapper productResponseMapper;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ProductResponseMapper productResponseMapper) {
         this.productService = productService;
+        this.productResponseMapper = productResponseMapper;
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -49,7 +52,7 @@ public class ProductController {
             @Parameter(description = "Category name", example = "Sockets")
                     @RequestParam(required = false)
                     String category) {
-        return ProductResponse.fromList(productService.findProducts(brand, series, category));
+        return productResponseMapper.toResponses(productService.findProducts(brand, series, category));
     }
 
     @PostMapping(
@@ -63,7 +66,7 @@ public class ProductController {
     @ApiResponse(responseCode = "200", description = "Recommended products")
     @ApiResponse(responseCode = "400", description = "Invalid room type or request body")
     public List<ProductResponse> smartSelect(@Valid @RequestBody SmartSelectRequest request) {
-        return ProductResponse.fromList(productService.recommendProducts(
+        return productResponseMapper.toResponses(productService.recommendProducts(
                 request.roomType(), request.nearWater(), request.hasChildren()));
     }
 
@@ -76,6 +79,6 @@ public class ProductController {
             @Parameter(description = "Brand series name", example = "Valena Life")
                     @PathVariable
                     String seriesName) {
-        return ProductResponse.fromList(productService.findCompatibleFrames(seriesName));
+        return productResponseMapper.toResponses(productService.findCompatibleFrames(seriesName));
     }
 }
