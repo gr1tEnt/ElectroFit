@@ -12,4 +12,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Optional<Product> findBySku(String sku);
 
     List<Product> findByType(ProductType type);
+
+    List<Product> findByTypeAndBrand_SeriesNameIgnoreCase(ProductType type, String seriesName);
 }

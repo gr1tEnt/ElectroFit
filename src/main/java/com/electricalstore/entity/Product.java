@@ -4,9 +4,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
@@ -46,6 +49,14 @@ public class Product {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductType type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     /** True for SELV / low-voltage products (e.g. 12V) allowed in bathroom zones 1–2. */
     @Column(name = "low_voltage", nullable = false)

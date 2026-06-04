@@ -10,10 +10,38 @@ import jakarta.persistence.criteria.Subquery;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.StringUtils;
 
 public final class ProductSpecifications {
 
     private ProductSpecifications() {
+    }
+
+    public static Specification<Product> withFilters(String brand, String series, String category) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (StringUtils.hasText(brand)) {
+                predicates.add(cb.equal(
+                        cb.lower(root.get("brand").get("name")),
+                        brand.trim().toLowerCase()));
+            }
+            if (StringUtils.hasText(series)) {
+                predicates.add(cb.equal(
+                        cb.lower(root.get("brand").get("seriesName")),
+                        series.trim().toLowerCase()));
+            }
+            if (StringUtils.hasText(category)) {
+                predicates.add(cb.equal(
+                        cb.lower(root.get("category").get("name")),
+                        category.trim().toLowerCase()));
+            }
+
+            if (predicates.isEmpty()) {
+                return cb.conjunction();
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
     }
 
     public static Specification<Product> forCriteria(SelectionCriteria criteria) {
