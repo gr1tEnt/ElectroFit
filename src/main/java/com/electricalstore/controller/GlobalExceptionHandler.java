@@ -6,6 +6,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -44,6 +46,14 @@ public class GlobalExceptionHandler {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.BAD_REQUEST, "Request body is missing or invalid JSON.");
         detail.setTitle("Invalid request body");
+        return detail;
+    }
+
+    @ExceptionHandler({AuthenticationException.class, AccessDeniedException.class})
+    public ProblemDetail handleUnauthorized(Exception ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED, "Authentication required. Please log in.");
+        detail.setTitle("Unauthorized");
         return detail;
     }
 

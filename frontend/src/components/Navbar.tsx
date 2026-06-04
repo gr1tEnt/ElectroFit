@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
@@ -12,6 +13,7 @@ const navLinks = [
 
 export function Navbar() {
   const { itemCount, subtotal } = useCart();
+  const { isAuthenticated, user, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-white/90 backdrop-blur-md">
@@ -48,6 +50,38 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          {isAuthenticated ? (
+            <>
+              <Link
+                href="/profile"
+                className="hidden rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-brand-50 hover:text-brand-700 sm:inline-flex"
+              >
+                {user?.fullName.split(" ")[0] ?? "Profile"}
+              </Link>
+              <button
+                type="button"
+                onClick={logout}
+                className="hidden rounded-lg border border-border px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 sm:inline-flex"
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-brand-50 hover:text-brand-700"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/register"
+                className="hidden rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-ink hover:bg-slate-200 sm:inline-flex"
+              >
+                Register
+              </Link>
+            </>
+          )}
           <Link
             href="/cart"
             className="relative rounded-lg border border-border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"

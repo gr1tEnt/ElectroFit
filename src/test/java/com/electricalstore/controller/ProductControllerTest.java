@@ -12,6 +12,8 @@ import com.electricalstore.dto.ProductResponse;
 import com.electricalstore.entity.Brand;
 import com.electricalstore.entity.Product;
 import com.electricalstore.entity.ProductType;
+import com.electricalstore.repository.UserRepository;
+import com.electricalstore.security.JwtService;
 import com.electricalstore.service.ConfiguratorService;
 import com.electricalstore.service.ProductResponseMapper;
 import com.electricalstore.service.ProductService;
@@ -19,12 +21,17 @@ import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(ProductController.class)
+@WebMvcTest(
+        controllers = ProductController.class,
+        excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@AutoConfigureMockMvc(addFilters = false)
 class ProductControllerTest {
 
     @Autowired
@@ -38,6 +45,12 @@ class ProductControllerTest {
 
     @MockitoBean
     private ConfiguratorService configuratorService;
+
+    @MockitoBean
+    private JwtService jwtService;
+
+    @MockitoBean
+    private UserRepository userRepository;
 
     @Test
     void listProducts_returnsOk() throws Exception {

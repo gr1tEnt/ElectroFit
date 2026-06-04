@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { StoreShell } from "@/components/StoreShell";
+import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
 
@@ -16,9 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <CartProvider>
-          <StoreShell>{children}</StoreShell>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <StoreShell>{children}</StoreShell>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,18 +1,27 @@
 "use client";
 
 import { CartLineItem } from "@/components/cart/CartLineItem";
+import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { getErrorMessage } from "@/lib/apiError";
 import { submitOrder } from "@/lib/api";
 import { lineUnitPrice } from "@/lib/cartUtils";
 import type { OrderConfirmation } from "@/types/cart";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function CheckoutForm() {
   const { items, subtotal, itemCount, clearCart } = useCart();
+  const { user, isAuthenticated } = useAuth();
   const [customerName, setCustomerName] = useState("");
   const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setCustomerName(user.fullName);
+      setEmail(user.email);
+    }
+  }, [isAuthenticated, user]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<OrderConfirmation | null>(null);
@@ -57,12 +66,22 @@ export function CheckoutForm() {
         <p className="mt-2 text-lg font-semibold text-emerald-900">
           Total paid: €{confirmation.total.toFixed(2)}
         </p>
-        <Link
-          href="/catalog"
-          className="mt-8 inline-flex rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white"
-        >
-          Continue shopping
-        </Link>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          {isAuthenticated && (
+            <Link
+              href="/profile"
+              className="inline-flex rounded-xl border border-emerald-300 bg-white px-6 py-3 text-sm font-semibold text-emerald-800"
+            >
+              View order history
+            </Link>
+          )}
+          <Link
+            href="/catalog"
+            className="inline-flex rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white"
+          >
+            Continue shopping
+          </Link>
+        </div>
       </div>
     );
   }
@@ -98,7 +117,11 @@ export function CheckoutForm() {
         className="lg:col-span-2 rounded-2xl border border-border bg-white p-6 shadow-sm"
       >
         <h2 className="text-lg font-semibold text-ink">Your details</h2>
-        <p className="mt-1 text-sm text-muted">We&apos;ll confirm your order by email.</p>
+        <p className="mt-1 text-sm text-muted">
+          {isAuthenticated
+            ? "Order will be linked to your account and shown in profile."
+            : "We'll confirm your order by email. Sign in to track orders in your profile."}
+        </p>
 
         {error && (
           <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>
