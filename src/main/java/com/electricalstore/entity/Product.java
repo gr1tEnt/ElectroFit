@@ -46,4 +46,9 @@ public class Product {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductType type;
+
+    /** True for SELV / low-voltage products (e.g. 12V) allowed in bathroom zones 1–2. */
+    @Column(name = "low_voltage", nullable = false)
+    @Builder.Default
+    private boolean lowVoltage = false;
 }
