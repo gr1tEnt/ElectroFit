@@ -21,3 +21,30 @@ export async function fetchProducts(params?: {
   }
   return response.json();
 }
+
+export interface SmartSelectPayload {
+  roomType: string;
+  nearWater: boolean;
+  hasChildren: boolean;
+}
+
+export async function fetchSmartSelectProducts(
+  payload: SmartSelectPayload,
+): Promise<Product[]> {
+  const url = `${API_BASE}/api/products/smart-select`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(
+      detail || `Smart select failed (${response.status})`,
+    );
+  }
+
+  return response.json();
+}

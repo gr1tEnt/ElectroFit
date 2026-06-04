@@ -11,12 +11,20 @@ export default function HomePage() {
           Sockets, switches, frames, and mechanisms — filter by IP rating, amperage, and safety
           specs.
         </p>
-        <Link
-          href="/catalog"
-          className="mt-8 inline-flex rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand-700"
-        >
-          Open professional catalog
-        </Link>
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href="/smart-select"
+            className="inline-flex rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand-700"
+          >
+            Smart Selector (beginners)
+          </Link>
+          <Link
+            href="/catalog"
+            className="inline-flex rounded-xl border border-border bg-white px-6 py-3 text-sm font-semibold text-ink shadow-sm transition hover:bg-slate-50"
+          >
+            Professional catalog
+          </Link>
+        </div>
       </div>
     </section>
   );

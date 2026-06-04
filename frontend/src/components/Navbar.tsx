@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const navLinks = [
   { href: "/catalog", label: "Professionals" },
-  { href: "#", label: "Smart Select", disabled: true },
+  { href: "/smart-select", label: "Smart Select" },
   { href: "#", label: "Support", disabled: true },
 ];
 
