@@ -15,9 +15,21 @@ import {
   type RoomId,
 } from "@/types/smartSelect";
 import Link from "next/link";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+
+const ROOM_IDS: RoomId[] = ["BATHROOM", "KITCHEN", "BEDROOM", "KIDS_ROOM", "OUTDOOR"];
+
+function parseRoomParam(value: string | null): RoomId | null {
+  if (value && ROOM_IDS.includes(value as RoomId)) {
+    return value as RoomId;
+  }
+  return null;
+}
 
 export function SmartSelectWizard() {
+  const searchParams = useSearchParams();
+  const roomFromUrlApplied = useRef(false);
   const [step, setStep] = useState(1);
   const [room, setRoom] = useState<RoomId | null>(null);
   const [nearWater, setNearWater] = useState(false);
@@ -72,6 +84,19 @@ export function SmartSelectWizard() {
     setProducts([]);
     setError(null);
   };
+
+  useEffect(() => {
+    if (roomFromUrlApplied.current) {
+      return;
+    }
+    const roomParam = parseRoomParam(searchParams.get("room"));
+    if (!roomParam) {
+      return;
+    }
+    roomFromUrlApplied.current = true;
+    handleRoomSelect(roomParam);
+    setStep(2);
+  }, [searchParams]);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
