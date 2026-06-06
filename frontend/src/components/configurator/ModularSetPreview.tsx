@@ -63,7 +63,7 @@ function MechanismSlot({
         className={`flex items-center justify-center rounded-lg bg-white p-2 ${imageSize}`}
       >
         <ProductImageWithFallback
-          src={productImageSrc(product.imageUrl ?? product.imageUrls?.[0])}
+          src={productImageSrc(product.imageUrl ?? product.imageUrls?.[0] ?? "")}
           alt=""
           className="h-full w-full object-contain"
         />

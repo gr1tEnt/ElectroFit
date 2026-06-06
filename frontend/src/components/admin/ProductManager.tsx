@@ -2,15 +2,36 @@
 
 import { CreateProductModal } from "@/components/admin/CreateProductModal";
 import { getErrorMessage } from "@/lib/apiError";
-import { fetchAllProducts } from "@/lib/adminApi";
+import { deleteProduct, fetchAllProducts } from "@/lib/adminApi";
 import type { Product } from "@/types/product";
 import { useCallback, useEffect, useState } from "react";
+
+function TrashIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      className="h-4 w-4"
+      aria-hidden
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2"
+      />
+    </svg>
+  );
+}
 
 export function ProductManager() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
@@ -29,11 +50,29 @@ export function ProductManager() {
     loadProducts();
   }, [loadProducts]);
 
+  const handleDelete = async (product: Product) => {
+    const confirmed = window.confirm(
+      `Delete "${product.name}" (${product.sku})? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    setDeletingId(product.id);
+    setError(null);
+    try {
+      await deleteProduct(product.id);
+      setProducts((prev) => prev.filter((p) => p.id !== product.id));
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to delete product"));
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">Product manager</h2>
+          <h2 className="text-2xl font-bold text-white">Products Management</h2>
           <p className="mt-1 text-slate-400">
             {loading ? "Loading…" : `${products.length} products in catalog`}
           </p>
@@ -41,9 +80,9 @@ export function ProductManager() {
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-slate-950 hover:bg-amber-400"
+          className="rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-amber-400"
         >
-          + Create product
+          + Add New Product
         </button>
       </div>
 
@@ -53,32 +92,30 @@ export function ProductManager() {
 
       <div className="mt-6 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] text-left text-sm">
+          <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
               <tr className="border-b border-slate-800 bg-slate-800/50 text-xs uppercase tracking-wide text-slate-400">
-                <th className="px-4 py-3 font-medium">SKU</th>
                 <th className="px-4 py-3 font-medium">Name</th>
+                <th className="px-4 py-3 font-medium">SKU</th>
                 <th className="px-4 py-3 font-medium">Brand</th>
-                <th className="px-4 py-3 font-medium">Series</th>
-                <th className="px-4 py-3 font-medium">Type</th>
-                <th className="px-4 py-3 font-medium">IP</th>
-                <th className="px-4 py-3 font-medium">Rooms</th>
+                <th className="px-4 py-3 font-medium">Category</th>
                 <th className="px-4 py-3 font-medium text-right">Price</th>
+                <th className="px-4 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading &&
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="border-b border-slate-800">
-                    <td colSpan={8} className="px-4 py-4">
+                    <td colSpan={6} className="px-4 py-4">
                       <div className="h-4 animate-pulse rounded bg-slate-800" />
                     </td>
                   </tr>
                 ))}
               {!loading && products.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-slate-500">
-                    No products yet. Create your first product.
+                  <td colSpan={6} className="px-4 py-12 text-center text-slate-500">
+                    No products yet. Add your first product.
                   </td>
                 </tr>
               )}
@@ -88,39 +125,28 @@ export function ProductManager() {
                     key={product.id}
                     className="border-b border-slate-800/80 transition hover:bg-slate-800/30"
                   >
-                    <td className="px-4 py-3 font-mono text-xs text-slate-400">{product.sku}</td>
                     <td className="px-4 py-3 font-medium text-white">{product.name}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-400">{product.sku}</td>
                     <td className="px-4 py-3 text-slate-300">{product.brandName ?? "—"}</td>
-                    <td className="px-4 py-3 text-slate-300">{product.seriesName ?? "—"}</td>
-                    <td className="px-4 py-3">
-                      <span className="rounded bg-slate-800 px-2 py-0.5 text-xs">
-                        {product.type}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-slate-300">{product.ipRating ?? "—"}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex max-w-[200px] flex-wrap gap-1">
-                        {(product.compatibleRoomTypes ?? []).slice(0, 3).map((room) => (
-                          <span
-                            key={room}
-                            className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-300"
-                          >
-                            {room}
-                          </span>
-                        ))}
-                        {(product.compatibleRoomTypes?.length ?? 0) > 3 && (
-                          <span className="text-[10px] text-slate-500">
-                            +{product.compatibleRoomTypes!.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    </td>
+                    <td className="px-4 py-3 text-slate-300">{product.categoryName ?? "—"}</td>
                     <td className="px-4 py-3 text-right font-semibold text-white">
                       €
                       {(typeof product.price === "number"
                         ? product.price
                         : Number(product.price)
                       ).toFixed(2)}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(product)}
+                        disabled={deletingId === product.id}
+                        className="inline-flex items-center justify-center rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-red-300 transition hover:bg-red-500/20 hover:text-red-200 disabled:opacity-50"
+                        aria-label={`Delete ${product.name}`}
+                        title="Delete product"
+                      >
+                        <TrashIcon />
+                      </button>
                     </td>
                   </tr>
                 ))}

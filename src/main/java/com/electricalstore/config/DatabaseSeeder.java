@@ -6,13 +6,16 @@ import com.electricalstore.entity.IpRating;
 import com.electricalstore.entity.Product;
 import com.electricalstore.entity.ProductType;
 import com.electricalstore.entity.TechnicalSpec;
+import com.electricalstore.entity.SupportMessage;
 import com.electricalstore.repository.BrandRepository;
 import com.electricalstore.repository.CategoryRepository;
 import com.electricalstore.repository.ProductRepository;
+import com.electricalstore.repository.SupportMessageRepository;
 import com.electricalstore.repository.TechnicalSpecRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -55,6 +58,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final TechnicalSpecRepository technicalSpecRepository;
+    private final SupportMessageRepository supportMessageRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -63,11 +67,13 @@ public class DatabaseSeeder implements CommandLineRunner {
             BrandRepository brandRepository,
             CategoryRepository categoryRepository,
             ProductRepository productRepository,
-            TechnicalSpecRepository technicalSpecRepository) {
+            TechnicalSpecRepository technicalSpecRepository,
+            SupportMessageRepository supportMessageRepository) {
         this.brandRepository = brandRepository;
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.technicalSpecRepository = technicalSpecRepository;
+        this.supportMessageRepository = supportMessageRepository;
     }
 
     @Override
@@ -91,7 +97,37 @@ public class DatabaseSeeder implements CommandLineRunner {
         seedOutdoorProducts(legrandValena, schneiderAsfora, sockets, switches);
         seedKitchenProducts(legrandValena, sockets);
 
+        seedSupportMessages();
+
         log.info("Seeded {} products.", productRepository.count());
+    }
+
+    private void seedSupportMessages() {
+        supportMessageRepository.saveAll(List.of(
+                SupportMessage.builder()
+                        .fullName("Olena Kovalenko")
+                        .email("olena.k@example.com")
+                        .inquiryType("Technical Safety Advice")
+                        .message(
+                                "Can I use IP20 sockets in a bathroom zone 3 if they are more than 60 cm from the shower?")
+                        .createdAt(LocalDateTime.now().minusDays(2))
+                        .build(),
+                SupportMessage.builder()
+                        .fullName("Martin Novak")
+                        .email("martin.n@example.com")
+                        .inquiryType("Product Compatibility Issue")
+                        .message(
+                                "I need a 3-post Valena Life frame with two IP44 sockets and one switch — will the configurator support this?")
+                        .createdAt(LocalDateTime.now().minusDays(1))
+                        .build(),
+                SupportMessage.builder()
+                        .fullName("Sarah Mitchell")
+                        .email("sarah.m@example.com")
+                        .inquiryType("Order Support")
+                        .message("Please confirm delivery time for order placed yesterday with 5× Legrand mechanisms.")
+                        .createdAt(LocalDateTime.now().minusHours(5))
+                        .build()));
+        log.info("Seeded {} support messages.", supportMessageRepository.count());
     }
 
     private void seedBedroomProducts(Brand legrand, Brand schneider, Category sockets, Category frames) {
@@ -301,6 +337,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         TRUNCATE TABLE
                           order_items,
                           orders,
+                          support_messages,
                           technical_spec_room_compatibility,
                           technical_specs,
                           product_image_urls,

@@ -3,7 +3,6 @@
 import { getErrorMessage } from "@/lib/apiError";
 import { fetchAdminStats } from "@/lib/adminApi";
 import type { AdminStats } from "@/types/admin";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export function AdminDashboard() {
@@ -21,52 +20,71 @@ export function AdminDashboard() {
   return (
     <div>
       <h2 className="text-2xl font-bold text-white">Dashboard</h2>
-      <p className="mt-1 text-slate-400">Overview of your electrical store.</p>
+      <p className="mt-1 text-slate-400">Overview metrics for your electrical store.</p>
 
       {error && (
         <p className="mt-4 rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</p>
       )}
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard
-          label="Total products"
+        <KpiCard
+          label="Total Products"
           value={loading ? "…" : String(stats?.totalProducts ?? 0)}
+          hint="Items in catalog"
+          accent="amber"
           loading={loading}
         />
-        <StatCard
-          label="Total orders"
-          value={loading ? "…" : String(stats?.totalOrders ?? 0)}
+        <KpiCard
+          label="Unresolved Inquiries"
+          value={loading ? "…" : String(stats?.unresolvedInquiries ?? 0)}
+          hint="Support messages in queue"
+          accent="sky"
           loading={loading}
         />
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <p className="text-sm font-medium text-slate-400">Quick actions</p>
-          <Link
-            href="/admin/products"
-            className="mt-4 inline-flex rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400"
-          >
-            Manage products
-          </Link>
-        </div>
+        <KpiCard
+          label="Total Brands"
+          value={loading ? "…" : String(stats?.totalBrands ?? 0)}
+          hint="Active brand series"
+          accent="emerald"
+          loading={loading}
+        />
       </div>
     </div>
   );
 }
 
-function StatCard({
+function KpiCard({
   label,
   value,
+  hint,
+  accent,
   loading,
 }: {
   label: string;
   value: string;
+  hint: string;
+  accent: "amber" | "sky" | "emerald";
   loading: boolean;
 }) {
+  const accentStyles = {
+    amber: "from-amber-500/10 to-slate-900 border-amber-500/20",
+    sky: "from-sky-500/10 to-slate-900 border-sky-500/20",
+    emerald: "from-emerald-500/10 to-slate-900 border-emerald-500/20",
+  }[accent];
+
+  const valueStyles = {
+    amber: "text-amber-300",
+    sky: "text-sky-300",
+    emerald: "text-emerald-300",
+  }[accent];
+
   return (
     <div
-      className={`rounded-2xl border border-slate-800 bg-slate-900 p-6 ${loading ? "animate-pulse" : ""}`}
+      className={`rounded-2xl border bg-gradient-to-br p-6 ${accentStyles} ${loading ? "animate-pulse" : ""}`}
     >
       <p className="text-sm font-medium text-slate-400">{label}</p>
-      <p className="mt-2 text-4xl font-bold text-white">{value}</p>
+      <p className={`mt-2 text-4xl font-bold tracking-tight ${valueStyles}`}>{value}</p>
+      <p className="mt-2 text-xs text-slate-500">{hint}</p>
     </div>
   );
 }

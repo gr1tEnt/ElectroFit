@@ -2,6 +2,7 @@ package com.electricalstore.controller;
 
 import com.electricalstore.dto.ConfiguratorSetResponse;
 import com.electricalstore.dto.CreateProductRequest;
+import com.electricalstore.dto.UpdateProductRequest;
 import com.electricalstore.dto.ProductResponse;
 import com.electricalstore.dto.SmartSelectRequest;
 import com.electricalstore.service.ConfiguratorService;
@@ -17,14 +18,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/products")
@@ -80,13 +85,39 @@ public class ProductController {
                 productService.findProducts(brand, series, category, search));
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Create product", description = "Creates a product with brand, category, and technical specifications.")
-    public ProductResponse createProduct(@Valid @RequestBody CreateProductRequest request) {
+    @Operation(
+            summary = "Create product",
+            description =
+                    "Creates a product with optional image upload. Send multipart/form-data with a JSON"
+                            + " `product` part and an optional `image` file part.")
+    public ProductResponse createProduct(
+            @RequestPart("product") @Valid CreateProductRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile) {
         return productResponseMapper
-                .toResponses(List.of(productService.createProduct(request)))
+                .toResponses(List.of(productService.createProduct(request, imageFile)))
                 .get(0);
+    }
+
+    @PutMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+            summary = "Update product",
+            description = "Updates product data, technical spec, and detailed attributes.")
+    @ApiResponse(responseCode = "200", description = "Product updated")
+    @ApiResponse(responseCode = "404", description = "Product not found")
+    public ProductResponse updateProduct(
+            @PathVariable Long id, @Valid @RequestBody UpdateProductRequest request) {
+        return productResponseMapper.toResponse(productService.updateProduct(id, request));
+    }
+
+    @DeleteMapping(path = "/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete product", description = "Removes a product and its technical specification.")
+    @ApiResponse(responseCode = "204", description = "Product deleted")
+    @ApiResponse(responseCode = "404", description = "Product not found")
+    public void deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
     }
 
     @PostMapping(

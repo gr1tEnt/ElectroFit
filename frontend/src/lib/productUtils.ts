@@ -1,6 +1,10 @@
+import { getApiBase } from "@/lib/httpClient";
 import { IP_RATING_VALUES, type IpRating, type Product } from "@/types/product";
 
 export const PRODUCT_IMAGE_PLACEHOLDER = "/images/products/Valena-Life-singlesocket-IP20.jpg";
+
+const UPLOADED_PRODUCT_IMAGE =
+  /\/images\/products\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\./i;
 
 export function productGalleryUrls(product: Product): string[] {
   if (product.imageUrls?.length) {
@@ -33,7 +37,14 @@ export function resolveProductImageUrl(url: string | null | undefined): string {
   if (!url || url.trim() === "") {
     return productImageSrc(PRODUCT_IMAGE_PLACEHOLDER);
   }
-  return productImageSrc(url);
+  const path = productImageSrc(url.trim());
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+  if (UPLOADED_PRODUCT_IMAGE.test(path)) {
+    return `${getApiBase()}${path}`;
+  }
+  return path;
 }
 
 export function ipRatingNumeric(ip: IpRating | null | undefined): number | null {

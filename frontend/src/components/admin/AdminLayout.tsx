@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", exact: true },
-  { href: "/admin/products", label: "Product manager" },
+  { href: "/admin/products", label: "Products Management" },
+  { href: "/admin/inquiries", label: "User Inquiries" },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -18,7 +19,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <p className="text-xs font-semibold uppercase tracking-widest text-amber-400">
             ElectroFit
           </p>
-          <h1 className="mt-1 text-lg font-bold text-white">Admin panel</h1>
+          <h1 className="mt-1 text-lg font-bold text-white">Admin Panel</h1>
         </div>
 
         <nav className="flex-1 space-y-1 p-4">
@@ -44,9 +45,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <div className="border-t border-slate-800 p-4">
           <Link
             href="/"
-            className="text-sm text-slate-400 transition hover:text-white"
+            className="inline-flex w-full items-center justify-center rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white"
           >
-            ← Back to store
+            ← Back to Store
           </Link>
         </div>
       </aside>

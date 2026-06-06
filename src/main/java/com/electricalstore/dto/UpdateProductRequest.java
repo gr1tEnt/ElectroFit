@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-public record CreateProductRequest(
+public record UpdateProductRequest(
         @NotBlank String sku,
         @NotBlank String name,
         String description,

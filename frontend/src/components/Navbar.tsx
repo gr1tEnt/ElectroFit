@@ -8,7 +8,7 @@ const navLinks = [
   { href: "/catalog", label: "Professionals" },
   { href: "/configurator", label: "Configurator" },
   { href: "/smart-select", label: "Smart Select" },
-  { href: "#", label: "Support", disabled: true },
+  { href: "/support", label: "Support" },
 ];
 
 export function Navbar() {
@@ -29,24 +29,15 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {navLinks.map((link) =>
-            link.disabled ? (
-              <span
-                key={link.label}
-                className="cursor-not-allowed rounded-lg px-3 py-2 text-sm text-slate-400"
-              >
-                {link.label}
-              </span>
-            ) : (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700"
-              >
-                {link.label}
-              </Link>
-            ),
-          )}
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700"
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
