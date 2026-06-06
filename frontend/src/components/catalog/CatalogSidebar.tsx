@@ -41,7 +41,7 @@ export function CatalogSidebar({
           <button
             type="button"
             onClick={onReset}
-            className="text-xs font-medium text-brand-600 hover:text-brand-700"
+            className="cursor-pointer rounded-md px-2 py-1 text-xs font-medium text-brand-600 transition-colors hover:bg-brand-50 hover:text-brand-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1"
           >
             Reset
           </button>
