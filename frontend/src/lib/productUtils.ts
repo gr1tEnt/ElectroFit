@@ -1,13 +1,20 @@
 import { IP_RATING_VALUES, type IpRating, type Product } from "@/types/product";
 
+export const PRODUCT_IMAGE_PLACEHOLDER = "/images/products/Valena-Life-singlesocket-IP20.jpg";
+
 export function productGalleryUrls(product: Product): string[] {
   if (product.imageUrls?.length) {
-    return product.imageUrls.map(productImageSrc);
+    return product.imageUrls;
   }
   if (product.imageUrl) {
-    return [productImageSrc(product.imageUrl)];
+    return [product.imageUrl];
   }
   return [];
+}
+
+export function productGalleryUrlsWithFallback(product: Product): string[] {
+  const urls = productGalleryUrls(product);
+  return urls.length > 0 ? urls : [PRODUCT_IMAGE_PLACEHOLDER];
 }
 
 /** Encode local /images/... paths so spaces and special chars load correctly. */
@@ -20,6 +27,13 @@ export function productImageSrc(path: string): string {
     return encodeURI(path);
   }
   return `${path.slice(0, lastSlash + 1)}${encodeURIComponent(path.slice(lastSlash + 1))}`;
+}
+
+export function resolveProductImageUrl(url: string | null | undefined): string {
+  if (!url || url.trim() === "") {
+    return productImageSrc(PRODUCT_IMAGE_PLACEHOLDER);
+  }
+  return productImageSrc(url);
 }
 
 export function ipRatingNumeric(ip: IpRating | null | undefined): number | null {

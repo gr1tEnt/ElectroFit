@@ -68,7 +68,7 @@ export function Configurator() {
         </p>
         <h1 className="mt-1 text-3xl font-bold tracking-tight text-ink">Configurator</h1>
         <p className="mt-2 text-muted">
-          Combine a frame and identical socket mechanisms from the same brand and series.
+          Combine a frame with identical single socket mechanisms from the same brand and series.
         </p>
       </div>
 

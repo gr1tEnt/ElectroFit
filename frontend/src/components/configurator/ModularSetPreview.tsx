@@ -1,3 +1,5 @@
+import { ProductImageWithFallback } from "@/components/product/ProductImage";
+import { productImageSrc } from "@/lib/productUtils";
 import type { ConfiguratorSet } from "@/types/configurator";
 
 interface ModularSetPreviewProps {
@@ -14,9 +16,14 @@ export function ModularSetPreview({ set }: ModularSetPreviewProps) {
       </p>
 
       <div className="mx-auto flex max-w-lg flex-col items-stretch gap-3">
-        <div className="flex justify-center gap-2">
+        <div className="flex flex-wrap justify-center gap-2">
           {slots.map((slot) => (
-            <MechanismSlot key={slot} product={set.mechanism} label={`Socket ${slot + 1}`} />
+            <MechanismSlot
+              key={slot}
+              product={set.mechanism}
+              label={`Socket ${slot + 1}`}
+              compact={set.mechanismQuantity >= 5}
+            />
           ))}
         </div>
 
@@ -39,22 +46,30 @@ export function ModularSetPreview({ set }: ModularSetPreviewProps) {
 function MechanismSlot({
   product,
   label,
+  compact = false,
 }: {
   product: ConfiguratorSet["mechanism"];
   label: string;
+  compact?: boolean;
 }) {
+  const cardSize = compact ? "w-20" : "w-24";
+  const imageSize = compact ? "h-20 w-20" : "h-24 w-24";
+
   return (
-    <div className="flex flex-1 flex-col items-center rounded-xl border border-border bg-white p-3 shadow-sm">
-      <div className="flex h-20 w-full items-center justify-center rounded-lg bg-slate-100">
-        {product.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={product.imageUrl} alt="" className="h-full w-full rounded-lg object-cover" />
-        ) : (
-          <SocketIcon />
-        )}
+    <div
+      className={`flex shrink-0 flex-col items-center rounded-xl border border-border bg-white p-2 shadow-sm sm:p-3 ${cardSize}`}
+    >
+      <div
+        className={`flex items-center justify-center rounded-lg bg-white p-2 ${imageSize}`}
+      >
+        <ProductImageWithFallback
+          src={productImageSrc(product.imageUrl ?? product.imageUrls?.[0])}
+          alt=""
+          className="h-full w-full object-contain"
+        />
       </div>
-      <p className="mt-2 text-xs font-medium text-ink">{label}</p>
-      <p className="line-clamp-1 text-[10px] text-muted">{product.name}</p>
+      <p className="mt-2 text-center text-xs font-medium text-ink">{label}</p>
+      <p className="line-clamp-1 text-center text-[10px] text-muted">{product.name}</p>
     </div>
   );
 }
@@ -81,16 +96,6 @@ function FrameSlot({
         </div>
       </div>
     </div>
-  );
-}
-
-function SocketIcon() {
-  return (
-    <svg className="h-10 w-10 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <rect x="5" y="4" width="14" height="16" rx="2" strokeWidth={1.5} />
-      <circle cx="9" cy="10" r="1" fill="currentColor" />
-      <circle cx="15" cy="10" r="1" fill="currentColor" />
-    </svg>
   );
 }
 

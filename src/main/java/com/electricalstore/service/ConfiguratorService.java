@@ -45,11 +45,11 @@ public class ConfiguratorService {
                     frame.getBrand().getSeriesName(),
                     categoryName.trim());
 
-            if (mechanisms.isEmpty()) {
+            Product mechanism = selectSinglePostMechanism(mechanisms);
+            if (mechanism == null) {
                 continue;
             }
 
-            Product mechanism = mechanisms.get(0);
             List<ProductResponse> mapped = productResponseMapper.toResponses(List.of(frame, mechanism));
             ProductResponse frameResponse = mapped.get(0);
             ProductResponse mechanismResponse = mapped.get(1);
@@ -66,5 +66,36 @@ public class ConfiguratorService {
         }
 
         return sets;
+    }
+
+    /**
+     * Multi-post frames accept one single-post mechanism per slot — never double sockets.
+     */
+    private Product selectSinglePostMechanism(List<Product> mechanisms) {
+        return mechanisms.stream()
+                .filter(this::isSinglePostSocketMechanism)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private boolean isSinglePostSocketMechanism(Product mechanism) {
+        if (isDoublePostSocketMechanism(mechanism)) {
+            return false;
+        }
+        String sku = mechanism.getSku();
+        if (StringUtils.hasText(sku) && sku.toUpperCase().endsWith("-1P")) {
+            return true;
+        }
+        String name = mechanism.getName();
+        return StringUtils.hasText(name) && name.toLowerCase().contains("single socket");
+    }
+
+    private boolean isDoublePostSocketMechanism(Product mechanism) {
+        String sku = mechanism.getSku();
+        if (StringUtils.hasText(sku) && sku.toUpperCase().endsWith("-2P")) {
+            return true;
+        }
+        String name = mechanism.getName();
+        return StringUtils.hasText(name) && name.toLowerCase().contains("double socket");
     }
 }
