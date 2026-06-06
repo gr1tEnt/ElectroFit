@@ -1,5 +1,6 @@
 "use client";
 
+import { productImageSrc } from "@/lib/productUtils";
 import { useEffect, useState } from "react";
 
 interface ProductImageGalleryProps {
@@ -29,7 +30,7 @@ export function ProductImageGallery({ images, alt }: ProductImageGalleryProps) {
     );
   }
 
-  const mainSrc = images[activeIndex] ?? images[0];
+  const mainSrc = productImageSrc(images[activeIndex] ?? images[0]);
 
   return (
     <div className="space-y-4">
@@ -61,7 +62,7 @@ export function ProductImageGallery({ images, alt }: ProductImageGalleryProps) {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={url}
+                  src={productImageSrc(url)}
                   alt=""
                   className="h-20 w-28 object-cover sm:h-24 sm:w-32"
                 />

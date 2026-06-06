@@ -2,6 +2,7 @@
 
 import { useCart } from "@/context/CartContext";
 import { lineUnitPrice } from "@/lib/cartUtils";
+import { productImageSrc } from "@/lib/productUtils";
 import { toastAddedToCart } from "@/lib/toast";
 import type { Product } from "@/types/product";
 import type { MouseEvent } from "react";
@@ -49,7 +50,7 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
         {product.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={product.imageUrl}
+            src={productImageSrc(product.imageUrl)}
             alt={product.name}
             className="h-full w-full object-cover"
           />

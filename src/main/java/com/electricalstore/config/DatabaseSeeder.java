@@ -15,6 +15,7 @@ import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -26,10 +27,28 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(DatabaseSeeder.class);
 
-    private static final String VALENA_DOUBLE_SOCKET_IMAGE =
-            "/images/products/Valena Life double socket IP20.jpg";
-    private static final String VALENA_SINGLE_SOCKET_IMAGE =
-            "/images/products/Valena Life single socket IP20.jpg";
+    /** SKU → filename under frontend/public/images/products/ */
+    private static final Map<String, String> PRODUCT_IMAGE_FILES = Map.ofEntries(
+            Map.entry("SKT-VL-IP20-2P", "Valena-Life-double-socket-IP20.JPG"),
+            Map.entry("SKT-VL-IP20-1P", "Valena-Life-singlesocket-IP20.jpg"),
+            Map.entry("SKT-AF-IP20-2P", "Asfora-double-socket-IP20.jpg"),
+            Map.entry("FRM-VL-1P", "Valena-Life 1-post frame.jpg"),
+            Map.entry("FRM-VL-2P", "Valena-Life-2-post-frame.jpg"),
+            Map.entry("FRM-VL-3P", "Valena-Life-3-post-frame.jpg"),
+            Map.entry("FRM-VL-4P", "Valena-Life-4-post-frame.jpg"),
+            Map.entry("FRM-VL-5P", "Valena-Life-5-post-frame.jpg"),
+            Map.entry("FRM-AF-1P", "Asfora-1-post-frame.jpg"),
+            Map.entry("FRM-AF-2P", "Asfora-2-post-frame.jpg"),
+            Map.entry("FRM-AF-3P", "Asfora-3-post-frame.jpg"),
+            Map.entry("SKT-VL-IP44-SPL", "Valena-Life-socket-IP44-with-splash-cover.jpg"),
+            Map.entry("SKT-AF-IP44-SPL", "Asfora-socket-IP44-with-splash-cover.jpg"),
+            Map.entry("SKT-VL-SELV-12V", "Valena-Life-12V-SELV-shaver-socket.jpg"),
+            Map.entry("SKT-VL-KIDS", "Valena-Life-socket-with-child-protection.jpg"),
+            Map.entry("SKT-AF-KIDS", "Asfora-socket with-child-protection.jpg"),
+            Map.entry("SW-VL-IP65", "Valena-Life-weatherproof-switch-IP65.jpg"),
+            Map.entry("SW-AF-IP55", "Asfora-weatherproof-switch-IP55.jpg"),
+            Map.entry("SKT-AF-IP54-OUT", "Asfora-outdoor-socket-IP54.jpg"),
+            Map.entry("SKT-VL-IP44-KIT", "Valena-Life-kitchen-socket-IP44.jpg"));
 
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
@@ -87,8 +106,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                         .maxAmps(16)
                         .hasChildProtection(false)
                         .hasGrounding(true),
-                List.of("BEDROOM", "LIVING_ROOM"),
-                List.of(VALENA_DOUBLE_SOCKET_IMAGE));
+                List.of("BEDROOM", "LIVING_ROOM"));
 
         saveMechanism(
                 "SKT-VL-IP20-1P",
@@ -99,8 +117,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 sockets,
                 false,
                 spec -> spec.ipRating(IpRating.IP20).maxAmps(16).hasChildProtection(false).hasGrounding(true),
-                List.of("BEDROOM", "LIVING_ROOM"),
-                List.of(VALENA_SINGLE_SOCKET_IMAGE));
+                List.of("BEDROOM", "LIVING_ROOM"));
 
         saveMechanism(
                 "SKT-AF-IP20-2P",
@@ -280,12 +297,16 @@ public class DatabaseSeeder implements CommandLineRunner {
         return categoryRepository.save(Category.builder().name(name).build());
     }
 
-    private List<String> sampleImageUrls(String sku) {
-        String key = sku.toLowerCase().replace('_', '-');
-        return List.of(
-                "https://picsum.photos/seed/" + key + "-1/800/600",
-                "https://picsum.photos/seed/" + key + "-2/800/600",
-                "https://picsum.photos/seed/" + key + "-3/800/600");
+    private List<String> resolveProductImageUrls(String sku) {
+        String fileName = PRODUCT_IMAGE_FILES.get(sku);
+        if (fileName != null) {
+            return List.of("/images/products/" + fileName);
+        }
+        return List.of();
+    }
+
+    private static String primaryImageUrl(List<String> imageUrls) {
+        return imageUrls.isEmpty() ? null : imageUrls.get(0);
     }
 
     private void saveFrame(
@@ -297,13 +318,13 @@ public class DatabaseSeeder implements CommandLineRunner {
             Category category,
             int posts,
             List<String> compatibleRooms) {
-        List<String> imageUrls = sampleImageUrls(sku);
+        List<String> imageUrls = resolveProductImageUrls(sku);
         Product frame = productRepository.save(Product.builder()
                 .sku(sku)
                 .name(name)
                 .description(description)
                 .price(price)
-                .imageUrl(imageUrls.get(0))
+                .imageUrl(primaryImageUrl(imageUrls))
                 .imageUrls(new ArrayList<>(imageUrls))
                 .type(ProductType.FRAME)
                 .brand(brand)
@@ -356,14 +377,15 @@ public class DatabaseSeeder implements CommandLineRunner {
             java.util.function.Function<TechnicalSpec.TechnicalSpecBuilder, TechnicalSpec.TechnicalSpecBuilder> specCustomizer,
             List<String> compatibleRooms,
             List<String> imageUrlsOverride) {
-        List<String> imageUrls =
-                imageUrlsOverride != null ? new ArrayList<>(imageUrlsOverride) : sampleImageUrls(sku);
+        List<String> imageUrls = imageUrlsOverride != null
+                ? new ArrayList<>(imageUrlsOverride)
+                : resolveProductImageUrls(sku);
         Product product = productRepository.save(Product.builder()
                 .sku(sku)
                 .name(name)
                 .description(description)
                 .price(new BigDecimal(price))
-                .imageUrl(imageUrls.get(0))
+                .imageUrl(primaryImageUrl(imageUrls))
                 .imageUrls(new ArrayList<>(imageUrls))
                 .type(ProductType.MECHANISM)
                 .brand(brand)

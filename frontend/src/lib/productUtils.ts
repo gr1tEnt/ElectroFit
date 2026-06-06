@@ -2,12 +2,24 @@ import { IP_RATING_VALUES, type IpRating, type Product } from "@/types/product";
 
 export function productGalleryUrls(product: Product): string[] {
   if (product.imageUrls?.length) {
-    return product.imageUrls;
+    return product.imageUrls.map(productImageSrc);
   }
   if (product.imageUrl) {
-    return [product.imageUrl];
+    return [productImageSrc(product.imageUrl)];
   }
   return [];
+}
+
+/** Encode local /images/... paths so spaces and special chars load correctly. */
+export function productImageSrc(path: string): string {
+  if (!path || path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+  const lastSlash = path.lastIndexOf("/");
+  if (lastSlash === -1) {
+    return encodeURI(path);
+  }
+  return `${path.slice(0, lastSlash + 1)}${encodeURIComponent(path.slice(lastSlash + 1))}`;
 }
 
 export function ipRatingNumeric(ip: IpRating | null | undefined): number | null {
