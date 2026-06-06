@@ -46,6 +46,42 @@ export function isWaterResistant(ip: IpRating | null | undefined): boolean {
   return value != null && value >= 44;
 }
 
+/** Decorative frames are passive covers — not active electrical components. */
+export function isFrameProduct(product: Pick<Product, "type" | "categoryName">): boolean {
+  return product.type === "FRAME" || product.categoryName?.toLowerCase() === "frames";
+}
+
+const FRAME_DETAILED_SPEC_KEYS = new Set([
+  "series",
+  "mounting",
+  "material",
+  "dimensions",
+  "ip rating",
+  "module capacity",
+  "operating temperature",
+]);
+
+/** Frames show physical/design attributes only — no rated current, voltage, or standards. */
+export function filterDetailedAttributesForProduct(
+  product: Pick<Product, "type" | "categoryName">,
+  attributes?: Record<string, string> | null,
+): Record<string, string> | undefined {
+  if (!attributes) {
+    return undefined;
+  }
+  if (!isFrameProduct(product)) {
+    return attributes;
+  }
+
+  const filtered: Record<string, string> = {};
+  for (const [key, value] of Object.entries(attributes)) {
+    if (FRAME_DETAILED_SPEC_KEYS.has(key.toLowerCase())) {
+      filtered[key] = value;
+    }
+  }
+  return filtered;
+}
+
 export function resolveProductSpec(product: Product) {
   const spec = product.technicalSpec;
   return {

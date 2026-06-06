@@ -32,6 +32,7 @@ export interface Product {
   hasGrounding: boolean | null;
   framePostsCount: number | null;
   compatibleRoomTypes?: string[];
+  detailedAttributes?: Record<string, string>;
 }
 
 export interface CatalogFilters {

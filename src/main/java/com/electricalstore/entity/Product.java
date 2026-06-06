@@ -12,11 +12,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -58,6 +61,13 @@ public class Product {
     @OrderColumn(name = "image_order")
     @Builder.Default
     private List<String> imageUrls = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "product_attributes", joinColumns = @JoinColumn(name = "product_id"))
+    @MapKeyColumn(name = "attribute_key")
+    @Column(name = "attribute_value", columnDefinition = "TEXT")
+    @Builder.Default
+    private Map<String, String> detailedAttributes = new LinkedHashMap<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Schema(description = "Product summary for API responses")
 public record ProductResponse(
@@ -30,7 +31,9 @@ public record ProductResponse(
         @Schema(example = "true") Boolean hasChildProtection,
         @Schema(example = "true") Boolean hasGrounding,
         @Schema(example = "2") Integer framePostsCount,
-        @Schema(example = "[\"BEDROOM\", \"LIVING_ROOM\"]") List<String> compatibleRoomTypes) {
+        @Schema(example = "[\"BEDROOM\", \"LIVING_ROOM\"]") List<String> compatibleRoomTypes,
+        @Schema(description = "Extended technical parameters for detail views")
+                Map<String, String> detailedAttributes) {
 
     public static ProductResponse from(Product product, TechnicalSpec spec) {
         String brandName = null;
@@ -54,6 +57,10 @@ public record ProductResponse(
                 spec != null && spec.getCompatibleRoomTypes() != null
                         ? spec.getCompatibleRoomTypes()
                         : Collections.emptyList();
+        Map<String, String> detailedAttributes =
+                product.getDetailedAttributes() != null
+                        ? Map.copyOf(product.getDetailedAttributes())
+                        : Collections.emptyMap();
 
         return new ProductResponse(
                 product.getId(),
@@ -74,7 +81,8 @@ public record ProductResponse(
                 hasChildProtection,
                 hasGrounding,
                 framePostsCount,
-                compatibleRoomTypes);
+                compatibleRoomTypes,
+                detailedAttributes);
     }
 
     private static List<String> resolveImageUrls(Product product) {

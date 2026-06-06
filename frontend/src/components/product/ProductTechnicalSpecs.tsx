@@ -1,4 +1,4 @@
-import { isWaterResistant, resolveProductSpec } from "@/lib/productUtils";
+import { isWaterResistant, resolveProductSpec, isFrameProduct } from "@/lib/productUtils";
 import type { Product } from "@/types/product";
 import type { ReactNode } from "react";
 
@@ -39,14 +39,16 @@ function Badge({ children, className }: { children: ReactNode; className: string
 export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
   const spec = resolveProductSpec(product);
   const waterResistant = isWaterResistant(spec.ipRating);
+  const isFrame = isFrameProduct(product);
 
   const hasAnySpec =
     spec.ipRating != null ||
-    spec.maxAmps != null ||
-    spec.hasChildProtection != null ||
-    spec.hasGrounding != null ||
-    product.lowVoltage ||
-    (product.type === "FRAME" && spec.framePostsCount != null);
+    (!isFrame &&
+      (spec.maxAmps != null ||
+        spec.hasChildProtection != null ||
+        spec.hasGrounding != null ||
+        product.lowVoltage)) ||
+    (isFrame && spec.framePostsCount != null);
 
   if (!hasAnySpec) {
     return null;
@@ -63,13 +65,13 @@ export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
         {waterResistant && (
           <Badge className="bg-brand-100 text-brand-700">Water resistant</Badge>
         )}
-        {spec.hasChildProtection && (
+        {!isFrame && spec.hasChildProtection && (
           <Badge className="bg-emerald-100 text-emerald-800">Child protection</Badge>
         )}
-        {product.lowVoltage && (
+        {!isFrame && product.lowVoltage && (
           <Badge className="bg-violet-100 text-violet-800">SELV / low voltage</Badge>
         )}
-        {spec.hasGrounding === false && (
+        {!isFrame && spec.hasGrounding === false && (
           <Badge className="bg-amber-100 text-amber-900">No PE grounding</Badge>
         )}
       </div>
@@ -99,7 +101,7 @@ export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
           />
         )}
 
-        {spec.maxAmps != null && (
+        {!isFrame && spec.maxAmps != null && (
           <SpecRow
             label="Maximum amperage"
             icon={
@@ -116,7 +118,7 @@ export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
           />
         )}
 
-        {spec.hasChildProtection != null && (
+        {!isFrame && spec.hasChildProtection != null && (
           <SpecRow
             label="Child protection"
             icon={
@@ -133,7 +135,7 @@ export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
           />
         )}
 
-        {spec.hasGrounding != null && (
+        {!isFrame && spec.hasGrounding != null && (
           <SpecRow
             label="Grounding"
             icon={
@@ -150,7 +152,7 @@ export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
           />
         )}
 
-        {product.type === "FRAME" && spec.framePostsCount != null && (
+        {isFrame && spec.framePostsCount != null && (
           <SpecRow
             label="Frame size"
             icon={

@@ -1,11 +1,12 @@
 "use client";
 
+import { DetailedSpecificationsAccordion } from "@/components/product/DetailedSpecificationsAccordion";
 import { ProductImageGallery } from "@/components/product/ProductImageGallery";
 import { useCart } from "@/context/CartContext";
 import { fetchProductById } from "@/lib/api";
 import { getErrorMessage } from "@/lib/apiError";
 import { lineUnitPrice } from "@/lib/cartUtils";
-import { isWaterResistant, productGalleryUrls, resolveProductSpec } from "@/lib/productUtils";
+import { isWaterResistant, productGalleryUrlsWithFallback, resolveProductSpec, isFrameProduct, filterDetailedAttributesForProduct } from "@/lib/productUtils";
 import { toastAddedToCart } from "@/lib/toast";
 import type { Product } from "@/types/product";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
@@ -29,6 +30,7 @@ function SpecBadge({ children, className }: { children: ReactNode; className: st
 function QuickViewSpecBadges({ product }: { product: Product }) {
   const spec = resolveProductSpec(product);
   const waterResistant = isWaterResistant(spec.ipRating);
+  const isFrame = isFrameProduct(product);
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -40,22 +42,22 @@ function QuickViewSpecBadges({ product }: { product: Product }) {
       {spec.ipRating && !waterResistant && (
         <SpecBadge className="bg-slate-100 text-slate-800">{spec.ipRating}</SpecBadge>
       )}
-      {spec.maxAmps != null && (
+      {!isFrame && spec.maxAmps != null && (
         <SpecBadge className="bg-slate-100 text-slate-700">{spec.maxAmps} A max</SpecBadge>
       )}
-      {spec.hasChildProtection && (
+      {!isFrame && spec.hasChildProtection && (
         <SpecBadge className="bg-emerald-100 text-emerald-800">Child Protection</SpecBadge>
       )}
-      {spec.hasGrounding && (
+      {!isFrame && spec.hasGrounding && (
         <SpecBadge className="bg-teal-50 text-teal-800">PE Grounding</SpecBadge>
       )}
-      {spec.hasGrounding === false && (
+      {!isFrame && spec.hasGrounding === false && (
         <SpecBadge className="bg-amber-100 text-amber-900">No PE grounding</SpecBadge>
       )}
-      {product.lowVoltage && (
+      {!isFrame && product.lowVoltage && (
         <SpecBadge className="bg-violet-100 text-violet-800">SELV / Low voltage</SpecBadge>
       )}
-      {product.type === "FRAME" && spec.framePostsCount != null && (
+      {isFrame && spec.framePostsCount != null && (
         <SpecBadge className="bg-accent/15 text-amber-950">
           {spec.framePostsCount}-post frame
         </SpecBadge>
@@ -115,7 +117,7 @@ export function ProductQuickViewModal({ isOpen, onClose, product }: ProductQuick
 
   const display = details ?? product;
   const price = lineUnitPrice(display);
-  const images = productGalleryUrls(display);
+  const images = productGalleryUrlsWithFallback(display);
 
   const handleAddToCart = () => {
     addProduct(display, 1);
@@ -162,7 +164,7 @@ export function ProductQuickViewModal({ isOpen, onClose, product }: ProductQuick
           )}
 
           <div className="grid gap-8 md:grid-cols-2">
-            <ProductImageGallery images={images} alt={display.name} />
+            <ProductImageGallery images={images} alt={display.name} imageFit="contain" />
 
             <div className="min-w-0 pt-2 md:pt-0">
               <p className="text-sm font-medium uppercase tracking-wide text-muted">
@@ -205,6 +207,10 @@ export function ProductQuickViewModal({ isOpen, onClose, product }: ProductQuick
               </div>
             </div>
           </div>
+
+          <DetailedSpecificationsAccordion
+            attributes={filterDetailedAttributesForProduct(display, display.detailedAttributes)}
+          />
         </div>
       </div>
     </div>

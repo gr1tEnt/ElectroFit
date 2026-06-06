@@ -1,8 +1,9 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { ProductImage } from "@/components/product/ProductImage";
+import { isFrameProduct } from "@/lib/productUtils";
 import { lineUnitPrice } from "@/lib/cartUtils";
-import { productImageSrc } from "@/lib/productUtils";
 import { toastAddedToCart } from "@/lib/toast";
 import type { Product } from "@/types/product";
 import type { MouseEvent } from "react";
@@ -14,8 +15,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onSelect }: ProductCardProps) {
   const { addProduct } = useCart();
-  const isFrame = product.type === "FRAME";
+  const isFrame = isFrameProduct(product);
   const price = lineUnitPrice(product);
+  const primaryImage = product.imageUrl ?? product.imageUrls?.[0] ?? null;
 
   const handleOpenQuickView = () => {
     onSelect?.(product);
@@ -46,26 +48,12 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
         onSelect ? "cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500" : ""
       }`}
     >
-      <div className="relative aspect-[4/3] bg-gradient-to-br from-slate-100 to-slate-200">
-        {product.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={productImageSrc(product.imageUrl)}
-            alt={product.name}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-slate-400">
-            <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-        )}
+      <div className="relative">
+        <ProductImage
+          src={primaryImage}
+          alt={product.name}
+          containerClassName="rounded-t-2xl border-b border-gray-100 bg-white p-4"
+        />
 
         {isFrame && product.framePostsCount != null && (
           <span className="absolute left-3 top-3 rounded-full bg-accent px-3 py-1 text-xs font-bold text-white shadow">
@@ -91,10 +79,10 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
         <p className="mt-1 font-mono text-xs text-muted">{product.sku}</p>
 
         <ul className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
-          {product.maxAmps != null && (
+          {!isFrame && product.maxAmps != null && (
             <li className="rounded-md bg-slate-100 px-2 py-0.5">{product.maxAmps} A max</li>
           )}
-          {product.hasChildProtection && (
+          {!isFrame && product.hasChildProtection && (
             <li className="rounded-md bg-emerald-50 px-2 py-0.5 text-emerald-700">
               Child protection
             </li>

@@ -14,6 +14,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -102,6 +103,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 legrand,
                 sockets,
                 false,
+                IpRating.IP20,
+                16,
                 spec -> spec.ipRating(IpRating.IP20)
                         .maxAmps(16)
                         .hasChildProtection(false)
@@ -116,6 +119,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 legrand,
                 sockets,
                 false,
+                IpRating.IP20,
+                16,
                 spec -> spec.ipRating(IpRating.IP20).maxAmps(16).hasChildProtection(false).hasGrounding(true),
                 List.of("BEDROOM", "LIVING_ROOM"));
 
@@ -127,6 +132,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 schneider,
                 sockets,
                 false,
+                IpRating.IP20,
+                16,
                 spec -> spec.ipRating(IpRating.IP20).maxAmps(16).hasChildProtection(false).hasGrounding(true),
                 List.of("BEDROOM", "LIVING_ROOM"));
 
@@ -164,6 +171,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 legrand,
                 sockets,
                 false,
+                IpRating.IP44,
+                16,
                 spec -> spec.ipRating(IpRating.IP44)
                         .maxAmps(16)
                         .hasChildProtection(false)
@@ -178,6 +187,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 schneider,
                 sockets,
                 false,
+                IpRating.IP44,
+                16,
                 spec -> spec.ipRating(IpRating.IP44).maxAmps(16).hasChildProtection(false).hasGrounding(true),
                 List.of("BATHROOM", "KITCHEN"));
 
@@ -189,6 +200,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 legrand,
                 sockets,
                 true,
+                IpRating.IP44,
+                3,
                 spec -> spec.ipRating(IpRating.IP44).maxAmps(3).hasChildProtection(false).hasGrounding(false),
                 List.of("BATHROOM"));
     }
@@ -202,6 +215,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 legrand,
                 sockets,
                 false,
+                IpRating.IP20,
+                16,
                 spec -> spec.ipRating(IpRating.IP20)
                         .maxAmps(16)
                         .hasChildProtection(true)
@@ -216,6 +231,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 schneider,
                 sockets,
                 false,
+                IpRating.IP20,
+                16,
                 spec -> spec.ipRating(IpRating.IP20).maxAmps(16).hasChildProtection(true).hasGrounding(true),
                 List.of("KIDS_ROOM", "BEDROOM"));
     }
@@ -230,6 +247,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 legrand,
                 switches,
                 false,
+                IpRating.IP65,
+                20,
                 spec -> spec.ipRating(IpRating.IP65).maxAmps(20).hasChildProtection(false).hasGrounding(true),
                 List.of("OUTDOOR", "GARAGE"));
 
@@ -241,6 +260,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 schneider,
                 switches,
                 false,
+                IpRating.IP55,
+                20,
                 spec -> spec.ipRating(IpRating.IP55).maxAmps(20).hasChildProtection(false).hasGrounding(true),
                 List.of("OUTDOOR", "GARAGE"));
 
@@ -252,6 +273,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 schneider,
                 sockets,
                 false,
+                IpRating.IP54,
+                16,
                 spec -> spec.ipRating(IpRating.IP54).maxAmps(16).hasChildProtection(false).hasGrounding(true),
                 List.of("OUTDOOR", "GARAGE"));
     }
@@ -265,6 +288,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 legrand,
                 sockets,
                 false,
+                IpRating.IP44,
+                16,
                 spec -> spec.ipRating(IpRating.IP44).maxAmps(16).hasChildProtection(false).hasGrounding(true),
                 List.of("KITCHEN"));
     }
@@ -279,6 +304,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                           technical_spec_room_compatibility,
                           technical_specs,
                           product_image_urls,
+                          product_attributes,
                           products,
                           brands,
                           categories
@@ -309,6 +335,61 @@ public class DatabaseSeeder implements CommandLineRunner {
         return imageUrls.isEmpty() ? null : imageUrls.get(0);
     }
 
+    private Map<String, String> buildDetailedAttributes(
+            Brand brand,
+            String sku,
+            ProductType type,
+            IpRating ipRating,
+            int maxAmps,
+            Integer framePosts,
+            boolean lowVoltage) {
+        Map<String, String> attributes = new LinkedHashMap<>();
+        attributes.put("Series", brand != null ? brand.getSeriesName() : "—");
+        attributes.put("Mounting", "Zapuštěná (Вбудований)");
+        attributes.put("Rated Current", maxAmps + " A");
+        attributes.put("Voltage", resolveVoltage(maxAmps, lowVoltage));
+        attributes.put("Material", "ABS + PC");
+        attributes.put("Dimensions", resolveDimensions(sku, type, framePosts));
+        attributes.put("IP Rating", ipRating.name());
+        attributes.put("Standards", resolveStandards(sku, type));
+        attributes.put("Operating temperature", "-5 °C … +40 °C");
+        if (type == ProductType.FRAME && framePosts != null) {
+            attributes.put("Module capacity", framePosts + "-gang");
+        }
+        return attributes;
+    }
+
+    private static String resolveVoltage(int maxAmps, boolean lowVoltage) {
+        if (lowVoltage) {
+            return "12 V SELV";
+        }
+        return maxAmps >= 20 ? "400 V AC" : "250 V AC";
+    }
+
+    private static String resolveStandards(String sku, ProductType type) {
+        if (sku != null && sku.startsWith("SW-")) {
+            return "IEC 60669-1";
+        }
+        return type == ProductType.FRAME ? "IEC 60669-1" : "IEC 60884-1";
+    }
+
+    private static String resolveDimensions(String sku, ProductType type, Integer framePosts) {
+        if (type == ProductType.FRAME && framePosts != null) {
+            int moduleWidth = 71 + (framePosts - 1) * 71;
+            return moduleWidth + " x 83 x 48 mm";
+        }
+        if (sku != null && sku.endsWith("-2P")) {
+            return "142 x 83 x 48 mm";
+        }
+        if (sku != null && sku.startsWith("SW-")) {
+            return "83 x 83 x 48 mm";
+        }
+        if (sku != null && sku.contains("IP54-OUT")) {
+            return "95 x 95 x 65 mm";
+        }
+        return "83 x 83 x 48 mm";
+    }
+
     private void saveFrame(
             String sku,
             String name,
@@ -319,6 +400,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             int posts,
             List<String> compatibleRooms) {
         List<String> imageUrls = resolveProductImageUrls(sku);
+        Map<String, String> detailedAttributes =
+                buildDetailedAttributes(brand, sku, ProductType.FRAME, IpRating.IP20, 16, posts, false);
         Product frame = productRepository.save(Product.builder()
                 .sku(sku)
                 .name(name)
@@ -326,6 +409,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .price(price)
                 .imageUrl(primaryImageUrl(imageUrls))
                 .imageUrls(new ArrayList<>(imageUrls))
+                .detailedAttributes(new LinkedHashMap<>(detailedAttributes))
                 .type(ProductType.FRAME)
                 .brand(brand)
                 .category(category)
@@ -351,6 +435,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             Brand brand,
             Category category,
             boolean lowVoltage,
+            IpRating ipRating,
+            int maxAmps,
             java.util.function.Function<TechnicalSpec.TechnicalSpecBuilder, TechnicalSpec.TechnicalSpecBuilder> specCustomizer,
             List<String> compatibleRooms) {
         saveMechanism(
@@ -361,6 +447,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                 brand,
                 category,
                 lowVoltage,
+                ipRating,
+                maxAmps,
                 specCustomizer,
                 compatibleRooms,
                 null);
@@ -374,12 +462,16 @@ public class DatabaseSeeder implements CommandLineRunner {
             Brand brand,
             Category category,
             boolean lowVoltage,
+            IpRating ipRating,
+            int maxAmps,
             java.util.function.Function<TechnicalSpec.TechnicalSpecBuilder, TechnicalSpec.TechnicalSpecBuilder> specCustomizer,
             List<String> compatibleRooms,
             List<String> imageUrlsOverride) {
         List<String> imageUrls = imageUrlsOverride != null
                 ? new ArrayList<>(imageUrlsOverride)
                 : resolveProductImageUrls(sku);
+        Map<String, String> detailedAttributes =
+                buildDetailedAttributes(brand, sku, ProductType.MECHANISM, ipRating, maxAmps, null, lowVoltage);
         Product product = productRepository.save(Product.builder()
                 .sku(sku)
                 .name(name)
@@ -387,6 +479,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .price(new BigDecimal(price))
                 .imageUrl(primaryImageUrl(imageUrls))
                 .imageUrls(new ArrayList<>(imageUrls))
+                .detailedAttributes(new LinkedHashMap<>(detailedAttributes))
                 .type(ProductType.MECHANISM)
                 .brand(brand)
                 .category(category)

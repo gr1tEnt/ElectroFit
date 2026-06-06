@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
-    @EntityGraph(attributePaths = {"brand", "category", "imageUrls"})
+    @EntityGraph(attributePaths = {"brand", "category", "imageUrls", "detailedAttributes"})
     @Query("SELECT p FROM Product p WHERE p.id = :id")
     Optional<Product> findByIdWithDetails(@Param("id") Long id);
 
