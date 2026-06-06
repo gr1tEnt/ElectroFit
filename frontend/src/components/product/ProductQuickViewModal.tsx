@@ -1,5 +1,6 @@
 "use client";
 
+import { BrandLink } from "@/components/catalog/BrandLink";
 import { DetailedSpecificationsAccordion } from "@/components/product/DetailedSpecificationsAccordion";
 import { ProductImageGallery } from "@/components/product/ProductImageGallery";
 import { useCart } from "@/context/CartContext";
@@ -168,10 +169,18 @@ export function ProductQuickViewModal({ isOpen, onClose, product }: ProductQuick
 
             <div className="min-w-0 pt-2 md:pt-0">
               <p className="text-sm font-medium uppercase tracking-wide text-muted">
-                {display.brandName}
+                {display.brandName ? (
+                  <BrandLink
+                    brandName={display.brandName}
+                    onNavigate={onClose}
+                    className="text-muted hover:text-blue-600"
+                  />
+                ) : null}
                 {display.seriesName ? (
                   <>
-                    <span className="text-border"> · </span>
+                    {display.brandName ? (
+                      <span className="text-border"> · </span>
+                    ) : null}
                     <span className="text-brand-700">{display.seriesName}</span>
                   </>
                 ) : null}

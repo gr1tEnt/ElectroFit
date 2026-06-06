@@ -1,5 +1,6 @@
 "use client";
 
+import { CatalogSearchBar } from "@/components/catalog/CatalogSearchBar";
 import { CatalogSidebar } from "@/components/catalog/CatalogSidebar";
 import { ProductGrid } from "@/components/catalog/ProductGrid";
 import { ProductQuickViewModal } from "@/components/product/ProductQuickViewModal";
@@ -16,32 +17,77 @@ import {
 } from "@/lib/filters";
 import { getErrorMessage } from "@/lib/apiError";
 import { fetchProducts } from "@/lib/api";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { DEFAULT_FILTERS, type CatalogFilters, type Product } from "@/types/product";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export function CatalogPageClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const brandFromUrl = searchParams.get("brand") ?? "";
+
   const [products, setProducts] = useState<Product[]>([]);
   const [filters, setFilters] = useState<CatalogFilters>(DEFAULT_FILTERS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebouncedValue(searchQuery.trim(), 300);
+  const loadRequestRef = useRef(0);
+  const initialLoadDoneRef = useRef(false);
+
+  useEffect(() => {
+    setFilters((prev) => {
+      if (prev.brand === brandFromUrl) {
+        return prev;
+      }
+      return { ...prev, brand: brandFromUrl, series: "" };
+    });
+  }, [brandFromUrl]);
+
+  const handleFiltersChange = useCallback(
+    (next: CatalogFilters) => {
+      setFilters(next);
+      if (next.brand) {
+        router.replace(`/catalog?brand=${encodeURIComponent(next.brand)}`);
+      } else if (brandFromUrl) {
+        router.replace("/catalog");
+      }
+    },
+    [router, brandFromUrl],
+  );
 
   const loadProducts = useCallback(async () => {
-    setLoading(true);
+    const requestId = ++loadRequestRef.current;
+    const isInitialLoad = !initialLoadDoneRef.current;
+    if (isInitialLoad) {
+      setLoading(true);
+    }
     setError(null);
     try {
       const data = await fetchProducts({
         brand: filters.brand || undefined,
         series: filters.series || undefined,
+        search: debouncedSearch || undefined,
       });
+      if (requestId !== loadRequestRef.current) {
+        return;
+      }
       setProducts(data);
     } catch (err) {
+      if (requestId !== loadRequestRef.current) {
+        return;
+      }
       setError(getErrorMessage(err, "Failed to load catalog"));
       setProducts([]);
     } finally {
-      setLoading(false);
+      if (requestId === loadRequestRef.current) {
+        initialLoadDoneRef.current = true;
+        setLoading(false);
+      }
     }
-  }, [filters.brand, filters.series]);
+  }, [filters.brand, filters.series, debouncedSearch]);
 
   useEffect(() => {
     loadProducts();
@@ -49,6 +95,10 @@ export function CatalogPageClient() {
 
   const ampsBounds = useMemo(() => getAmpsBounds(products), [products]);
   const [ampsInitialized, setAmpsInitialized] = useState(false);
+
+  useEffect(() => {
+    setAmpsInitialized(false);
+  }, [debouncedSearch, filters.brand, filters.series]);
 
   useEffect(() => {
     if (!ampsInitialized && products.length > 0) {
@@ -59,7 +109,7 @@ export function CatalogPageClient() {
       }));
       setAmpsInitialized(true);
     }
-  }, [products.length, ampsBounds.min, ampsBounds.max, ampsInitialized]);
+  }, [products, ampsBounds.min, ampsBounds.max, ampsInitialized]);
 
   const brands = useMemo(() => getUniqueBrands(products), [products]);
   const series = useMemo(
@@ -67,10 +117,17 @@ export function CatalogPageClient() {
     [products, filters.brand],
   );
 
-  const filtered = useMemo(() => filterProducts(products, filters), [products, filters]);
+  const filtered = useMemo(
+    () => filterProducts(products, filters, debouncedSearch),
+    [products, filters, debouncedSearch],
+  );
   const activeFilterCount = countActiveFilters(filters, ampsBounds);
 
   const handleReset = () => {
+    router.replace("/catalog");
+    setSearchQuery("");
+    loadRequestRef.current += 1;
+    setAmpsInitialized(false);
     setFilters({
       ...DEFAULT_FILTERS,
       minAmps: ampsBounds.min,
@@ -100,15 +157,26 @@ export function CatalogPageClient() {
             brands={brands}
             series={series}
             ampsBounds={ampsBounds}
-            onChange={setFilters}
+            onChange={handleFiltersChange}
             onReset={handleReset}
           />
         )}
 
         <section className="min-w-0 flex-1">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <CatalogSearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onClear={() => setSearchQuery("")}
+          />
+
+          <div className="mb-4 mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted">
               {loading ? "Loading catalog…" : `${filtered.length} of ${products.length} products`}
+              {debouncedSearch && !loading && (
+                <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+                  matching &ldquo;{debouncedSearch}&rdquo;
+                </span>
+              )}
               {activeFilterCount > 0 && (
                 <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
                   {activeFilterCount} filter{activeFilterCount !== 1 ? "s" : ""} active

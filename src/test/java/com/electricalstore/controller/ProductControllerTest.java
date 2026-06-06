@@ -83,13 +83,32 @@ class ProductControllerTest {
                 .brand(Brand.builder().name("Legrand").seriesName("Valena Life").build())
                 .build();
 
-        when(productService.findProducts(null, null, null)).thenReturn(List.of(product));
+        when(productService.findProducts(null, null, null, null)).thenReturn(List.of(product));
         when(productResponseMapper.toResponses(any())).thenReturn(List.of(ProductResponse.from(product, null)));
 
         mockMvc.perform(get("/api/products"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].sku").value("FRM-001"))
                 .andExpect(jsonPath("$[0].seriesName").value("Valena Life"));
+    }
+
+    @Test
+    void listProducts_withSearch_returnsOk() throws Exception {
+        Product product = Product.builder()
+                .id(2L)
+                .sku("SKT-VL-IP20-1P")
+                .name("Valena Life single socket IP20")
+                .price(new BigDecimal("12.50"))
+                .type(ProductType.MECHANISM)
+                .brand(Brand.builder().name("Legrand").seriesName("Valena Life").build())
+                .build();
+
+        when(productService.findProducts(null, null, null, "Valena")).thenReturn(List.of(product));
+        when(productResponseMapper.toResponses(any())).thenReturn(List.of(ProductResponse.from(product, null)));
+
+        mockMvc.perform(get("/api/products").param("search", "Valena"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Valena Life single socket IP20"));
     }
 
     @Test

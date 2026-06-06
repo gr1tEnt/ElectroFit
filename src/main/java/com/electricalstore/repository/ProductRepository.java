@@ -43,4 +43,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             @Param("brandId") Long brandId,
             @Param("seriesName") String seriesName,
             @Param("categoryName") String categoryName);
+
+    @EntityGraph(attributePaths = {"brand", "category", "imageUrls", "detailedAttributes"})
+    List<Product> findByNameContainingIgnoreCaseOrBrand_NameContainingIgnoreCase(String name, String brandName);
 }

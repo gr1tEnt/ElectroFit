@@ -28,8 +28,22 @@ export function getUniqueSeries(products: Product[], brand: string): string[] {
   ].sort();
 }
 
-export function filterProducts(products: Product[], filters: CatalogFilters): Product[] {
+export function filterProducts(
+  products: Product[],
+  filters: CatalogFilters,
+  search?: string,
+): Product[] {
+  const query = search?.trim().toLowerCase();
+
   return products.filter((product) => {
+    if (query) {
+      const nameMatch = product.name.toLowerCase().includes(query);
+      const brandMatch = product.brandName?.toLowerCase().includes(query) ?? false;
+      if (!nameMatch && !brandMatch) {
+        return false;
+      }
+    }
+
     if (filters.brand && product.brandName !== filters.brand) return false;
     if (filters.series && product.seriesName !== filters.series) return false;
 

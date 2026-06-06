@@ -4,6 +4,7 @@ import com.electricalstore.entity.IpRating;
 import com.electricalstore.entity.Product;
 import com.electricalstore.entity.TechnicalSpec;
 import com.electricalstore.selection.SelectionCriteria;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
@@ -18,7 +19,15 @@ public final class ProductSpecifications {
     }
 
     public static Specification<Product> withFilters(String brand, String series, String category) {
+        return withFilters(brand, series, category, null);
+    }
+
+    public static Specification<Product> withFilters(
+            String brand, String series, String category, String search) {
         return (root, query, cb) -> {
+            if (query != null) {
+                query.distinct(true);
+            }
             List<Predicate> predicates = new ArrayList<>();
 
             if (StringUtils.hasText(brand)) {
@@ -35,6 +44,13 @@ public final class ProductSpecifications {
                 predicates.add(cb.equal(
                         cb.lower(root.get("category").get("name")),
                         category.trim().toLowerCase()));
+            }
+            if (StringUtils.hasText(search)) {
+                String pattern = "%" + search.trim().toLowerCase() + "%";
+                var brandJoin = root.join("brand", JoinType.LEFT);
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("name")), pattern),
+                        cb.like(cb.lower(brandJoin.get("name")), pattern)));
             }
 
             if (predicates.isEmpty()) {

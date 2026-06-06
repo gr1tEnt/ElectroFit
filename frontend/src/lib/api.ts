@@ -7,11 +7,13 @@ export async function fetchProducts(params?: {
   brand?: string;
   series?: string;
   category?: string;
+  search?: string;
 }): Promise<Product[]> {
   const search = new URLSearchParams();
   if (params?.brand) search.set("brand", params.brand);
   if (params?.series) search.set("series", params.series);
   if (params?.category) search.set("category", params.category);
+  if (params?.search) search.set("search", params.search);
 
   const query = search.toString();
   return apiFetch<Product[]>(`/api/products${query ? `?${query}` : ""}`);

@@ -58,7 +58,7 @@ public class ProductController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
             summary = "List products",
-            description = "Returns all products, optionally filtered by brand name, series name, or category name.")
+            description = "Returns all products, optionally filtered by brand name, series name, category name, or search text.")
     @ApiResponse(
             responseCode = "200",
             description = "Products matching the filters",
@@ -72,8 +72,12 @@ public class ProductController {
                     String series,
             @Parameter(description = "Category name", example = "Sockets")
                     @RequestParam(required = false)
-                    String category) {
-        return productResponseMapper.toResponses(productService.findProducts(brand, series, category));
+                    String category,
+            @Parameter(description = "Search by product name or brand name", example = "Valena")
+                    @RequestParam(required = false)
+                    String search) {
+        return productResponseMapper.toResponses(
+                productService.findProducts(brand, series, category, search));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

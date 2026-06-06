@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { BrandLink } from "@/components/catalog/BrandLink";
 import { ProductImage } from "@/components/product/ProductImage";
 import { isFrameProduct } from "@/lib/productUtils";
 import { lineUnitPrice } from "@/lib/cartUtils";
@@ -70,8 +71,15 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
 
       <div className="flex flex-1 flex-col p-4">
         <p className="text-xs font-medium uppercase tracking-wide text-muted">
-          {product.brandName}
-          {product.seriesName ? ` · ${product.seriesName}` : ""}
+          {product.brandName ? (
+            <BrandLink brandName={product.brandName} className="text-muted hover:text-blue-600" />
+          ) : null}
+          {product.seriesName ? (
+            <>
+              {product.brandName ? " · " : ""}
+              {product.seriesName}
+            </>
+          ) : null}
         </p>
         <h3 className="mt-1 line-clamp-2 text-base font-semibold text-ink group-hover:text-brand-700">
           {product.name}
