@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { CONTACT_EMAIL } from "@/lib/siteConfig";
 
 const quickLinks = [
   { href: "/", label: "Home" },
@@ -132,10 +133,10 @@ export function Footer() {
             <ul className="mt-4 space-y-2 text-sm">
               <li>
                 <a
-                  href="mailto:support@electrofit.com"
+                  href={`mailto:${CONTACT_EMAIL}`}
                   className="transition-colors hover:text-blue-400"
                 >
-                  Email: support@electrofit.com
+                  Email: {CONTACT_EMAIL}
                 </a>
               </li>
               <li>

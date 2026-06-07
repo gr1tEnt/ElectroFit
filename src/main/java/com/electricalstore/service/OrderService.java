@@ -1,5 +1,6 @@
 package com.electricalstore.service;
 
+import com.electricalstore.dto.OrderPlacedEvent;
 import com.electricalstore.dto.CreateOrderRequest;
 import com.electricalstore.dto.OrderConfirmationResponse;
 import com.electricalstore.dto.OrderItemRequest;
@@ -10,6 +11,7 @@ import com.electricalstore.repository.OrderRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import com.electricalstore.entity.OrderStatus;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, ApplicationEventPublisher eventPublisher) {
         this.orderRepository = orderRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -29,16 +33,13 @@ public class OrderService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         String email = request.email().trim();
-        if (authenticatedUser != null) {
-            email = authenticatedUser.getEmail();
-        }
 
         Order order = Order.builder()
                 .customerName(request.customerName().trim())
                 .customerEmail(email)
                 .user(authenticatedUser)
                 .totalAmount(total)
-                .status(OrderStatus.COMPLETED)
+                .status(OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -55,6 +56,12 @@ public class OrderService {
         }
 
         Order saved = orderRepository.save(order);
+
+        eventPublisher.publishEvent(new OrderPlacedEvent(
+                saved.getCustomerEmail(),
+                saved.getCustomerName(),
+                saved.getId(),
+                saved.getTotalAmount()));
 
         return new OrderConfirmationResponse(
                 "ORD-" + saved.getId(),

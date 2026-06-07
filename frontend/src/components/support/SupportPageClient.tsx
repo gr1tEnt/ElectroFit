@@ -1,5 +1,6 @@
 "use client";
 
+import { CONTACT_EMAIL } from "@/lib/siteConfig";
 import { SupportFaqAccordion } from "@/components/support/SupportFaqAccordion";
 import { SupportInquiryForm } from "@/components/support/SupportInquiryForm";
 import { useState } from "react";
@@ -99,10 +100,10 @@ export function SupportPageClient() {
               <p className="mt-2 text-sm leading-relaxed text-muted">
                 Send us an email at{" "}
                 <a
-                  href="mailto:support@electrofit.com"
+                  href={`mailto:${CONTACT_EMAIL}`}
                   className="font-semibold text-brand-600 transition hover:text-brand-700"
                 >
-                  support@electrofit.com
+                  {CONTACT_EMAIL}
                 </a>
                 . We usually reply within 24 hours.
               </p>
