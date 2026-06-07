@@ -1,7 +1,8 @@
 "use client";
 
 import { getErrorMessage } from "@/lib/apiError";
-import { createProduct } from "@/lib/adminApi";
+import { createProduct, updateProduct } from "@/lib/adminApi";
+import { resolveProductImageUrl } from "@/lib/productUtils";
 import {
   CATEGORY_OPTIONS,
   FRAME_POST_OPTIONS,
@@ -10,13 +11,14 @@ import {
   ROOM_TYPE_OPTIONS,
   type CreateProductPayload,
 } from "@/types/admin";
-import type { ProductType } from "@/types/product";
+import type { Product, ProductType } from "@/types/product";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface CreateProductModalProps {
   open: boolean;
+  editingProduct?: Product | null;
   onClose: () => void;
-  onCreated: () => void;
+  onSaved: (updatedProduct?: Product) => void | Promise<void>;
 }
 
 interface FormState extends CreateProductPayload {
@@ -66,21 +68,41 @@ function CloudUploadIcon() {
   );
 }
 
-export function CreateProductModal({ open, onClose, onCreated }: CreateProductModalProps) {
+export function CreateProductModal({
+  open,
+  editingProduct = null,
+  onClose,
+  onSaved,
+}: CreateProductModalProps) {
+  const isEditMode = editingProduct != null;
   const [form, setForm] = useState<FormState>(defaultForm);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const editingProductIdRef = useRef<number | null>(null);
 
   const resetForm = useCallback(() => {
     setForm(defaultForm);
     setImageFile(null);
+    setExistingImageUrl(null);
     setPreviewUrl(null);
     setError(null);
     setDragActive(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, []);
+
+  const populateFromProduct = useCallback((product: Product) => {
+    setForm(productToFormState(product));
+    setImageFile(null);
+    setExistingImageUrl(product.imageUrl ?? product.imageUrls?.[0] ?? null);
+    setPreviewUrl(null);
+    setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -98,9 +120,21 @@ export function CreateProductModal({ open, onClose, onCreated }: CreateProductMo
 
   useEffect(() => {
     if (!open) {
+      editingProductIdRef.current = null;
+      resetForm();
+      return;
+    }
+
+    if (editingProduct) {
+      editingProductIdRef.current = editingProduct.id;
+      populateFromProduct(editingProduct);
+    } else {
+      editingProductIdRef.current = null;
       resetForm();
     }
-  }, [open, resetForm]);
+    // Only re-initialize when the modal opens or a different product is selected.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, editingProduct?.id]);
 
   if (!open) return null;
 
@@ -132,6 +166,7 @@ export function CreateProductModal({ open, onClose, onCreated }: CreateProductMo
     }
     setError(null);
     setImageFile(file);
+    setExistingImageUrl(null);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -146,7 +181,7 @@ export function CreateProductModal({ open, onClose, onCreated }: CreateProductMo
     if (form.material.trim()) detailedAttributes.Material = form.material.trim();
     if (form.dimensions.trim()) detailedAttributes.Dimensions = form.dimensions.trim();
 
-    return {
+    const payload: CreateProductPayload = {
       sku: form.sku.trim(),
       name: form.name.trim(),
       description: form.description.trim(),
@@ -165,6 +200,16 @@ export function CreateProductModal({ open, onClose, onCreated }: CreateProductMo
       detailedAttributes:
         Object.keys(detailedAttributes).length > 0 ? detailedAttributes : undefined,
     };
+
+    if (!imageFile && existingImageUrl) {
+      payload.imageUrl = existingImageUrl;
+      payload.imageUrls =
+        editingProduct?.imageUrls && editingProduct.imageUrls.length > 0
+          ? editingProduct.imageUrls
+          : [existingImageUrl];
+    }
+
+    return payload;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -173,24 +218,36 @@ export function CreateProductModal({ open, onClose, onCreated }: CreateProductMo
       setError("Select at least one compatible room type.");
       return;
     }
+    const productId = editingProductIdRef.current;
+    const editMode = productId != null;
+
     setSubmitting(true);
     setError(null);
     try {
-      await createProduct(buildPayload(), imageFile);
-      resetForm();
-      onCreated();
+      if (editMode) {
+        const updated = await updateProduct(productId, buildPayload(), imageFile);
+        await onSaved(normalizeProduct(updated));
+      } else {
+        const created = await createProduct(buildPayload(), imageFile);
+        await onSaved(normalizeProduct(created));
+      }
       onClose();
     } catch (err) {
-      setError(getErrorMessage(err, "Failed to create product"));
+      setError(getErrorMessage(err, editMode ? "Failed to update product" : "Failed to create product"));
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleClose = () => {
-    resetForm();
     onClose();
   };
+
+  const imagePreviewSrc = previewUrl
+    ? previewUrl
+    : existingImageUrl
+      ? resolveProductImageUrl(existingImageUrl)
+      : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
@@ -201,7 +258,7 @@ export function CreateProductModal({ open, onClose, onCreated }: CreateProductMo
       >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-800 bg-slate-900 px-6 py-4">
           <h2 id="create-product-title" className="text-lg font-semibold text-white">
-            Add New Product
+            {isEditMode ? "Edit Product" : "Add New Product"}
           </h2>
           <button
             type="button"
@@ -222,13 +279,16 @@ export function CreateProductModal({ open, onClose, onCreated }: CreateProductMo
             <h3 className="text-sm font-semibold uppercase tracking-wide text-amber-400">
               Product image
             </h3>
+            <p className="mt-1 text-xs text-slate-500">PNG or JPG, up to 10 MB.</p>
             <div className="mt-3 grid gap-4 sm:grid-cols-[1fr_140px]">
               <div
                 role="button"
                 tabIndex={0}
                 onClick={() => fileInputRef.current?.click()}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") fileInputRef.current?.click();
+                  if (e.key === "Enter" || e.key === " ") {
+                    fileInputRef.current?.click();
+                  }
                 }}
                 onDragOver={(e) => {
                   e.preventDefault();
@@ -239,15 +299,15 @@ export function CreateProductModal({ open, onClose, onCreated }: CreateProductMo
                   setDragActive(false);
                 }}
                 onDrop={handleDrop}
-                className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-4 py-8 transition ${
+                className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed px-4 py-8 transition ${
                   dragActive
-                    ? "border-amber-400 bg-amber-500/10"
-                    : "border-slate-600 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800/70"
+                    ? "cursor-pointer border-amber-400 bg-amber-500/10"
+                    : "cursor-pointer border-slate-600 bg-slate-800/40 hover:border-slate-500 hover:bg-slate-800/70"
                 }`}
               >
                 <CloudUploadIcon />
                 <p className="mt-3 text-center text-sm font-medium text-slate-200">
-                  Click to upload or drag and drop
+                  {isEditMode ? "Click to replace image or drag and drop" : "Click to upload or drag and drop"}
                 </p>
                 <p className="mt-1 text-center text-xs text-slate-500">PNG, JPG up to 10 MB</p>
                 <input
@@ -260,11 +320,11 @@ export function CreateProductModal({ open, onClose, onCreated }: CreateProductMo
               </div>
 
               <div className="flex flex-col items-center justify-center rounded-xl border border-slate-700 bg-slate-800/50 p-3">
-                {previewUrl ? (
+                {imagePreviewSrc ? (
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={previewUrl}
+                      src={imagePreviewSrc}
                       alt="Product preview"
                       className="h-28 w-full rounded-lg object-contain"
                     />
@@ -272,6 +332,7 @@ export function CreateProductModal({ open, onClose, onCreated }: CreateProductMo
                       type="button"
                       onClick={() => {
                         setImageFile(null);
+                        setExistingImageUrl(null);
                         if (fileInputRef.current) fileInputRef.current.value = "";
                       }}
                       className="mt-2 text-xs text-red-300 hover:text-red-200"
@@ -534,7 +595,7 @@ export function CreateProductModal({ open, onClose, onCreated }: CreateProductMo
               disabled={submitting}
               className="rounded-lg bg-amber-500 px-5 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400 disabled:opacity-50"
             >
-              {submitting ? "Saving…" : "Add Product"}
+              {submitting ? "Saving…" : isEditMode ? "Save Changes" : "Add Product"}
             </button>
           </div>
         </form>
@@ -567,3 +628,43 @@ function Field({
 
 const inputClass =
   "w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500";
+
+function normalizeProduct(product: Product): Product {
+  return {
+    ...product,
+    price: Number(product.price),
+  };
+}
+
+function productToFormState(product: Product): FormState {
+  const attrs = product.detailedAttributes ?? {};
+  const material =
+    attrs.Material ?? attrs.material ?? Object.entries(attrs).find(([k]) => k.toLowerCase() === "material")?.[1] ?? "";
+  const dimensions =
+    attrs.Dimensions ??
+    attrs.dimensions ??
+    Object.entries(attrs).find(([k]) => k.toLowerCase() === "dimensions")?.[1] ??
+    "";
+
+  return {
+    sku: product.sku,
+    name: product.name,
+    description: product.description ?? "",
+    price: Number(product.price),
+    type: product.type,
+    lowVoltage: product.lowVoltage,
+    brandName: product.brandName ?? "",
+    seriesName: product.seriesName ?? "",
+    categoryName: product.categoryName ?? "Sockets",
+    ipRating: product.ipRating ?? product.technicalSpec?.ipRating ?? "IP20",
+    maxAmps: product.maxAmps ?? product.technicalSpec?.maxAmps ?? 16,
+    hasChildProtection:
+      product.hasChildProtection ?? product.technicalSpec?.hasChildProtection ?? false,
+    hasGrounding: product.hasGrounding ?? product.technicalSpec?.hasGrounding ?? true,
+    framePostsCount: product.framePostsCount ?? product.technicalSpec?.framePostsCount ?? 1,
+    compatibleRoomTypes:
+      product.compatibleRoomTypes ?? product.technicalSpec?.compatibleRoomTypes ?? ["BEDROOM"],
+    material,
+    dimensions,
+  };
+}

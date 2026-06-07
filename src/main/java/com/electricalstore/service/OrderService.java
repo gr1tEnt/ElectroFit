@@ -68,4 +68,14 @@ public class OrderService {
                 "Thank you, " + saved.getCustomerName() + "! Your order has been received.",
                 saved.getTotalAmount());
     }
+
+    @Transactional
+    public Order updateStatus(Long orderId, OrderStatus status) {
+        Order order = orderRepository
+                .findById(orderId)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+                        org.springframework.http.HttpStatus.NOT_FOUND, "Order not found: " + orderId));
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
 }

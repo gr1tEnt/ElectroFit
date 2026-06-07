@@ -1,11 +1,5 @@
 import { apiFetch } from "@/lib/httpClient";
-import type {
-  AdminStats,
-  CreateProductPayload,
-  CreateSupportMessagePayload,
-  DashboardStats,
-  SupportMessage,
-} from "@/types/admin";
+import type { AdminStats, CreateProductPayload, CreateSupportMessagePayload, DashboardStats, OrderStatus, RecentOrder, SupportMessage } from "@/types/admin";
 import type { Product } from "@/types/product";
 
 export async function fetchAdminStats(): Promise<AdminStats> {
@@ -14,6 +8,17 @@ export async function fetchAdminStats(): Promise<AdminStats> {
 
 export async function fetchDashboardStats(): Promise<DashboardStats> {
   return apiFetch<DashboardStats>("/api/admin/dashboard/stats");
+}
+
+export async function updateOrderStatus(
+  orderId: number,
+  status: OrderStatus,
+): Promise<RecentOrder> {
+  return apiFetch<RecentOrder>(`/api/admin/orders/${orderId}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
 }
 
 export async function fetchAllProducts(): Promise<Product[]> {
@@ -36,6 +41,32 @@ export async function createProduct(
   return apiFetch<Product>("/api/products", {
     method: "POST",
     body: formData,
+  });
+}
+
+export async function updateProduct(
+  id: number,
+  payload: CreateProductPayload,
+  imageFile?: File | null,
+): Promise<Product> {
+  if (imageFile) {
+    const formData = new FormData();
+    formData.append(
+      "product",
+      new Blob([JSON.stringify(payload)], { type: "application/json" }),
+    );
+    formData.append("image", imageFile);
+
+    return apiFetch<Product>(`/api/products/${id}`, {
+      method: "PUT",
+      body: formData,
+    });
+  }
+
+  return apiFetch<Product>(`/api/products/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
   });
 }
 

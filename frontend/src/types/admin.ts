@@ -8,6 +8,8 @@ export interface AdminStats {
 
 export type OrderStatus = "PENDING" | "COMPLETED" | "SHIPPED";
 
+export const ORDER_STATUS_OPTIONS: OrderStatus[] = ["PENDING", "COMPLETED", "SHIPPED"];
+
 export interface RecentOrder {
   id: number;
   customerName: string;
@@ -52,6 +54,7 @@ export interface CreateProductPayload {
   type: ProductType;
   lowVoltage: boolean;
   imageUrl?: string;
+  imageUrls?: string[];
   brandName: string;
   seriesName: string;
   categoryName: string;

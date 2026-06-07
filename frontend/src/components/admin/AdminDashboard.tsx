@@ -1,8 +1,9 @@
 "use client";
 
 import { getErrorMessage } from "@/lib/apiError";
-import { fetchAdminStats, fetchDashboardStats } from "@/lib/adminApi";
+import { fetchAdminStats, fetchDashboardStats, updateOrderStatus } from "@/lib/adminApi";
 import type { AdminStats, DashboardStats, OrderStatus } from "@/types/admin";
+import { ORDER_STATUS_OPTIONS } from "@/types/admin";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Area,
@@ -22,6 +23,7 @@ export function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
 
   const loadDashboard = useCallback(async (isInitial = false) => {
     if (isInitial) setLoading(true);
@@ -53,6 +55,22 @@ export function AdminDashboard() {
 
     if (isInitial) setLoading(false);
   }, []);
+
+  const handleStatusChange = useCallback(
+    async (orderId: number, status: OrderStatus) => {
+      setUpdatingOrderId(orderId);
+      setError(null);
+      try {
+        await updateOrderStatus(orderId, status);
+        await loadDashboard(false);
+      } catch (err) {
+        setError(getErrorMessage(err, "Failed to update order status"));
+      } finally {
+        setUpdatingOrderId(null);
+      }
+    },
+    [loadDashboard],
+  );
 
   useEffect(() => {
     loadDashboard(true);
@@ -215,7 +233,11 @@ export function AdminDashboard() {
                         {formatDate(order.createdAt)}
                       </td>
                       <td className="px-4 py-3">
-                        <StatusBadge status={order.status} />
+                        <StatusSelect
+                          status={order.status}
+                          disabled={updatingOrderId === order.id}
+                          onChange={(status) => void handleStatusChange(order.id, status)}
+                        />
                       </td>
                       <td className="px-4 py-3 text-right font-semibold text-white">
                         {formatCurrency(order.totalAmount)}
@@ -252,19 +274,35 @@ function ChartTooltip({
   );
 }
 
-function StatusBadge({ status }: { status: OrderStatus }) {
+function StatusSelect({
+  status,
+  disabled,
+  onChange,
+}: {
+  status: OrderStatus;
+  disabled?: boolean;
+  onChange: (status: OrderStatus) => void;
+}) {
   const styles: Record<OrderStatus, string> = {
-    COMPLETED: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
-    PENDING: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
-    SHIPPED: "bg-sky-500/15 text-sky-300 ring-sky-500/30",
+    COMPLETED: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+    PENDING: "border-amber-500/40 bg-amber-500/10 text-amber-300",
+    SHIPPED: "border-sky-500/40 bg-sky-500/10 text-sky-300",
   };
 
   return (
-    <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${styles[status]}`}
+    <select
+      value={status}
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.value as OrderStatus)}
+      aria-label={`Order status: ${status}`}
+      className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold outline-none transition focus:ring-2 focus:ring-indigo-500/40 disabled:cursor-not-allowed disabled:opacity-50 ${styles[status]}`}
     >
-      {status}
-    </span>
+      {ORDER_STATUS_OPTIONS.map((option) => (
+        <option key={option} value={option} className="bg-slate-900 text-white">
+          {option}
+        </option>
+      ))}
+    </select>
   );
 }
 

@@ -6,6 +6,27 @@ import { deleteProduct, fetchAllProducts } from "@/lib/adminApi";
 import type { Product } from "@/types/product";
 import { useCallback, useEffect, useState } from "react";
 
+function PencilIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      className="h-4 w-4"
+      aria-hidden
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 7.125L16.862 4.487" />
+    </svg>
+  );
+}
+
 function TrashIcon() {
   return (
     <svg
@@ -31,24 +52,60 @@ export function ProductManager() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const loadProducts = useCallback(async () => {
-    setLoading(true);
+  const loadProducts = useCallback(async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     setError(null);
     try {
       const data = await fetchAllProducts();
-      setProducts(data);
+      setProducts(data.map((product) => ({ ...product, price: Number(product.price) })));
     } catch (err) {
       setError(getErrorMessage(err, "Failed to load products"));
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }, []);
+
+  const handleProductSaved = useCallback(
+    async (updatedProduct?: Product) => {
+      if (updatedProduct) {
+        setProducts((prev) => {
+          const exists = prev.some((product) => product.id === updatedProduct.id);
+          if (exists) {
+            return prev.map((product) =>
+              product.id === updatedProduct.id ? updatedProduct : product,
+            );
+          }
+          return [updatedProduct, ...prev];
+        });
+        await loadProducts(false);
+      } else {
+        await loadProducts(true);
+      }
+    },
+    [loadProducts],
+  );
 
   useEffect(() => {
     loadProducts();
   }, [loadProducts]);
+
+  const openCreateModal = () => {
+    setEditingProduct(null);
+    setModalOpen(true);
+  };
+
+  const openEditModal = (product: Product) => {
+    setEditingProduct(product);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingProduct(null);
+  };
 
   const handleDelete = async (product: Product) => {
     const confirmed = window.confirm(
@@ -79,7 +136,7 @@ export function ProductManager() {
         </div>
         <button
           type="button"
-          onClick={() => setModalOpen(true)}
+          onClick={openCreateModal}
           className="rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-amber-400"
         >
           + Add New Product
@@ -137,16 +194,27 @@ export function ProductManager() {
                       ).toFixed(2)}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(product)}
-                        disabled={deletingId === product.id}
-                        className="inline-flex items-center justify-center rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-red-300 transition hover:bg-red-500/20 hover:text-red-200 disabled:opacity-50"
-                        aria-label={`Delete ${product.name}`}
-                        title="Delete product"
-                      >
-                        <TrashIcon />
-                      </button>
+                      <div className="inline-flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => openEditModal(product)}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-600 bg-slate-800/60 p-2 text-slate-200 transition hover:bg-slate-700 hover:text-white"
+                          aria-label={`Edit ${product.name}`}
+                          title="Edit product"
+                        >
+                          <PencilIcon />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(product)}
+                          disabled={deletingId === product.id}
+                          className="inline-flex items-center justify-center rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-red-300 transition hover:bg-red-500/20 hover:text-red-200 disabled:opacity-50"
+                          aria-label={`Delete ${product.name}`}
+                          title="Delete product"
+                        >
+                          <TrashIcon />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -157,8 +225,9 @@ export function ProductManager() {
 
       <CreateProductModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onCreated={loadProducts}
+        editingProduct={editingProduct}
+        onClose={closeModal}
+        onSaved={handleProductSaved}
       />
     </div>
   );

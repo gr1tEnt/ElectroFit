@@ -16,6 +16,32 @@ function formatDate(iso: string): string {
   }
 }
 
+function EnvelopeIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      className="h-4 w-4"
+      aria-hidden
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+      />
+    </svg>
+  );
+}
+
+function buildReplyMailto(message: SupportMessage): string {
+  const subject = `Re: ${message.inquiryType} - ElectroFit`;
+  const body = `Hello ${message.fullName},\n\nRegarding your inquiry: "${message.message}"\n\n`;
+  return `mailto:${message.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 export function SupportInbox() {
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +64,10 @@ export function SupportInbox() {
   useEffect(() => {
     loadMessages();
   }, [loadMessages]);
+
+  const handleReply = (message: SupportMessage) => {
+    window.location.href = buildReplyMailto(message);
+  };
 
   const handleResolve = async (message: SupportMessage) => {
     setResolvingId(message.id);
@@ -119,14 +149,24 @@ export function SupportInbox() {
                     <span className="text-slate-500">{formatDate(message.createdAt)}</span>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleResolve(message)}
-                  disabled={resolvingId === message.id}
-                  className="shrink-0 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-50"
-                >
-                  {resolvingId === message.id ? "Resolving…" : "Mark as Resolved"}
-                </button>
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleReply(message)}
+                    className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-500"
+                  >
+                    <EnvelopeIcon />
+                    Reply
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleResolve(message)}
+                    disabled={resolvingId === message.id}
+                    className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-50"
+                  >
+                    {resolvingId === message.id ? "Resolving…" : "Mark as Resolved"}
+                  </button>
+                </div>
               </div>
               <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-slate-300">
                 {message.message}
