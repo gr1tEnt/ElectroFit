@@ -3,12 +3,17 @@ import type {
   AdminStats,
   CreateProductPayload,
   CreateSupportMessagePayload,
+  DashboardStats,
   SupportMessage,
 } from "@/types/admin";
 import type { Product } from "@/types/product";
 
 export async function fetchAdminStats(): Promise<AdminStats> {
   return apiFetch<AdminStats>("/api/admin/stats");
+}
+
+export async function fetchDashboardStats(): Promise<DashboardStats> {
+  return apiFetch<DashboardStats>("/api/admin/dashboard/stats");
 }
 
 export async function fetchAllProducts(): Promise<Product[]> {

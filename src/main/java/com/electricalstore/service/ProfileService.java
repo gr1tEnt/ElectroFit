@@ -8,6 +8,7 @@ import com.electricalstore.entity.User;
 import com.electricalstore.repository.OrderItemRepository;
 import com.electricalstore.repository.OrderRepository;
 import java.math.BigDecimal;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,9 +47,9 @@ public class ProfileService {
         return new OrderHistoryItemResponse(
                 "ORD-" + order.getId(),
                 buildSummary(items),
-                order.getTotal(),
+                order.getTotalAmount(),
                 "EUR",
-                order.getCreatedAt(),
+                order.getCreatedAt().atZone(ZoneOffset.UTC).toInstant(),
                 lines);
     }
 

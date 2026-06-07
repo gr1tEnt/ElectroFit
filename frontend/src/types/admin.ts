@@ -6,6 +6,28 @@ export interface AdminStats {
   totalBrands: number;
 }
 
+export type OrderStatus = "PENDING" | "COMPLETED" | "SHIPPED";
+
+export interface RecentOrder {
+  id: number;
+  customerName: string;
+  customerEmail: string;
+  totalAmount: number;
+  status: OrderStatus;
+  createdAt: string;
+}
+
+export interface MonthlySales {
+  month: string;
+  revenue: number;
+}
+
+export interface DashboardStats {
+  totalRevenue: number;
+  recentOrders: RecentOrder[];
+  salesChartData: MonthlySales[];
+}
+
 export interface SupportMessage {
   id: number;
   fullName: string;

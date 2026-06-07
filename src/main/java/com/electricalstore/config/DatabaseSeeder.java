@@ -6,16 +6,21 @@ import com.electricalstore.entity.IpRating;
 import com.electricalstore.entity.Product;
 import com.electricalstore.entity.ProductType;
 import com.electricalstore.entity.TechnicalSpec;
+import com.electricalstore.entity.Order;
+import com.electricalstore.entity.OrderStatus;
 import com.electricalstore.entity.SupportMessage;
 import com.electricalstore.repository.BrandRepository;
 import com.electricalstore.repository.CategoryRepository;
+import com.electricalstore.repository.OrderRepository;
 import com.electricalstore.repository.ProductRepository;
 import com.electricalstore.repository.SupportMessageRepository;
 import com.electricalstore.repository.TechnicalSpecRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,6 +32,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@org.springframework.core.annotation.Order(1)
 public class DatabaseSeeder implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(DatabaseSeeder.class);
@@ -59,6 +65,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final TechnicalSpecRepository technicalSpecRepository;
     private final SupportMessageRepository supportMessageRepository;
+    private final OrderRepository orderRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -68,12 +75,14 @@ public class DatabaseSeeder implements CommandLineRunner {
             CategoryRepository categoryRepository,
             ProductRepository productRepository,
             TechnicalSpecRepository technicalSpecRepository,
-            SupportMessageRepository supportMessageRepository) {
+            SupportMessageRepository supportMessageRepository,
+            OrderRepository orderRepository) {
         this.brandRepository = brandRepository;
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.technicalSpecRepository = technicalSpecRepository;
         this.supportMessageRepository = supportMessageRepository;
+        this.orderRepository = orderRepository;
     }
 
     @Override
@@ -98,8 +107,57 @@ public class DatabaseSeeder implements CommandLineRunner {
         seedKitchenProducts(legrandValena, sockets);
 
         seedSupportMessages();
+        seedMockOrders();
 
         log.info("Seeded {} products.", productRepository.count());
+    }
+
+    private void seedMockOrders() {
+        if (orderRepository.count() > 0) {
+            log.info("Skipping mock order seed — {} existing order(s) preserved.", orderRepository.count());
+            return;
+        }
+
+        LocalDate today = LocalDate.now();
+        YearMonth current = YearMonth.from(today);
+
+        List<Order> orders = List.of(
+                mockOrder("Olena Kovalenko", "olena.k@example.com", "124.50", OrderStatus.COMPLETED, monthAt(current, -4, 5)),
+                mockOrder("Martin Novak", "martin.n@example.com", "89.90", OrderStatus.SHIPPED, monthAt(current, -4, 18)),
+                mockOrder("Sarah Mitchell", "sarah.m@example.com", "210.00", OrderStatus.COMPLETED, monthAt(current, -3, 3)),
+                mockOrder("Jan Dvořák", "jan.d@example.com", "45.80", OrderStatus.PENDING, monthAt(current, -3, 22)),
+                mockOrder("Emma Wilson", "emma.w@example.com", "156.40", OrderStatus.COMPLETED, monthAt(current, -2, 8)),
+                mockOrder("Lucas Bernard", "lucas.b@example.com", "312.75", OrderStatus.COMPLETED, monthAt(current, -2, 14)),
+                mockOrder("Anna Petrova", "anna.p@example.com", "67.20", OrderStatus.SHIPPED, monthAt(current, -2, 27)),
+                mockOrder("Tomáš Horák", "tomas.h@example.com", "98.00", OrderStatus.COMPLETED, monthAt(current, -1, 6)),
+                mockOrder("Julia Schmidt", "julia.s@example.com", "178.30", OrderStatus.PENDING, monthAt(current, -1, 19)),
+                mockOrder("Peter Walsh", "peter.w@example.com", "245.60", OrderStatus.COMPLETED, monthAt(current, 0, 2)),
+                mockOrder("Maria Costa", "maria.c@example.com", "54.90", OrderStatus.COMPLETED, monthAt(current, 0, 9)),
+                mockOrder("David Chen", "david.c@example.com", "132.15", OrderStatus.SHIPPED, monthAt(current, 0, 15)));
+
+        orderRepository.saveAll(orders);
+        log.info("Seeded {} mock orders.", orderRepository.count());
+    }
+
+    private static Order mockOrder(
+            String customerName,
+            String customerEmail,
+            String totalAmount,
+            OrderStatus status,
+            LocalDateTime createdAt) {
+        return Order.builder()
+                .customerName(customerName)
+                .customerEmail(customerEmail)
+                .totalAmount(new BigDecimal(totalAmount))
+                .status(status)
+                .createdAt(createdAt)
+                .build();
+    }
+
+    private static LocalDateTime monthAt(YearMonth anchor, int monthOffset, int dayOfMonth) {
+        YearMonth target = anchor.plusMonths(monthOffset);
+        int day = Math.min(dayOfMonth, target.lengthOfMonth());
+        return target.atDay(day).atTime(10, 30);
     }
 
     private void seedSupportMessages() {
@@ -335,8 +393,6 @@ public class DatabaseSeeder implements CommandLineRunner {
                 .createNativeQuery(
                         """
                         TRUNCATE TABLE
-                          order_items,
-                          orders,
                           support_messages,
                           technical_spec_room_compatibility,
                           technical_specs,

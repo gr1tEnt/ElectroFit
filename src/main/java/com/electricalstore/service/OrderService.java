@@ -8,6 +8,8 @@ import com.electricalstore.entity.OrderItem;
 import com.electricalstore.entity.User;
 import com.electricalstore.repository.OrderRepository;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import com.electricalstore.entity.OrderStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +35,11 @@ public class OrderService {
 
         Order order = Order.builder()
                 .customerName(request.customerName().trim())
-                .email(email)
+                .customerEmail(email)
                 .user(authenticatedUser)
-                .total(total)
+                .totalAmount(total)
+                .status(OrderStatus.COMPLETED)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         for (OrderItemRequest itemRequest : request.items()) {
@@ -55,6 +59,6 @@ public class OrderService {
         return new OrderConfirmationResponse(
                 "ORD-" + saved.getId(),
                 "Thank you, " + saved.getCustomerName() + "! Your order has been received.",
-                saved.getTotal());
+                saved.getTotalAmount());
     }
 }

@@ -3,6 +3,8 @@ package com.electricalstore.entity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Convert;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,9 +12,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -37,25 +40,35 @@ public class Order {
     @Column(name = "customer_name", nullable = false)
     private String customerName;
 
-    @Column(nullable = false)
-    private String email;
+    @Column(name = "email", nullable = false)
+    private String customerEmail;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal total;
+    @Column(name = "total", nullable = false, precision = 12, scale = 2)
+    private BigDecimal totalAmount;
 
-    @Column(nullable = false)
+    @Convert(converter = OrderStatusConverter.class)
+    @Column(nullable = false, length = 20)
     @Builder.Default
-    private String status = "SUBMITTED";
+    private OrderStatus status = OrderStatus.PENDING;
 
     @Column(name = "created_at", nullable = false)
-    @Builder.Default
-    private Instant createdAt = Instant.now();
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
+
+    @PrePersist
+    void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (status == null) {
+            status = OrderStatus.PENDING;
+        }
+    }
 }
