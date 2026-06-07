@@ -47,8 +47,7 @@ public class EmailService {
             String toEmail, String customerName, Long orderId, BigDecimal totalAmount) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper =
-                    new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
             helper.setFrom(new InternetAddress(fromAddress, fromName));
             helper.setReplyTo(replyToAddress);
             helper.setTo(toEmail);
@@ -74,33 +73,85 @@ public class EmailService {
 
                 Thank you for your order!
 
-                Your Order ID is #%d.
-                Total amount: %s
+                Order ID: #%d
+                Total Paid: %s
 
-                Our manager will contact you soon.
-
-                — ElectroFit Support
+                Thank you for choosing safe electrical solutions!
                 """
                 .formatted(customerName, orderId, formatEuro(totalAmount));
     }
 
     private static String buildHtmlBody(String customerName, Long orderId, BigDecimal totalAmount) {
+        String safeName = escapeHtml(customerName);
+        String formattedTotal = formatEuro(totalAmount);
+
         return """
                 <!DOCTYPE html>
-                <html>
-                  <body style="font-family: Arial, sans-serif; color: #1e293b; line-height: 1.6;">
-                    <p>Hello <strong>%s</strong>,</p>
-                    <p>Thank you for your order!</p>
-                    <p>
-                      Your Order ID is <strong>#%d</strong>.<br/>
-                      Total amount: <strong>%s</strong>
-                    </p>
-                    <p>Our manager will contact you soon.</p>
-                    <p style="color: #64748b; font-size: 12px;">— ElectroFit Support</p>
+                <html lang="en">
+                  <head>
+                    <meta charset="UTF-8"/>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                    <title>Order Confirmation</title>
+                  </head>
+                  <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: 'Segoe UI', Arial, sans-serif;">
+                    <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="background-color: #f1f5f9; padding: 32px 16px;">
+                      <tr>
+                        <td align="center">
+                          <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="max-width: 560px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(15, 23, 42, 0.12);">
+                            <tr>
+                              <td style="background: linear-gradient(135deg, #0f2744 0%%, #1e3a5f 100%%); padding: 28px 32px; text-align: center;">
+                                <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">
+                                  ElectroFit Store
+                                </h1>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 32px;">
+                                <p style="margin: 0 0 8px; color: #1e293b; font-size: 18px; font-weight: 600;">
+                                  Hello %s,
+                                </p>
+                                <p style="margin: 0 0 24px; color: #64748b; font-size: 15px; line-height: 1.6;">
+                                  Thank you for your order! Here is your receipt summary.
+                                </p>
+                                <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden;">
+                                  <tr>
+                                    <td style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0;">
+                                      <span style="display: block; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Order ID</span>
+                                      <span style="display: block; margin-top: 4px; color: #0f172a; font-size: 20px; font-weight: 700;">#%d</span>
+                                    </td>
+                                  </tr>
+                                  <tr>
+                                    <td style="padding: 16px 20px;">
+                                      <span style="display: block; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Total Paid</span>
+                                      <span style="display: block; margin-top: 4px; color: #1d4ed8; font-size: 24px; font-weight: 700;">%s</span>
+                                    </td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 0 32px 32px; text-align: center;">
+                                <p style="margin: 0; color: #475569; font-size: 14px; line-height: 1.6; font-style: italic;">
+                                  Thank you for choosing safe electrical solutions!
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
                   </body>
                 </html>
                 """
-                .formatted(customerName, orderId, formatEuro(totalAmount));
+                .formatted(safeName, orderId, formattedTotal);
+    }
+
+    private static String escapeHtml(String value) {
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;");
     }
 
     private static String formatEuro(BigDecimal amount) {

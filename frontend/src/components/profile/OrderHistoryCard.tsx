@@ -105,8 +105,11 @@ export function OrderHistoryCard({ order, customerName }: OrderHistoryCardProps)
                   </tr>
                 </thead>
                 <tbody>
-                  {lines.map((line) => (
-                    <tr key={`${line.sku}-${line.name}`} className="border-b border-border last:border-0">
+                  {lines.map((line, index) => (
+                    <tr
+                      key={`${line.productId ?? line.sku}-${index}`}
+                      className="border-b border-border last:border-0"
+                    >
                       <td className="px-3 py-2 font-medium text-ink">{line.name}</td>
                       <td className="px-3 py-2 font-mono text-xs text-muted">
                         {formatSku(line)}
