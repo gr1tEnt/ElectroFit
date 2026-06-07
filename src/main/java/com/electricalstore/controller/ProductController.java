@@ -80,9 +80,12 @@ public class ProductController {
                     String category,
             @Parameter(description = "Search by product name or brand name", example = "Valena")
                     @RequestParam(required = false)
-                    String search) {
+                    String search,
+            @Parameter(description = "Product type filter", example = "MECHANISM")
+                    @RequestParam(required = false)
+                    String type) {
         return productResponseMapper.toResponses(
-                productService.findProducts(brand, series, category, search));
+                productService.findProducts(brand, series, category, search, type));
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

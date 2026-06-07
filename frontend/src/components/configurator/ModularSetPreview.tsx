@@ -1,28 +1,44 @@
 import { ProductImageWithFallback } from "@/components/product/ProductImage";
 import { productImageSrc } from "@/lib/productUtils";
-import type { ConfiguratorSet } from "@/types/configurator";
+import type { Product } from "@/types/product";
 
 interface ModularSetPreviewProps {
-  set: ConfiguratorSet;
+  frame: Product;
+  slots: Product[];
+  brandName: string;
+  seriesName: string;
+  onSlotClick: (slotIndex: number) => void;
 }
 
-export function ModularSetPreview({ set }: ModularSetPreviewProps) {
-  const slots = Array.from({ length: set.mechanismQuantity }, (_, i) => i);
+export function ModularSetPreview({
+  frame,
+  slots,
+  brandName,
+  seriesName,
+  onSlotClick,
+}: ModularSetPreviewProps) {
+  const compact = slots.length >= 5;
 
   return (
     <div className="rounded-2xl border-2 border-dashed border-brand-200 bg-gradient-to-b from-white to-brand-50/40 p-6">
-      <p className="mb-4 text-center text-xs font-semibold uppercase tracking-wide text-muted">
-        Your modular assembly
-      </p>
+      <div className="mb-4 text-center">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+          Your modular assembly
+        </p>
+        <p className="mt-1 text-sm text-muted">
+          Click any slot to swap the mechanism — mix sockets, switches, USB ports, and more.
+        </p>
+      </div>
 
       <div className="mx-auto flex max-w-lg flex-col items-stretch gap-3">
         <div className="flex flex-wrap justify-center gap-2">
-          {slots.map((slot) => (
+          {slots.map((product, slotIndex) => (
             <MechanismSlot
-              key={slot}
-              product={set.mechanism}
-              label={`Socket ${slot + 1}`}
-              compact={set.mechanismQuantity >= 5}
+              key={`${product.id}-${slotIndex}`}
+              product={product}
+              slotIndex={slotIndex}
+              compact={compact}
+              onChange={() => onSlotClick(slotIndex)}
             />
           ))}
         </div>
@@ -33,11 +49,11 @@ export function ModularSetPreview({ set }: ModularSetPreviewProps) {
           <span className="h-px flex-1 bg-brand-200" />
         </div>
 
-        <FrameSlot frame={set.frame} posts={set.mechanismQuantity} />
+        <FrameSlot frame={frame} posts={slots.length} />
       </div>
 
       <p className="mt-4 text-center text-sm text-muted">
-        {set.brandName} · {set.seriesName}
+        {brandName} · {seriesName}
       </p>
     </div>
   );
@@ -45,42 +61,43 @@ export function ModularSetPreview({ set }: ModularSetPreviewProps) {
 
 function MechanismSlot({
   product,
-  label,
+  slotIndex,
   compact = false,
+  onChange,
 }: {
-  product: ConfiguratorSet["mechanism"];
-  label: string;
+  product: Product;
+  slotIndex: number;
   compact?: boolean;
+  onChange: () => void;
 }) {
   const cardSize = compact ? "w-20" : "w-24";
   const imageSize = compact ? "h-20 w-20" : "h-24 w-24";
 
   return (
-    <div
-      className={`flex shrink-0 flex-col items-center rounded-xl border border-border bg-white p-2 shadow-sm sm:p-3 ${cardSize}`}
+    <button
+      type="button"
+      onClick={onChange}
+      className={`group relative flex shrink-0 flex-col items-center rounded-xl border border-border bg-white p-2 shadow-sm transition hover:border-brand-500 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 sm:p-3 ${cardSize}`}
+      aria-label={`Change mechanism in slot ${slotIndex + 1}: ${product.name}`}
     >
-      <div
-        className={`flex items-center justify-center rounded-lg bg-white p-2 ${imageSize}`}
-      >
+      <span className="absolute right-1 top-1 rounded-full bg-brand-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
+        Change
+      </span>
+
+      <div className={`flex items-center justify-center rounded-lg bg-white p-2 ${imageSize}`}>
         <ProductImageWithFallback
           src={productImageSrc(product.imageUrl ?? product.imageUrls?.[0] ?? "")}
           alt=""
           className="h-full w-full object-contain"
         />
       </div>
-      <p className="mt-2 text-center text-xs font-medium text-ink">{label}</p>
-      <p className="line-clamp-1 text-center text-[10px] text-muted">{product.name}</p>
-    </div>
+      <p className="mt-2 text-center text-xs font-medium text-ink">Slot {slotIndex + 1}</p>
+      <p className="line-clamp-2 text-center text-[10px] leading-tight text-muted">{product.name}</p>
+    </button>
   );
 }
 
-function FrameSlot({
-  frame,
-  posts,
-}: {
-  frame: ConfiguratorSet["frame"];
-  posts: number;
-}) {
+function FrameSlot({ frame, posts }: { frame: Product; posts: number }) {
   return (
     <div className="rounded-xl border-2 border-brand-600 bg-white p-4 shadow-md">
       <div className="flex items-center gap-4">

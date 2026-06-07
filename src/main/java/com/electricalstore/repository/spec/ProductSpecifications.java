@@ -2,6 +2,7 @@ package com.electricalstore.repository.spec;
 
 import com.electricalstore.entity.IpRating;
 import com.electricalstore.entity.Product;
+import com.electricalstore.entity.ProductType;
 import com.electricalstore.entity.TechnicalSpec;
 import com.electricalstore.selection.SelectionCriteria;
 import jakarta.persistence.criteria.JoinType;
@@ -24,6 +25,11 @@ public final class ProductSpecifications {
 
     public static Specification<Product> withFilters(
             String brand, String series, String category, String search) {
+        return withFilters(brand, series, category, search, null);
+    }
+
+    public static Specification<Product> withFilters(
+            String brand, String series, String category, String search, String type) {
         return (root, query, cb) -> {
             if (query != null) {
                 query.distinct(true);
@@ -51,6 +57,9 @@ public final class ProductSpecifications {
                 predicates.add(cb.or(
                         cb.like(cb.lower(root.get("name")), pattern),
                         cb.like(cb.lower(brandJoin.get("name")), pattern)));
+            }
+            if (StringUtils.hasText(type)) {
+                predicates.add(cb.equal(root.get("type"), ProductType.valueOf(type.trim().toUpperCase())));
             }
 
             if (predicates.isEmpty()) {

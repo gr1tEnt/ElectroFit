@@ -1,24 +1,33 @@
 "use client";
 
+import { MechanismSelectorModal } from "@/components/configurator/MechanismSelectorModal";
 import { ModularSetPreview } from "@/components/configurator/ModularSetPreview";
 import { useCart } from "@/context/CartContext";
 import { getErrorMessage } from "@/lib/apiError";
-import { fetchConfiguratorSets } from "@/lib/api";
+import { fetchConfiguratorSets, fetchSeriesMechanisms } from "@/lib/api";
 import { toastAddedSet } from "@/lib/toast";
+import type { Product } from "@/types/product";
 import {
   BLOCK_SIZE_OPTIONS,
+  computeAssemblyPrice,
+  summarizeMechanisms,
   type BlockSize,
   type ConfiguratorSet,
 } from "@/types/configurator";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export function Configurator() {
   const { addFullSet, itemCount } = useCart();
   const [blockSize, setBlockSize] = useState<BlockSize>(3);
   const [sets, setSets] = useState<ConfiguratorSet[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedSlots, setSelectedSlots] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectorSlotIndex, setSelectorSlotIndex] = useState<number | null>(null);
+  const [availableMechanisms, setAvailableMechanisms] = useState<Product[]>([]);
+  const [loadingMechanisms, setLoadingMechanisms] = useState(false);
+  const [mechanismError, setMechanismError] = useState<string | null>(null);
 
   const loadSets = useCallback(async (posts: BlockSize) => {
     setLoading(true);
@@ -46,19 +55,69 @@ export function Configurator() {
 
   const selectedSet = sets[selectedIndex] ?? null;
 
-  const handleAddToCart = () => {
-    if (!selectedSet) return;
-    addFullSet(selectedSet);
-    toastAddedSet(
-      `Modular set (${selectedSet.mechanismQuantity}× ${selectedSet.mechanism.name})`,
+  useEffect(() => {
+    if (!selectedSet) {
+      setSelectedSlots([]);
+      return;
+    }
+    setSelectedSlots(
+      Array.from({ length: selectedSet.mechanismQuantity }, () => selectedSet.mechanism),
     );
+    setSelectorSlotIndex(null);
+  }, [selectedSet]);
+
+  const setPrice = useMemo(() => {
+    if (!selectedSet || selectedSlots.length === 0) return null;
+    return computeAssemblyPrice(selectedSet.frame, selectedSlots);
+  }, [selectedSet, selectedSlots]);
+
+  const mechanismSummary = useMemo(
+    () => summarizeMechanisms(selectedSlots),
+    [selectedSlots],
+  );
+
+  const openSlotSelector = useCallback(
+    async (slotIndex: number) => {
+      if (!selectedSet) return;
+      setSelectorSlotIndex(slotIndex);
+      setMechanismError(null);
+      setLoadingMechanisms(true);
+      try {
+        const mechanisms = await fetchSeriesMechanisms(
+          selectedSet.brandName,
+          selectedSet.seriesName,
+        );
+        setAvailableMechanisms(mechanisms);
+      } catch (err) {
+        setAvailableMechanisms([]);
+        setMechanismError(getErrorMessage(err, "Failed to load mechanisms"));
+      } finally {
+        setLoadingMechanisms(false);
+      }
+    },
+    [selectedSet],
+  );
+
+  const handleSelectMechanism = (product: Product) => {
+    if (selectorSlotIndex === null) return;
+    setSelectedSlots((prev) => {
+      const next = [...prev];
+      next[selectorSlotIndex] = product;
+      return next;
+    });
+    setSelectorSlotIndex(null);
   };
 
-  const setPrice =
-    selectedSet &&
-    (typeof selectedSet.setPrice === "number"
-      ? selectedSet.setPrice
-      : Number(selectedSet.setPrice));
+  const handleAddToCart = () => {
+    if (!selectedSet || selectedSlots.length === 0) return;
+    addFullSet({
+      frame: selectedSet.frame,
+      slots: selectedSlots,
+      brandName: selectedSet.brandName,
+      seriesName: selectedSet.seriesName,
+    });
+    toastAddedSet(`Modular set (${selectedSlots.length}-post ${selectedSet.seriesName})`);
+  };
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
@@ -68,13 +127,14 @@ export function Configurator() {
         </p>
         <h1 className="mt-1 text-3xl font-bold tracking-tight text-ink">Configurator</h1>
         <p className="mt-2 text-muted">
-          Combine a frame with identical single socket mechanisms from the same brand and series.
+          Pick a frame size, then mix different mechanisms from the same brand and series in each
+          slot.
         </p>
       </div>
 
       <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-ink">What do you need?</h2>
-        <p className="mt-1 text-sm text-muted">Select the number of sockets in your block.</p>
+        <p className="mt-1 text-sm text-muted">Select how many mechanism slots your frame has.</p>
 
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
           {BLOCK_SIZE_OPTIONS.map((size) => (
@@ -90,7 +150,7 @@ export function Configurator() {
             >
               <span className="block text-2xl font-bold">{size}</span>
               <span className="mt-1 block text-xs font-medium">
-                {size === 1 ? "socket" : "sockets"}
+                {size === 1 ? "slot" : "slots"}
               </span>
             </button>
           ))}
@@ -98,8 +158,8 @@ export function Configurator() {
 
         {blockSize === 3 && (
           <p className="mt-4 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">
-            Selected: <strong>I need a block of 3 sockets</strong> — we&apos;ll find a 3-post frame
-            and 3 matching mechanisms.
+            Selected: <strong>3-post frame</strong> — e.g. 1 socket + 1 switch + 1 USB in the same
+            Valena Life series.
           </p>
         )}
       </section>
@@ -116,7 +176,7 @@ export function Configurator() {
         </div>
       )}
 
-      {selectedSet && !loading && (
+      {selectedSet && !loading && selectedSlots.length > 0 && (
         <div className="mt-8 space-y-6">
           {sets.length > 1 && (
             <div>
@@ -137,18 +197,26 @@ export function Configurator() {
             </div>
           )}
 
-          <ModularSetPreview set={selectedSet} />
+          <ModularSetPreview
+            frame={selectedSet.frame}
+            slots={selectedSlots}
+            brandName={selectedSet.brandName}
+            seriesName={selectedSet.seriesName}
+            onSlotClick={(slotIndex) => void openSlotSelector(slotIndex)}
+          />
 
           <div className="rounded-xl border border-border bg-slate-50 p-4 text-sm">
             <ul className="space-y-2 text-slate-700">
               <li>
                 <span className="font-medium">Frame:</span> 1× {selectedSet.frame.name} (
-                {selectedSet.frame.sku})
+                {selectedSet.frame.sku}) — €{selectedSet.frame.price.toFixed(2)}
               </li>
-              <li>
-                <span className="font-medium">Mechanisms:</span> {selectedSet.mechanismQuantity}×{" "}
-                {selectedSet.mechanism.name} ({selectedSet.mechanism.sku})
-              </li>
+              {mechanismSummary.map(({ product, quantity }) => (
+                <li key={product.id}>
+                  <span className="font-medium">Mechanism:</span> {quantity}× {product.name} (
+                  {product.sku}) — €{(product.price * quantity).toFixed(2)}
+                </li>
+              ))}
             </ul>
             {setPrice != null && !Number.isNaN(setPrice) && (
               <p className="mt-4 text-lg font-bold text-ink">Set price: €{setPrice.toFixed(2)}</p>
@@ -170,6 +238,19 @@ export function Configurator() {
           </p>
         </div>
       )}
+
+      <MechanismSelectorModal
+        open={selectorSlotIndex !== null}
+        slotIndex={selectorSlotIndex}
+        brandName={selectedSet?.brandName ?? ""}
+        seriesName={selectedSet?.seriesName ?? ""}
+        currentProduct={selectorSlotIndex != null ? selectedSlots[selectorSlotIndex] ?? null : null}
+        mechanisms={availableMechanisms}
+        loading={loadingMechanisms}
+        error={mechanismError}
+        onClose={() => setSelectorSlotIndex(null)}
+        onSelect={handleSelectMechanism}
+      />
     </div>
   );
 }

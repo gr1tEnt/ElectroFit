@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -100,7 +101,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         Category frames = saveCategory("Frames");
         Category switches = saveCategory("Switches");
 
-        seedBedroomProducts(legrandValena, schneiderAsfora, sockets, frames);
+        seedBedroomProducts(legrandValena, schneiderAsfora, sockets, frames, switches);
         seedBathroomProducts(legrandValena, schneiderAsfora, sockets);
         seedKidsRoomProducts(legrandValena, schneiderAsfora, sockets);
         seedOutdoorProducts(legrandValena, schneiderAsfora, sockets, switches);
@@ -188,7 +189,8 @@ public class DatabaseSeeder implements CommandLineRunner {
         log.info("Seeded {} support messages.", supportMessageRepository.count());
     }
 
-    private void seedBedroomProducts(Brand legrand, Brand schneider, Category sockets, Category frames) {
+    private void seedBedroomProducts(
+            Brand legrand, Brand schneider, Category sockets, Category frames, Category switches) {
         saveMechanism(
                 "SKT-VL-IP20-2P",
                 "Valena Life double socket IP20",
@@ -216,6 +218,32 @@ public class DatabaseSeeder implements CommandLineRunner {
                 IpRating.IP20,
                 16,
                 spec -> spec.ipRating(IpRating.IP20).maxAmps(16).hasChildProtection(false).hasGrounding(true),
+                List.of("BEDROOM", "LIVING_ROOM"));
+
+        saveMechanism(
+                "SW-VL-IP20",
+                "Valena Life single-pole switch IP20",
+                "Modular light switch for dry rooms — same series as Valena Life frames.",
+                "11.90",
+                legrand,
+                switches,
+                false,
+                IpRating.IP20,
+                10,
+                spec -> spec.ipRating(IpRating.IP20).maxAmps(10).hasChildProtection(false).hasGrounding(true),
+                List.of("BEDROOM", "LIVING_ROOM"));
+
+        saveMechanism(
+                "USB-VL-2A",
+                "Valena Life USB-A+C charging module",
+                "Dual USB charger module (5V/2A) for bedside or desk blocks.",
+                "29.50",
+                legrand,
+                sockets,
+                true,
+                IpRating.IP20,
+                3,
+                spec -> spec.ipRating(IpRating.IP20).maxAmps(3).hasChildProtection(false).hasGrounding(false),
                 List.of("BEDROOM", "LIVING_ROOM"));
 
         saveMechanism(
@@ -416,7 +444,17 @@ public class DatabaseSeeder implements CommandLineRunner {
         return categoryRepository.save(Category.builder().name(name).build());
     }
 
-    private List<String> resolveProductImageUrls(String sku) {
+    private List<String> resolveProductImageUrls(String sku, String name) {
+        if (name != null) {
+            String lowerName = name.toLowerCase(Locale.ROOT);
+            if (lowerName.contains("usb")) {
+                return List.of("/images/products/usb.jpg");
+            }
+            if (lowerName.contains("switch")) {
+                return List.of("/images/products/switch.jpg");
+            }
+        }
+
         String fileName = PRODUCT_IMAGE_FILES.get(sku);
         if (fileName != null) {
             return List.of("/images/products/" + fileName);
@@ -492,7 +530,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             Category category,
             int posts,
             List<String> compatibleRooms) {
-        List<String> imageUrls = resolveProductImageUrls(sku);
+        List<String> imageUrls = resolveProductImageUrls(sku, name);
         Map<String, String> detailedAttributes =
                 buildDetailedAttributes(brand, sku, ProductType.FRAME, IpRating.IP20, 16, posts, false);
         Product frame = productRepository.save(Product.builder()
@@ -562,7 +600,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             List<String> imageUrlsOverride) {
         List<String> imageUrls = imageUrlsOverride != null
                 ? new ArrayList<>(imageUrlsOverride)
-                : resolveProductImageUrls(sku);
+                : resolveProductImageUrls(sku, name);
         Map<String, String> detailedAttributes =
                 buildDetailedAttributes(brand, sku, ProductType.MECHANISM, ipRating, maxAmps, null, lowVoltage);
         Product product = productRepository.save(Product.builder()

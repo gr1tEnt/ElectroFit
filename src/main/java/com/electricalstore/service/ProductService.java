@@ -56,14 +56,20 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<Product> findProducts(String brand, String series, String category, String search) {
+    public List<Product> findProducts(String brand, String series, String category, String search, String type) {
         if (!StringUtils.hasText(brand)
                 && !StringUtils.hasText(series)
                 && !StringUtils.hasText(category)
-                && !StringUtils.hasText(search)) {
+                && !StringUtils.hasText(search)
+                && !StringUtils.hasText(type)) {
             return productRepository.findAll();
         }
-        return productRepository.findAll(ProductSpecifications.withFilters(brand, series, category, search));
+        return productRepository.findAll(ProductSpecifications.withFilters(brand, series, category, search, type));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Product> findProducts(String brand, String series, String category, String search) {
+        return findProducts(brand, series, category, search, null);
     }
 
     @Transactional(readOnly = true)

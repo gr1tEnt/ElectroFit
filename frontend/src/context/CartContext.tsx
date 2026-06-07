@@ -2,7 +2,7 @@
 
 import { loadCartFromStorage, saveCartToStorage } from "@/lib/cartStorage";
 import { cartSubtotal, lineSubtotal, newBundleId, newLineId } from "@/lib/cartUtils";
-import type { ConfiguratorSet } from "@/types/configurator";
+import type { ConfiguratorAssembly } from "@/types/configurator";
 import type { CartLine } from "@/types/cart";
 import type { Product } from "@/types/product";
 import {
@@ -20,7 +20,7 @@ interface CartContextValue {
   itemCount: number;
   subtotal: number;
   addProduct: (product: Product, quantity?: number) => void;
-  addFullSet: (set: ConfiguratorSet) => void;
+  addFullSet: (assembly: ConfiguratorAssembly) => void;
   updateQuantity: (lineId: string, quantity: number) => void;
   removeLine: (lineId: string) => void;
   clearCart: () => void;
@@ -67,14 +67,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const addFullSet = useCallback((set: ConfiguratorSet) => {
+  const addFullSet = useCallback((assembly: ConfiguratorAssembly) => {
     const bundleId = newBundleId();
-    const bundleLabel = `Modular set (${set.mechanismQuantity}× ${set.mechanism.name})`;
+    const bundleLabel = `Modular set (${assembly.slots.length}-post ${assembly.seriesName})`;
 
     setItems((prev) => {
       const next = [...prev];
-      addSetLine(next, set.frame, 1, bundleId, bundleLabel);
-      addSetLine(next, set.mechanism, set.mechanismQuantity, bundleId, bundleLabel);
+      addSetLine(next, assembly.frame, 1, bundleId, bundleLabel);
+      for (const mechanism of assembly.slots) {
+        addSetLine(next, mechanism, 1, bundleId, bundleLabel);
+      }
       return next;
     });
   }, []);
