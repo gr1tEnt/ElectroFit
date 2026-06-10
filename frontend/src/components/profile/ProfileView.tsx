@@ -1,6 +1,7 @@
 "use client";
 
 import { OrderHistoryCard } from "@/components/profile/OrderHistoryCard";
+import { SavedShippingAddressCard } from "@/components/profile/SavedShippingAddressCard";
 import { useAuth } from "@/context/AuthContext";
 import { getErrorMessage } from "@/lib/apiError";
 import { fetchOrderHistory } from "@/lib/authApi";
@@ -86,6 +87,10 @@ export function ProfileView() {
           Sign out
         </button>
       </div>
+
+      <section className="mt-10">
+        <SavedShippingAddressCard userEmail={user.email} />
+      </section>
 
       <section className="mt-10">
         <h2 className="text-lg font-semibold text-ink">Order history</h2>

@@ -7,3 +7,7 @@ export function toastAddedToCart(productName: string) {
 export function toastAddedSet(label: string) {
   toast.success(`Added to cart: ${label}`);
 }
+
+export function toastShippingAddressSaved() {
+  toast.success("Shipping address updated successfully!");
+}

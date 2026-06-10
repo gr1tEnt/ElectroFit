@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { getErrorMessage } from "@/lib/apiError";
 import { submitOrder } from "@/lib/api";
 import { lineUnitPrice } from "@/lib/cartUtils";
+import { loadSavedShippingAddress } from "@/lib/shippingAddressStorage";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,7 +14,8 @@ import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary
 interface CheckoutFormState {
   customerName: string;
   email: string;
-  address: string;
+  streetAddress: string;
+  city: string;
   phone: string;
   cardNumber: string;
   cardExpiry: string;
@@ -23,7 +25,8 @@ interface CheckoutFormState {
 const initialForm: CheckoutFormState = {
   customerName: "",
   email: "",
-  address: "",
+  streetAddress: "",
+  city: "",
   phone: "",
   cardNumber: "",
   cardExpiry: "",
@@ -47,7 +50,8 @@ function formatExpiry(value: string): string {
 function validateForm(form: CheckoutFormState): string | null {
   if (!form.customerName.trim()) return "Please enter your full name.";
   if (!form.email.trim()) return "Please enter a valid email.";
-  if (!form.address.trim()) return "Please enter your shipping address.";
+  if (!form.streetAddress.trim()) return "Please enter your street address.";
+  if (!form.city.trim()) return "Please enter your city.";
   if (!form.phone.trim()) return "Please enter your phone number.";
   const cardDigits = form.cardNumber.replace(/\D/g, "");
   if (cardDigits.length < 16) return "Please enter a valid 16-digit card number.";
@@ -67,13 +71,17 @@ export function CheckoutForm() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isAuthenticated && user) {
-      setForm((prev) => ({
-        ...prev,
-        customerName: user.fullName,
-        email: user.email,
-      }));
-    }
+    if (!isAuthenticated || !user) return;
+
+    const saved = loadSavedShippingAddress(user.email);
+    setForm((prev) => ({
+      ...prev,
+      customerName: user.fullName,
+      email: user.email,
+      streetAddress: saved?.streetAddress ?? prev.streetAddress,
+      city: saved?.city ?? prev.city,
+      phone: saved?.phone ?? prev.phone,
+    }));
   }, [isAuthenticated, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -173,17 +181,29 @@ export function CheckoutForm() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="checkout-address" className="block text-sm font-medium text-ink">
-                Shipping address
+              <label htmlFor="checkout-street" className="block text-sm font-medium text-ink">
+                Street address
               </label>
-              <textarea
-                id="checkout-address"
+              <input
+                id="checkout-street"
                 required
-                rows={3}
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                className={`${inputClass} resize-y`}
-                placeholder="Street, city, postal code, country"
+                value={form.streetAddress}
+                onChange={(e) => setForm({ ...form, streetAddress: e.target.value })}
+                className={inputClass}
+                placeholder="123 Main Street, Apt 4"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="checkout-city" className="block text-sm font-medium text-ink">
+                City
+              </label>
+              <input
+                id="checkout-city"
+                required
+                value={form.city}
+                onChange={(e) => setForm({ ...form, city: e.target.value })}
+                className={inputClass}
+                placeholder="Prague"
               />
             </div>
           </div>
