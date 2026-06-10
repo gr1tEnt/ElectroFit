@@ -57,7 +57,7 @@ export function SmartSelectWizard() {
       setProducts(results);
       setStep(4);
     } catch (err) {
-      setError(getErrorMessage(err, "Something went wrong"));
+      setError(getErrorMessage(err, "Щось пішло не так"));
       setStep(2);
     } finally {
       setLoading(false);
@@ -102,11 +102,11 @@ export function SmartSelectWizard() {
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-6 text-center">
         <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
-          For beginners
+          Для початківців
         </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-ink">Smart Selector</h1>
+        <h1 className="mt-1 text-3xl font-bold tracking-tight text-ink">Розумний підбір</h1>
         <p className="mt-2 text-muted">
-          Answer a few simple questions and we&apos;ll recommend products safe for your space.
+          Відповідайте на кілька простих запитань, і ми підберемо товари, безпечні для вашого простору.
         </p>
       </div>
 
@@ -114,8 +114,8 @@ export function SmartSelectWizard() {
 
       {step === 1 && (
         <section>
-          <h2 className="text-xl font-semibold text-ink">Step 1 — Choose the room</h2>
-          <p className="mt-1 text-sm text-muted">Where will you install the electrical accessories?</p>
+          <h2 className="text-xl font-semibold text-ink">Крок 1 — Оберіть кімнату</h2>
+          <p className="mt-1 text-sm text-muted">Де ви встановлюватимете електричні аксесуари?</p>
 
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {ROOM_OPTIONS.map((option) => {
@@ -154,7 +154,7 @@ export function SmartSelectWizard() {
               onClick={() => setStep(2)}
               className="rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Continue
+              Продовжити
             </button>
           </div>
         </section>
@@ -162,9 +162,9 @@ export function SmartSelectWizard() {
 
       {step === 2 && room && (
         <section>
-          <h2 className="text-xl font-semibold text-ink">Step 2 — A few more details</h2>
+          <h2 className="text-xl font-semibold text-ink">Крок 2 — Ще кілька деталей</h2>
           <p className="mt-1 text-sm text-muted">
-            Selected: <strong>{ROOM_LABELS[room]}</strong>
+            Обрано: <strong>{ROOM_LABELS[room]}</strong>
           </p>
 
           {error && (
@@ -177,21 +177,21 @@ export function SmartSelectWizard() {
             {room === "BATHROOM" && (
               <div>
                 <h3 className="font-medium text-ink">
-                  Will it be closer than 60&nbsp;cm to water?
+                  Чи буде це ближче ніж 60&nbsp;см до води?
                 </h3>
                 <p className="mt-1 text-sm text-muted">
-                  Zones 1–2 near baths or showers require low-voltage accessories only.
+                  У зонах 1–2 біля ванни або душу потрібні лише аксесуари з низькою напругою.
                 </p>
                 <div className="mt-5 flex flex-wrap gap-3">
                   <ChoiceButton
                     selected={nearWater}
                     onClick={() => setNearWater(true)}
-                    label="Yes, within 60 cm"
+                    label="Так, у межах 60 см"
                   />
                   <ChoiceButton
                     selected={!nearWater}
                     onClick={() => setNearWater(false)}
-                    label="No, further away (Zone 3)"
+                    label="Ні, далі (зона 3)"
                   />
                 </div>
               </div>
@@ -203,9 +203,9 @@ export function SmartSelectWizard() {
                   ✓
                 </span>
                 <div>
-                  <h3 className="font-semibold">Child protection enabled</h3>
+                  <h3 className="font-semibold">Захист від дітей увімкнено</h3>
                   <p className="mt-1 text-sm text-emerald-800">
-                    We automatically require products with child protection for kids rooms.
+                    Для дитячих кімнат ми автоматично вимагаємо товари з захистом від дітей.
                   </p>
                 </div>
               </div>
@@ -213,20 +213,20 @@ export function SmartSelectWizard() {
 
             {room !== "BATHROOM" && room !== "KIDS_ROOM" && (
               <div>
-                <h3 className="font-medium text-ink">Any children in the household?</h3>
+                <h3 className="font-medium text-ink">Чи є в домогосподарстві діти?</h3>
                 <p className="mt-1 text-sm text-muted">
-                  Optional — we&apos;ll include child-safe products if needed.
+                  Необов&apos;язково — за потреби включимо безпечні для дітей товари.
                 </p>
                 <div className="mt-5 flex flex-wrap gap-3">
                   <ChoiceButton
                     selected={hasChildren}
                     onClick={() => setHasChildren(true)}
-                    label="Yes"
+                    label="Так"
                   />
                   <ChoiceButton
                     selected={!hasChildren}
                     onClick={() => setHasChildren(false)}
-                    label="No"
+                    label="Ні"
                   />
                 </div>
               </div>
@@ -239,14 +239,14 @@ export function SmartSelectWizard() {
               onClick={() => setStep(1)}
               className="rounded-xl border border-border px-5 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50"
             >
-              Back
+              Назад
             </button>
             <button
               type="button"
               onClick={runSmartSelect}
               className="rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-700"
             >
-              Find safe products
+              Знайти безпечні товари
             </button>
           </div>
         </section>
@@ -259,28 +259,28 @@ export function SmartSelectWizard() {
           {products.length === 0 ? (
             <EmptyState
               variant="warning"
-              title="No safe products for this setup"
-              description="For safety reasons, we do not recommend this configuration. Please choose IP44 or higher."
+              title="Немає безпечних товарів для цієї конфігурації"
+              description="З міркувань безпеки ми не рекомендуємо таку конфігурацію. Оберіть IP44 або вище."
             >
               <button
                 type="button"
                 onClick={() => setStep(2)}
                 className="rounded-xl border border-amber-400 bg-white px-5 py-3 text-sm font-semibold text-amber-950 hover:bg-amber-50"
               >
-                Change my answers
+                Змінити відповіді
               </button>
               <button
                 type="button"
                 onClick={resetWizard}
                 className="rounded-xl border border-border bg-white px-5 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50"
               >
-                Start over
+                Почати спочатку
               </button>
               <Link
                 href="/catalog"
                 className="rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-700"
               >
-                Browse catalog
+                Переглянути каталог
               </Link>
             </EmptyState>
           ) : (
@@ -290,17 +290,17 @@ export function SmartSelectWizard() {
                   ✓
                 </span>
                 <h2 className="mt-4 text-xl font-bold text-emerald-900">
-                  These items are safe for your selected environment
+                  Ці товари безпечні для обраного середовища
                 </h2>
                 <p className="mt-2 text-sm text-emerald-800">
-                  Recommendations for <strong>{ROOM_LABELS[room]}</strong>
+                  Рекомендації для <strong>{ROOM_LABELS[room]}</strong>
                   {room === "BATHROOM" && (
                     <>
                       {" "}
-                      — {nearWater ? "within 60 cm of water (low voltage)" : "Zone 3 (IP44+)"}
+                      — {nearWater ? "у межах 60 см від води (низька напруга)" : "зона 3 (IP44+)"}
                     </>
                   )}
-                  {hasChildrenForApi && " · child protection required"}
+                  {hasChildrenForApi && " · потрібен захист від дітей"}
                 </p>
               </div>
 
@@ -317,13 +317,13 @@ export function SmartSelectWizard() {
                   onClick={resetWizard}
                   className="rounded-xl border border-border px-5 py-3 text-sm font-medium text-slate-600 hover:bg-white"
                 >
-                  Start over
+                  Почати спочатку
                 </button>
                 <Link
                   href="/catalog"
                   className="rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-700"
                 >
-                  Browse full catalog
+                  Переглянути весь каталог
                 </Link>
               </div>
             </>

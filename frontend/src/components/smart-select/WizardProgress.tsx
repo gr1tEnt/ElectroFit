@@ -3,7 +3,7 @@ interface WizardProgressProps {
   totalSteps?: number;
 }
 
-const STEP_LABELS = ["Room", "Details", "Analyzing", "Results"];
+const STEP_LABELS = ["Кімната", "Деталі", "Аналіз", "Результати"];
 
 export function WizardProgress({ currentStep, totalSteps = 4 }: WizardProgressProps) {
   return (

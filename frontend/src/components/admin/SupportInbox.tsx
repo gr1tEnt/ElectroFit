@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 
 function formatDate(iso: string): string {
   try {
-    return new Date(iso).toLocaleString(undefined, {
+    return new Date(iso).toLocaleString("uk-UA", {
       dateStyle: "medium",
       timeStyle: "short",
     });
@@ -37,8 +37,8 @@ function EnvelopeIcon() {
 }
 
 function buildReplyMailto(message: SupportMessage): string {
-  const subject = `Re: ${message.inquiryType} - ElectroFit`;
-  const body = `Hello ${message.fullName},\n\nRegarding your inquiry: "${message.message}"\n\n`;
+  const subject = `Відповідь: ${message.inquiryType} - ElectroFit`;
+  const body = `Вітаємо, ${message.fullName},\n\nЩодо вашого звернення: «${message.message}»\n\n`;
   return `mailto:${message.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
@@ -55,7 +55,7 @@ export function SupportInbox() {
       const data = await fetchSupportMessages();
       setMessages(data);
     } catch (err) {
-      setError(getErrorMessage(err, "Failed to load support messages"));
+      setError(getErrorMessage(err, "Не вдалося завантажити звернення"));
     } finally {
       setLoading(false);
     }
@@ -76,21 +76,25 @@ export function SupportInbox() {
       await resolveSupportMessage(message.id);
       setMessages((prev) => prev.filter((m) => m.id !== message.id));
     } catch (err) {
-      setError(getErrorMessage(err, "Failed to resolve message"));
+      setError(getErrorMessage(err, "Не вдалося позначити звернення як вирішене"));
     } finally {
       setResolvingId(null);
     }
+  };
+
+  const inquiryCountLabel = (count: number) => {
+    if (count === 1) return "1 невирішене звернення";
+    if (count >= 2 && count <= 4) return `${count} невирішені звернення`;
+    return `${count} невирішених звернень`;
   };
 
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">User Inquiries</h2>
+          <h2 className="text-2xl font-bold text-white">Звернення клієнтів</h2>
           <p className="mt-1 text-slate-400">
-            {loading
-              ? "Loading…"
-              : `${messages.length} unresolved ${messages.length === 1 ? "inquiry" : "inquiries"}`}
+            {loading ? "Завантаження…" : inquiryCountLabel(messages.length)}
           </p>
         </div>
         <button
@@ -99,7 +103,7 @@ export function SupportInbox() {
           disabled={loading}
           className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:bg-slate-800 disabled:opacity-50"
         >
-          Refresh
+          Оновити
         </button>
       </div>
 
@@ -118,9 +122,9 @@ export function SupportInbox() {
 
         {!loading && messages.length === 0 && (
           <div className="rounded-2xl border border-slate-800 bg-slate-900 px-6 py-16 text-center">
-            <p className="text-lg font-medium text-slate-300">Inbox is clear</p>
+            <p className="text-lg font-medium text-slate-300">Вхідні порожні</p>
             <p className="mt-1 text-sm text-slate-500">
-              New customer inquiries from the Support page will appear here.
+              Нові звернення клієнтів зі сторінки підтримки з&apos;являться тут.
             </p>
           </div>
         )}
@@ -156,7 +160,7 @@ export function SupportInbox() {
                     className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-500"
                   >
                     <EnvelopeIcon />
-                    Reply
+                    Відповісти
                   </button>
                   <button
                     type="button"
@@ -164,7 +168,7 @@ export function SupportInbox() {
                     disabled={resolvingId === message.id}
                     className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-50"
                   >
-                    {resolvingId === message.id ? "Resolving…" : "Mark as Resolved"}
+                    {resolvingId === message.id ? "Обробка…" : "Позначити як вирішене"}
                   </button>
                 </div>
               </div>

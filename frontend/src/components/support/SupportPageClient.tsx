@@ -12,13 +12,13 @@ export function SupportPageClient() {
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
       {/* Header */}
       <section className="mx-auto max-w-3xl text-center">
-        <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">Support</p>
+        <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">Підтримка</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-          How can we help you?
+          Чим ми можемо допомогти?
         </h1>
         <p className="mt-3 text-muted">
-          Find answers about IP ratings, modular compatibility, and safe installations — or reach
-          out to our team.
+          Знайдіть відповіді про ступінь захисту IP, модульну сумісність і безпечний монтаж — або
+          зв&apos;яжіться з нашою командою.
         </p>
         <div className="relative mx-auto mt-8 max-w-xl">
           <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
@@ -35,8 +35,8 @@ export function SupportPageClient() {
             type="search"
             value={faqQuery}
             onChange={(e) => setFaqQuery(e.target.value)}
-            placeholder="Search FAQ (e.g. IP rating, bathroom, configurator)…"
-            aria-label="Search FAQ"
+            placeholder="Пошук у FAQ (наприклад, IP, ванна, конфігуратор)…"
+            aria-label="Пошук у FAQ"
             className="w-full rounded-xl border border-border bg-white py-3 pl-11 pr-4 text-sm shadow-sm outline-none transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
           />
         </div>
@@ -44,9 +44,9 @@ export function SupportPageClient() {
 
       {/* FAQ */}
       <section className="mt-16">
-        <h2 className="text-xl font-semibold text-ink">Frequently Asked Questions</h2>
+        <h2 className="text-xl font-semibold text-ink">Часті запитання</h2>
         <p className="mt-1 text-sm text-muted">
-          Electrical safety and ElectroFit tools — explained for homeowners and professionals.
+          Електробезпека та інструменти ElectroFit — пояснення для домовласників і професіоналів.
         </p>
         <div className="mt-6">
           <SupportFaqAccordion query={faqQuery} />
@@ -72,9 +72,9 @@ export function SupportPageClient() {
                   />
                 </svg>
               </div>
-              <h3 className="mt-4 text-base font-semibold text-ink">Need Urgent Electrical Advice?</h3>
+              <h3 className="mt-4 text-base font-semibold text-ink">Потрібна термінова електротехнічна консультація?</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">
-                Call our hotline:{" "}
+                Зателефонуйте на гарячу лінію:{" "}
                 <a
                   href="tel:+380441234567"
                   className="font-semibold text-brand-600 transition hover:text-brand-700"
@@ -82,7 +82,7 @@ export function SupportPageClient() {
                   +380 44 123 4567
                 </a>
               </p>
-              <p className="mt-1 text-xs text-muted">Mon–Fri, 9:00 – 18:00</p>
+              <p className="mt-1 text-xs text-muted">Пн–Пт, 9:00 – 18:00</p>
             </div>
 
             <div className="rounded-2xl border border-border bg-gradient-to-br from-brand-50/50 to-white p-6 shadow-sm">
@@ -96,16 +96,16 @@ export function SupportPageClient() {
                   />
                 </svg>
               </div>
-              <h3 className="mt-4 text-base font-semibold text-ink">Written Inquiries</h3>
+              <h3 className="mt-4 text-base font-semibold text-ink">Звернення клієнтів</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">
-                Send us an email at{" "}
+                Напишіть нам на{" "}
                 <a
                   href={`mailto:${CONTACT_EMAIL}`}
                   className="font-semibold text-brand-600 transition hover:text-brand-700"
                 >
                   {CONTACT_EMAIL}
                 </a>
-                . We usually reply within 24 hours.
+                . Зазвичай відповідаємо протягом 24 годин.
               </p>
             </div>
           </div>

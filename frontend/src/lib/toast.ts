@@ -1,13 +1,13 @@
 import toast from "react-hot-toast";
 
 export function toastAddedToCart(productName: string) {
-  toast.success(`Added to cart: ${productName}`);
+  toast.success(`Додано до кошика: ${productName}`);
 }
 
 export function toastAddedSet(label: string) {
-  toast.success(`Added to cart: ${label}`);
+  toast.success(`Додано до кошика: ${label}`);
 }
 
 export function toastShippingAddressSaved() {
-  toast.success("Shipping address updated successfully!");
+  toast.success("Адресу доставки успішно оновлено!");
 }

@@ -24,7 +24,7 @@ export function DetailedSpecificationsAccordion({
         aria-expanded={open}
         className="flex w-full items-center justify-between gap-4 rounded-xl border border-border bg-slate-50/80 px-4 py-3 text-left transition hover:bg-slate-50"
       >
-        <span className="text-sm font-semibold text-ink">Detailed Specifications</span>
+        <span className="text-sm font-semibold text-ink">Детальні характеристики</span>
         <svg
           className={`h-5 w-5 shrink-0 text-muted transition-transform ${open ? "rotate-180" : ""}`}
           fill="none"

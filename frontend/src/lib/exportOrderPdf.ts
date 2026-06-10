@@ -1,7 +1,7 @@
 import type { OrderHistoryItem } from "@/types/auth";
 
 const DISCLAIMER =
-  "Attention: Installation must be performed by a certified electrician";
+  "Увага: монтаж має виконувати сертифікований електрик";
 
 function formatMoney(amount: number, currency: string): string {
   const symbol = currency === "EUR" ? "€" : "$";
@@ -13,10 +13,10 @@ export async function exportOrderToPdf(
   customerName: string,
 ): Promise<void> {
   if (typeof window === "undefined") {
-    throw new Error("PDF export is only available in the browser.");
+    throw new Error("Експорт PDF доступний лише в браузері.");
   }
   if (order.items.length === 0) {
-    throw new Error("This order has no line items to export.");
+    throw new Error("У цьому замовленні немає позицій для експорту.");
   }
 
   const { default: jsPDF } = await import("jspdf");
@@ -33,13 +33,13 @@ export async function exportOrderToPdf(
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text("Electrical Accessories — Order", margin, 16);
+  doc.text("Електроаксесуари — Замовлення", margin, 16);
 
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text(`Order #${orderId} · ${customerName}`, margin, 26);
+  doc.text(`Замовлення №${orderId} · ${customerName}`, margin, 26);
   doc.text(
-    `Placed: ${new Date(order.placedAt).toLocaleDateString(undefined, {
+    `Оформлено: ${new Date(order.placedAt).toLocaleDateString("uk-UA", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -58,7 +58,7 @@ export async function exportOrderToPdf(
 
   autoTable(doc, {
     startY: 44,
-    head: [["Name", "SKU", "Qty", "Unit price", "Line total"]],
+    head: [["Назва", "SKU", "К-сть", "Ціна за од.", "Сума"]],
     body: tableBody,
     margin: { left: margin, right: margin },
     styles: {
@@ -87,7 +87,7 @@ export async function exportOrderToPdf(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(15, 23, 42);
-  doc.text("Order total", margin, finalY + 12);
+  doc.text("Разом", margin, finalY + 12);
   doc.text(formatMoney(order.total, order.currency), pageWidth - margin, finalY + 12, {
     align: "right",
   });

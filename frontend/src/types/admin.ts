@@ -10,6 +10,12 @@ export type OrderStatus = "PENDING" | "COMPLETED" | "SHIPPED";
 
 export const ORDER_STATUS_OPTIONS: OrderStatus[] = ["PENDING", "COMPLETED", "SHIPPED"];
 
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  PENDING: "Очікує",
+  COMPLETED: "Виконано",
+  SHIPPED: "Відправлено",
+};
+
 export interface RecentOrder {
   id: number;
   customerName: string;
@@ -67,23 +73,28 @@ export interface CreateProductPayload {
   detailedAttributes?: Record<string, string>;
 }
 
-export const CATEGORY_OPTIONS = ["Sockets", "Switches", "Frames", "Accessories"] as const;
+export const CATEGORY_OPTIONS = [
+  { value: "Sockets", label: "Розетки" },
+  { value: "Switches", label: "Вимикачі" },
+  { value: "Frames", label: "Рамки" },
+  { value: "Accessories", label: "Аксесуари" },
+] as const;
 
 export const FRAME_POST_OPTIONS = [1, 2, 3, 4, 5] as const;
 
 export const ROOM_TYPE_OPTIONS = [
-  { value: "BEDROOM", label: "Bedroom" },
-  { value: "LIVING_ROOM", label: "Living room" },
-  { value: "KIDS_ROOM", label: "Kids room" },
-  { value: "BATHROOM", label: "Bathroom" },
-  { value: "KITCHEN", label: "Kitchen" },
-  { value: "OUTDOOR", label: "Outdoor" },
-  { value: "GARAGE", label: "Garage" },
+  { value: "BEDROOM", label: "Спальня" },
+  { value: "LIVING_ROOM", label: "Вітальня" },
+  { value: "KIDS_ROOM", label: "Дитяча" },
+  { value: "BATHROOM", label: "Ванна" },
+  { value: "KITCHEN", label: "Кухня" },
+  { value: "OUTDOOR", label: "Вулиця" },
+  { value: "GARAGE", label: "Гараж" },
 ] as const;
 
 export const IP_RATING_OPTIONS: IpRating[] = ["IP20", "IP44", "IP54", "IP55", "IP65"];
 
 export const PRODUCT_TYPE_OPTIONS: { value: ProductType; label: string }[] = [
-  { value: "MECHANISM", label: "Mechanism" },
-  { value: "FRAME", label: "Frame" },
+  { value: "MECHANISM", label: "Механізм" },
+  { value: "FRAME", label: "Рамка" },
 ];

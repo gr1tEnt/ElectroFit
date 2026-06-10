@@ -23,8 +23,8 @@ export function CartLineItem({ line }: CartLineItemProps) {
         <p className="font-semibold text-ink">{line.product.name}</p>
         <p className="font-mono text-xs text-muted">{line.product.sku}</p>
         <p className="mt-1 text-xs text-muted">
-          {line.source === "modular-set" ? "From configurator" : "From catalog"} · €
-          {unit.toFixed(2)} each
+          {line.source === "modular-set" ? "З конфігуратора рамок" : "З каталогу"} · €
+          {unit.toFixed(2)} за шт.
         </p>
       </div>
 
@@ -34,7 +34,7 @@ export function CartLineItem({ line }: CartLineItemProps) {
             type="button"
             onClick={() => updateQuantity(line.lineId, line.quantity - 1)}
             className="px-3 py-1.5 text-lg text-slate-600 hover:bg-slate-50"
-            aria-label="Decrease quantity"
+            aria-label="Зменшити кількість"
           >
             −
           </button>
@@ -43,7 +43,7 @@ export function CartLineItem({ line }: CartLineItemProps) {
             type="button"
             onClick={() => updateQuantity(line.lineId, line.quantity + 1)}
             className="px-3 py-1.5 text-lg text-slate-600 hover:bg-slate-50"
-            aria-label="Increase quantity"
+            aria-label="Збільшити кількість"
           >
             +
           </button>
@@ -54,7 +54,7 @@ export function CartLineItem({ line }: CartLineItemProps) {
           onClick={() => removeLine(line.lineId)}
           className="text-sm text-red-600 hover:text-red-700"
         >
-          Remove
+          Видалити
         </button>
       </div>
     </li>

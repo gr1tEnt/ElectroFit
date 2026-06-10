@@ -54,14 +54,14 @@ export function ProductImageGallery({
       </div>
 
       {galleryImages.length > 1 && (
-        <div className="flex flex-wrap gap-3" aria-label="Product image thumbnails">
+        <div className="flex flex-wrap gap-3" aria-label="Мініатюри зображень товару">
           {galleryImages.map((url, index) => {
             const selected = index === activeIndex;
             return (
               <button
                 key={`${url}-${index}`}
                 type="button"
-                aria-label={`View image ${index + 1} of ${galleryImages.length}`}
+                aria-label={`Переглянути зображення ${index + 1} з ${galleryImages.length}`}
                 aria-pressed={selected}
                 onClick={() => setActiveIndex(index)}
                 className={`overflow-hidden rounded-xl border-2 bg-white p-1 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${

@@ -18,9 +18,9 @@ export function LoginPageClient() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-12 sm:px-6">
-      <h1 className="text-2xl font-bold text-ink">Sign in</h1>
+      <h1 className="text-2xl font-bold text-ink">Вхід</h1>
       <p className="mt-2 text-sm text-muted">
-        Access your profile and order history.
+        Доступ до профілю та історії замовлень.
       </p>
       <div className="mt-8 rounded-2xl border border-border bg-white p-6 shadow-sm">
         <AuthForm
@@ -30,7 +30,7 @@ export function LoginPageClient() {
       </div>
       <p className="mt-6 text-center text-sm text-muted">
         <Link href="/" className="text-brand-600 hover:underline">
-          ← Back to store
+          ← Назад до магазину
         </Link>
       </p>
     </div>

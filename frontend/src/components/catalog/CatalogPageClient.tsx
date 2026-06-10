@@ -79,7 +79,7 @@ export function CatalogPageClient() {
       if (requestId !== loadRequestRef.current) {
         return;
       }
-      setError(getErrorMessage(err, "Failed to load catalog"));
+      setError(getErrorMessage(err, "Не вдалося завантажити каталог"));
       setProducts([]);
     } finally {
       if (requestId === loadRequestRef.current) {
@@ -139,12 +139,12 @@ export function CatalogPageClient() {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
-          Professionals
+          Професіоналам
         </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-ink">Product catalog</h1>
+        <h1 className="mt-1 text-3xl font-bold tracking-tight text-ink">Каталог товарів</h1>
         <p className="mt-2 max-w-2xl text-muted">
-          Browse mechanisms and frames with deep technical filtering — IP rating, amperage, and
-          safety features for compliant installations.
+          Переглядайте механізми та рамки з глибокою технічною фільтрацією — клас IP, ампераж і
+          функції безпеки для відповідних монтажів.
         </p>
       </div>
 
@@ -171,15 +171,19 @@ export function CatalogPageClient() {
 
           <div className="mb-4 mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted">
-              {loading ? "Loading catalog…" : `${filtered.length} of ${products.length} products`}
+              {loading
+                ? "Завантаження каталогу…"
+                : `${filtered.length} з ${products.length} товарів`}
               {debouncedSearch && !loading && (
                 <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
-                  matching &ldquo;{debouncedSearch}&rdquo;
+                  відповідає &ldquo;{debouncedSearch}&rdquo;
                 </span>
               )}
               {activeFilterCount > 0 && (
                 <span className="ml-2 rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
-                  {activeFilterCount} filter{activeFilterCount !== 1 ? "s" : ""} active
+                  {activeFilterCount === 1
+                    ? "1 активний фільтр"
+                    : `${activeFilterCount} активних фільтрів`}
                 </span>
               )}
             </p>
@@ -189,7 +193,7 @@ export function CatalogPageClient() {
             <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
               {error}
               <span className="block text-xs text-red-600/80 mt-1">
-                Ensure the Spring Boot API is running at {process.env.NEXT_PUBLIC_API_URL}
+                Переконайтеся, що Spring Boot API працює на {process.env.NEXT_PUBLIC_API_URL}
               </span>
             </div>
           )}

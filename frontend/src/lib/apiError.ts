@@ -14,7 +14,7 @@ export class ApiError extends Error {
   }
 }
 
-export function getErrorMessage(err: unknown, fallback = "Something went wrong"): string {
+export function getErrorMessage(err: unknown, fallback = "Щось пішло не так"): string {
   if (err instanceof ApiError) {
     return err.message;
   }

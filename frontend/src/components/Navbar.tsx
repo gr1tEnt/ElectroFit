@@ -5,10 +5,10 @@ import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
 const navLinks = [
-  { href: "/catalog", label: "Professionals" },
-  { href: "/configurator", label: "Configurator" },
-  { href: "/smart-select", label: "Smart Select" },
-  { href: "/support", label: "Support" },
+  { href: "/catalog", label: "Професіоналам" },
+  { href: "/configurator", label: "Конфігуратор рамок" },
+  { href: "/smart-select", label: "Розумний підбір" },
+  { href: "/support", label: "Підтримка" },
 ];
 
 export function Navbar() {
@@ -24,7 +24,7 @@ export function Navbar() {
           </span>
           <div className="leading-tight">
             <p className="text-sm font-semibold tracking-tight text-ink">ElectroFit</p>
-            <p className="text-xs text-muted">Electrical accessories</p>
+            <p className="text-xs text-muted">Електроаксесуари</p>
           </div>
         </Link>
 
@@ -47,14 +47,14 @@ export function Navbar() {
                 href="/profile"
                 className="hidden rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-brand-50 hover:text-brand-700 sm:inline-flex"
               >
-                {user?.fullName.split(" ")[0] ?? "Profile"}
+                {user?.fullName.split(" ")[0] ?? "Профіль"}
               </Link>
               <button
                 type="button"
                 onClick={logout}
                 className="hidden rounded-lg border border-border px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 sm:inline-flex"
               >
-                Sign out
+                Вийти
               </button>
             </>
           ) : (
@@ -63,13 +63,13 @@ export function Navbar() {
                 href="/login"
                 className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-brand-50 hover:text-brand-700"
               >
-                Sign in
+                Увійти
               </Link>
               <Link
                 href="/register"
                 className="hidden rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-ink hover:bg-slate-200 sm:inline-flex"
               >
-                Register
+                Реєстрація
               </Link>
             </>
           )}
@@ -77,7 +77,7 @@ export function Navbar() {
             href="/cart"
             className="relative rounded-lg border border-border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            Cart
+            Кошик
             {itemCount > 0 && (
               <span className="ml-1.5 inline-flex min-w-[1.25rem] justify-center rounded-full bg-brand-600 px-1.5 py-0.5 text-xs font-bold text-white">
                 {itemCount}
@@ -89,7 +89,7 @@ export function Navbar() {
               href="/checkout"
               className="hidden rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 sm:inline-flex"
             >
-              Checkout · €{subtotal.toFixed(2)}
+              Оформлення замовлення · €{subtotal.toFixed(2)}
             </Link>
           )}
         </div>

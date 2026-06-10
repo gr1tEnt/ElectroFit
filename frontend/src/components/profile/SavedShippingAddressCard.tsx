@@ -30,15 +30,15 @@ export function SavedShippingAddressCard({ userEmail }: SavedShippingAddressCard
 
   const handleSave = () => {
     if (!form.streetAddress.trim()) {
-      setError("Please enter your street address.");
+      setError("Введіть адресу вулиці.");
       return;
     }
     if (!form.city.trim()) {
-      setError("Please enter your city.");
+      setError("Введіть місто.");
       return;
     }
     if (!form.phone.trim()) {
-      setError("Please enter your phone number.");
+      setError("Введіть номер телефону.");
       return;
     }
 
@@ -57,39 +57,39 @@ export function SavedShippingAddressCard({ userEmail }: SavedShippingAddressCard
 
   return (
     <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-ink">Saved Shipping Address</h2>
+      <h2 className="text-lg font-semibold text-ink">Збережена адреса доставки</h2>
       <p className="mt-1 text-sm text-muted">
-        Save your details once and they will be pre-filled at checkout.
+        Збережіть дані один раз — вони будуть підставлені при оформленні замовлення.
       </p>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label htmlFor="profile-street" className="block text-sm font-medium text-ink">
-            Street address
+            Адреса вулиці
           </label>
           <input
             id="profile-street"
             value={form.streetAddress}
             onChange={(e) => setForm({ ...form, streetAddress: e.target.value })}
             className={inputClass}
-            placeholder="123 Main Street, Apt 4"
+            placeholder="вул. Хрещатик, 1, кв. 4"
           />
         </div>
         <div>
           <label htmlFor="profile-city" className="block text-sm font-medium text-ink">
-            City
+            Місто
           </label>
           <input
             id="profile-city"
             value={form.city}
             onChange={(e) => setForm({ ...form, city: e.target.value })}
             className={inputClass}
-            placeholder="Prague"
+            placeholder="Київ"
           />
         </div>
         <div>
           <label htmlFor="profile-phone" className="block text-sm font-medium text-ink">
-            Phone number
+            Номер телефону
           </label>
           <input
             id="profile-phone"
@@ -97,7 +97,7 @@ export function SavedShippingAddressCard({ userEmail }: SavedShippingAddressCard
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             className={inputClass}
-            placeholder="+420 123 456 789"
+            placeholder="+380 12 345 67 89"
           />
         </div>
       </div>
@@ -112,7 +112,7 @@ export function SavedShippingAddressCard({ userEmail }: SavedShippingAddressCard
         disabled={saving}
         className="mt-5 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
       >
-        {saving ? "Saving…" : "Save Address"}
+        {saving ? "Збереження…" : "Зберегти адресу"}
       </button>
     </section>
   );

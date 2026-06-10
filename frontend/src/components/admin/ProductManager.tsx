@@ -62,7 +62,7 @@ export function ProductManager() {
       const data = await fetchAllProducts();
       setProducts(data.map((product) => ({ ...product, price: Number(product.price) })));
     } catch (err) {
-      setError(getErrorMessage(err, "Failed to load products"));
+      setError(getErrorMessage(err, "Не вдалося завантажити товари"));
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -109,7 +109,7 @@ export function ProductManager() {
 
   const handleDelete = async (product: Product) => {
     const confirmed = window.confirm(
-      `Delete "${product.name}" (${product.sku})? This cannot be undone.`,
+      `Видалити «${product.name}» (${product.sku})? Цю дію не можна скасувати.`,
     );
     if (!confirmed) return;
 
@@ -119,7 +119,7 @@ export function ProductManager() {
       await deleteProduct(product.id);
       setProducts((prev) => prev.filter((p) => p.id !== product.id));
     } catch (err) {
-      setError(getErrorMessage(err, "Failed to delete product"));
+      setError(getErrorMessage(err, "Не вдалося видалити товар"));
     } finally {
       setDeletingId(null);
     }
@@ -129,9 +129,9 @@ export function ProductManager() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">Products Management</h2>
+          <h2 className="text-2xl font-bold text-white">Керування товарами</h2>
           <p className="mt-1 text-slate-400">
-            {loading ? "Loading…" : `${products.length} products in catalog`}
+            {loading ? "Завантаження…" : `${products.length} товарів у каталозі`}
           </p>
         </div>
         <button
@@ -139,7 +139,7 @@ export function ProductManager() {
           onClick={openCreateModal}
           className="rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-amber-400"
         >
-          + Add New Product
+          + Додати товар
         </button>
       </div>
 
@@ -152,12 +152,12 @@ export function ProductManager() {
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
               <tr className="border-b border-slate-800 bg-slate-800/50 text-xs uppercase tracking-wide text-slate-400">
-                <th className="px-4 py-3 font-medium">Name</th>
+                <th className="px-4 py-3 font-medium">Назва</th>
                 <th className="px-4 py-3 font-medium">SKU</th>
-                <th className="px-4 py-3 font-medium">Brand</th>
-                <th className="px-4 py-3 font-medium">Category</th>
-                <th className="px-4 py-3 font-medium text-right">Price</th>
-                <th className="px-4 py-3 font-medium text-right">Actions</th>
+                <th className="px-4 py-3 font-medium">Бренд</th>
+                <th className="px-4 py-3 font-medium">Категорія</th>
+                <th className="px-4 py-3 font-medium text-right">Ціна</th>
+                <th className="px-4 py-3 font-medium text-right">Дії</th>
               </tr>
             </thead>
             <tbody>
@@ -172,7 +172,7 @@ export function ProductManager() {
               {!loading && products.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-4 py-12 text-center text-slate-500">
-                    No products yet. Add your first product.
+                    Товарів ще немає. Додайте перший товар.
                   </td>
                 </tr>
               )}
@@ -199,8 +199,8 @@ export function ProductManager() {
                           type="button"
                           onClick={() => openEditModal(product)}
                           className="inline-flex items-center justify-center rounded-lg border border-slate-600 bg-slate-800/60 p-2 text-slate-200 transition hover:bg-slate-700 hover:text-white"
-                          aria-label={`Edit ${product.name}`}
-                          title="Edit product"
+                          aria-label={`Редагувати ${product.name}`}
+                          title="Редагувати товар"
                         >
                           <PencilIcon />
                         </button>
@@ -209,8 +209,8 @@ export function ProductManager() {
                           onClick={() => handleDelete(product)}
                           disabled={deletingId === product.id}
                           className="inline-flex items-center justify-center rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-red-300 transition hover:bg-red-500/20 hover:text-red-200 disabled:opacity-50"
-                          aria-label={`Delete ${product.name}`}
-                          title="Delete product"
+                          aria-label={`Видалити ${product.name}`}
+                          title="Видалити товар"
                         >
                           <TrashIcon />
                         </button>

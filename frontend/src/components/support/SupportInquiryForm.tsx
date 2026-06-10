@@ -5,10 +5,10 @@ import { submitSupportMessage } from "@/lib/adminApi";
 import { useState } from "react";
 
 const inquiryTypes = [
-  "Technical Safety Advice",
-  "Product Compatibility Issue",
-  "Order Support",
-  "Other",
+  "Технічна консультація з безпеки",
+  "Проблема сумісності товарів",
+  "Підтримка замовлення",
+  "Інше",
 ] as const;
 
 type InquiryType = (typeof inquiryTypes)[number];
@@ -23,7 +23,7 @@ interface FormState {
 const initialForm: FormState = {
   fullName: "",
   email: "",
-  inquiryType: "Technical Safety Advice",
+  inquiryType: "Технічна консультація з безпеки",
   message: "",
 };
 
@@ -46,7 +46,7 @@ export function SupportInquiryForm() {
       });
       setSubmitted(true);
     } catch (err) {
-      setError(getErrorMessage(err, "Failed to send your message. Please try again."));
+      setError(getErrorMessage(err, "Не вдалося надіслати повідомлення. Спробуйте ще раз."));
     } finally {
       setSubmitting(false);
     }
@@ -58,10 +58,10 @@ export function SupportInquiryForm() {
         <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-2xl text-white shadow-lg shadow-emerald-600/20">
           ✓
         </span>
-        <h3 className="mt-4 text-xl font-bold text-emerald-900">Thank you!</h3>
+        <h3 className="mt-4 text-xl font-bold text-emerald-900">Дякуємо!</h3>
         <p className="mt-2 text-sm leading-relaxed text-emerald-800">
-          Your message has been sent. Our support team (or certified electrician) will contact you
-          within 2 hours.
+          Ваше повідомлення надіслано. Наша команда підтримки (або сертифікований електрик) зв&apos;яжеться з вами
+          протягом 2 годин.
         </p>
         <button
           type="button"
@@ -72,7 +72,7 @@ export function SupportInquiryForm() {
           }}
           className="mt-6 text-sm font-semibold text-brand-600 transition hover:text-brand-700 hover:underline"
         >
-          Send another message
+          Надіслати ще одне повідомлення
         </button>
       </div>
     );
@@ -83,9 +83,9 @@ export function SupportInquiryForm() {
       onSubmit={handleSubmit}
       className="rounded-2xl border border-border bg-white p-6 shadow-sm sm:p-8"
     >
-      <h3 className="text-lg font-semibold text-ink">Send us a message</h3>
+      <h3 className="text-lg font-semibold text-ink">Надішліть нам повідомлення</h3>
       <p className="mt-1 text-sm text-muted">
-        Our team includes certified electricians for technical safety questions.
+        У нашій команді є сертифіковані електрики для технічних питань з безпеки.
       </p>
 
       {error && (
@@ -95,7 +95,7 @@ export function SupportInquiryForm() {
       <div className="mt-6 space-y-4">
         <div>
           <label htmlFor="support-name" className="mb-1 block text-sm font-medium text-ink">
-            Full Name
+            Повне ім&apos;я
           </label>
           <input
             id="support-name"
@@ -104,13 +104,13 @@ export function SupportInquiryForm() {
             value={form.fullName}
             onChange={(e) => setForm({ ...form, fullName: e.target.value })}
             className="w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-            placeholder="John Smith"
+            placeholder="Іван Коваленко"
           />
         </div>
 
         <div>
           <label htmlFor="support-email" className="mb-1 block text-sm font-medium text-ink">
-            Email
+            Електронна пошта
           </label>
           <input
             id="support-email"
@@ -119,13 +119,13 @@ export function SupportInquiryForm() {
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             className="w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-            placeholder="you@example.com"
+            placeholder="ви@example.com"
           />
         </div>
 
         <div>
           <label htmlFor="support-type" className="mb-1 block text-sm font-medium text-ink">
-            Inquiry Type
+            Тип звернення
           </label>
           <select
             id="support-type"
@@ -145,7 +145,7 @@ export function SupportInquiryForm() {
 
         <div>
           <label htmlFor="support-message" className="mb-1 block text-sm font-medium text-ink">
-            Message
+            Повідомлення
           </label>
           <textarea
             id="support-message"
@@ -154,7 +154,7 @@ export function SupportInquiryForm() {
             value={form.message}
             onChange={(e) => setForm({ ...form, message: e.target.value })}
             className="w-full resize-y rounded-lg border border-border px-3 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-            placeholder="Describe your question or issue…"
+            placeholder="Опишіть ваше запитання або проблему…"
           />
         </div>
       </div>
@@ -164,7 +164,7 @@ export function SupportInquiryForm() {
         disabled={submitting}
         className="mt-6 w-full rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-brand-700 disabled:opacity-60 sm:w-auto sm:px-8"
       >
-        {submitting ? "Sending…" : "Submit inquiry"}
+        {submitting ? "Надсилання…" : "Надіслати звернення"}
       </button>
     </form>
   );

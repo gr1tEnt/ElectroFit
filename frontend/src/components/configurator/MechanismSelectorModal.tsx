@@ -51,18 +51,18 @@ export function MechanismSelectorModal({
       <button
         type="button"
         className="absolute inset-0 bg-slate-900/50 backdrop-blur-[1px]"
-        aria-label="Close mechanism selector"
+        aria-label="Закрити вибір механізму"
         onClick={onClose}
       />
 
       <div className="relative z-10 flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-2xl">
         <div className="border-b border-border px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">Change slot</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">Змінити позицію</p>
           <h2 id="mechanism-selector-title" className="mt-1 text-lg font-bold text-ink">
-            Slot {slotIndex + 1} — pick a mechanism
+            Позиція {slotIndex + 1} — оберіть механізм
           </h2>
           <p className="mt-1 text-sm text-muted">
-            {brandName} · {seriesName}. All mechanisms from this series fit the same frame.
+            {brandName} · {seriesName}. Усі механізми цієї серії підходять до тієї самої рамки.
           </p>
         </div>
 
@@ -79,7 +79,7 @@ export function MechanismSelectorModal({
 
           {!loading && !error && mechanisms.length === 0 && (
             <p className="px-2 py-6 text-center text-sm text-muted">
-              No compatible single-post mechanisms found for {brandName} {seriesName}.
+              Не знайдено сумісних однопостових механізмів для {brandName} {seriesName}.
             </p>
           )}
 
@@ -131,7 +131,7 @@ export function MechanismSelectorModal({
             onClick={onClose}
             className="w-full rounded-lg border border-border px-4 py-2.5 text-sm font-semibold text-ink hover:bg-slate-50"
           >
-            Cancel
+            Скасувати
           </button>
         </div>
       </div>

@@ -17,7 +17,7 @@ export function ExportEstimateButton({ items }: ExportEstimateButtonProps) {
     try {
       await exportEstimateToPdf(items);
     } catch (err) {
-      window.alert(getErrorMessage(err, "Could not generate the PDF. Please try again."));
+      window.alert(getErrorMessage(err, "Не вдалося створити PDF. Спробуйте ще раз."));
     } finally {
       setExporting(false);
     }
@@ -27,9 +27,9 @@ export function ExportEstimateButton({ items }: ExportEstimateButtonProps) {
     <div className="rounded-xl border border-amber-200/80 bg-gradient-to-br from-amber-50 to-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-amber-700">Pro feature</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-amber-700">Професійна функція</p>
           <p className="mt-1 text-sm text-muted">
-            Download a printable estimate for your client or project file.
+            Завантажте друковану кошторисну оцінку для клієнта або проєктної документації.
           </p>
         </div>
         <button
@@ -38,7 +38,7 @@ export function ExportEstimateButton({ items }: ExportEstimateButtonProps) {
           disabled={exporting}
           className="shrink-0 rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-sm font-semibold text-amber-900 shadow-sm transition hover:bg-amber-50 disabled:cursor-wait disabled:opacity-60"
         >
-          {exporting ? "Generating…" : "Export Estimate to PDF"}
+          {exporting ? "Створення…" : "Експорт кошторису в PDF"}
         </button>
       </div>
     </div>

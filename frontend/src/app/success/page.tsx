@@ -7,7 +7,7 @@ export default function CheckoutSuccessPage() {
       <Suspense
         fallback={
           <div className="mx-auto max-w-lg rounded-3xl border border-border bg-white p-10 text-center text-muted">
-            Loading confirmation…
+            Завантаження підтвердження…
           </div>
         }
       >

@@ -11,22 +11,22 @@ export function CartView() {
   if (itemCount === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-border bg-white p-12 text-center">
-        <p className="text-lg font-semibold text-ink">Your cart is empty</p>
+        <p className="text-lg font-semibold text-ink">Ваш кошик порожній</p>
         <p className="mt-2 text-sm text-muted">
-          Add products from the catalog or build a modular set in the configurator.
+          Додайте товари з каталогу або зберіть модульний комплект у конфігураторі рамок.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             href="/catalog"
             className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white"
           >
-            Browse catalog
+            Переглянути каталог
           </Link>
           <Link
             href="/configurator"
             className="rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-ink"
           >
-            Open configurator
+            Відкрити конфігуратор рамок
           </Link>
         </div>
       </div>
@@ -41,7 +41,7 @@ export function CartView() {
         ))}
       </ul>
       <div className="flex items-center justify-between rounded-xl bg-slate-50 px-5 py-4">
-        <span className="font-medium text-ink">Subtotal</span>
+        <span className="font-medium text-ink">Проміжна сума</span>
         <span className="text-xl font-bold text-ink">€{subtotal.toFixed(2)}</span>
       </div>
       <ExportEstimateButton items={items} />
@@ -49,7 +49,7 @@ export function CartView() {
         href="/checkout"
         className="block w-full rounded-xl bg-brand-600 py-3 text-center text-sm font-semibold text-white hover:bg-brand-700"
       >
-        Proceed to checkout
+        Перейти до оформлення замовлення
       </Link>
     </div>
   );

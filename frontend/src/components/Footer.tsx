@@ -3,17 +3,17 @@ import type { ReactNode } from "react";
 import { CONTACT_EMAIL } from "@/lib/siteConfig";
 
 const quickLinks = [
-  { href: "/", label: "Home" },
-  { href: "/catalog", label: "Catalog" },
-  { href: "/smart-select", label: "Smart Selector" },
-  { href: "/configurator", label: "Configurator" },
+  { href: "/", label: "Головна" },
+  { href: "/catalog", label: "Каталог" },
+  { href: "/smart-select", label: "Розумний підбір" },
+  { href: "/configurator", label: "Конфігуратор рамок" },
 ];
 
 const safetyZoneLinks = [
-  { href: "/catalog?search=IP20", label: "Sockets IP20 (Dry Rooms)" },
-  { href: "/catalog?search=IP44", label: "Sockets IP44 (Bathrooms)" },
-  { href: "/catalog?search=IP55", label: "Outdoor Gear IP55/IP65" },
-  { href: "/catalog?search=child", label: "Child-safe Solutions" },
+  { href: "/catalog?search=IP20", label: "Розетки IP20 (сухі приміщення)" },
+  { href: "/catalog?search=IP44", label: "Розетки IP44 (ванні кімнати)" },
+  { href: "/catalog?search=IP55", label: "Обладнання IP55/IP65 (вулиця)" },
+  { href: "/catalog?search=child", label: "Рішення з захистом від дітей" },
 ];
 
 const socialLinks = [
@@ -72,8 +72,8 @@ export function Footer() {
               <span className="text-lg font-bold tracking-tight text-white">ElectroFit</span>
             </Link>
             <p className="max-w-xs text-sm leading-relaxed">
-              Smart web resource for selecting electrical wiring accessories based on specific
-              operating and environmental conditions.
+              Розумний веб-ресурс для підбору електроаксесуарів з урахуванням конкретних умов
+              експлуатації та навколишнього середовища.
             </p>
             <div className="flex items-center gap-3 pt-1">
               {socialLinks.map((social) => (
@@ -93,7 +93,7 @@ export function Footer() {
 
           {/* Column 2 — Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-white">Quick Links</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-white">Швидкі посилання</h3>
             <ul className="mt-4 space-y-2.5">
               {quickLinks.map((link) => (
                 <li key={link.href}>
@@ -111,7 +111,7 @@ export function Footer() {
           {/* Column 3 — Safety Zones */}
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-white">
-              Safety Zones
+              Зони безпеки
             </h3>
             <ul className="mt-4 space-y-2.5">
               {safetyZoneLinks.map((link) => (
@@ -129,19 +129,19 @@ export function Footer() {
 
           {/* Column 4 — Contacts & Payments */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-white">Contacts</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-white">Контакти</h3>
             <ul className="mt-4 space-y-2 text-sm">
               <li>
                 <a
                   href={`mailto:${CONTACT_EMAIL}`}
                   className="transition-colors hover:text-blue-400"
                 >
-                  Email: {CONTACT_EMAIL}
+                  Ел. пошта: {CONTACT_EMAIL}
                 </a>
               </li>
               <li>
                 <a href="tel:+380441234567" className="transition-colors hover:text-blue-400">
-                  Phone: +380 44 123 4567
+                  Телефон: +380 44 123 4567
                 </a>
               </li>
             </ul>
@@ -175,11 +175,11 @@ export function Footer() {
 
       <div className="border-t border-slate-800">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-6 text-xs leading-relaxed sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <p>Copyright &copy; 2026 ElectroFit. All Rights Reserved.</p>
+          <p>Авторські права &copy; 2026 ElectroFit. Усі права захищено.</p>
           <p className="max-w-xl text-slate-500 lg:text-right">
-            <span className="font-medium text-slate-400">Warning:</span> All electrical
-            installations must be performed in compliance with national safety standards (IEC
-            60364) by a licensed electrician.
+            <span className="font-medium text-slate-400">Попередження:</span> усі електромонтажні
+            роботи мають виконуватися відповідно до національних стандартів безпеки (IEC 60364)
+            ліцензованим електриком.
           </p>
         </div>
       </div>

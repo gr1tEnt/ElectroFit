@@ -13,36 +13,36 @@ const environments: {
 }[] = [
   {
     room: "BATHROOM",
-    title: "Bathroom",
+    title: "Ванна кімната",
     badge: "IP44+",
-    description: "Wet rooms, protection against water splashes.",
+    description: "Вологі приміщення, захист від бризок води.",
     tint: "hover:border-sky-200 hover:bg-sky-50/80",
     iconBg: "bg-sky-100 text-sky-700 group-hover:bg-sky-600 group-hover:text-white",
     href: "/smart-select?room=BATHROOM",
   },
   {
     room: "BEDROOM",
-    title: "Living Room",
+    title: "Вітальня",
     badge: "IP20",
-    description: "Standard dry rooms, focus on design and child-safety.",
+    description: "Стандартні сухі приміщення, акцент на дизайн і захист від дітей.",
     tint: "hover:border-violet-200 hover:bg-violet-50/80",
     iconBg: "bg-violet-100 text-violet-700 group-hover:bg-violet-600 group-hover:text-white",
     href: "/smart-select?room=BEDROOM",
   },
   {
     room: "KITCHEN",
-    title: "Kitchen",
+    title: "Кухня",
     badge: "IP44",
-    description: "Protection against oil, grease, and water splashes.",
+    description: "Захист від олії, жиру та бризок води.",
     tint: "hover:border-amber-200 hover:bg-amber-50/80",
     iconBg: "bg-amber-100 text-amber-700 group-hover:bg-amber-600 group-hover:text-white",
     href: "/smart-select?room=KITCHEN",
   },
   {
     room: "OUTDOOR",
-    title: "Outdoor",
+    title: "Вулиця",
     badge: "IP54+",
-    description: "Heavy-duty protection against dust, rain, and extreme temperatures.",
+    description: "Посилений захист від пилу, дощу та екстремальних температур.",
     tint: "hover:border-emerald-200 hover:bg-emerald-50/80",
     iconBg: "bg-emerald-100 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white",
     href: "/smart-select?room=OUTDOOR",
@@ -54,8 +54,8 @@ export function HomeEnvironmentsSection() {
     <section className="border-t border-border bg-surface py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-ink">Choose by Operating Conditions</h2>
-          <p className="mt-3 text-muted">Select your room type to see safe options</p>
+          <h2 className="text-3xl font-bold tracking-tight text-ink">Оберіть за умовами експлуатації</h2>
+          <p className="mt-3 text-muted">Оберіть тип приміщення, щоб побачити безпечні варіанти</p>
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -78,7 +78,7 @@ export function HomeEnvironmentsSection() {
               <h3 className="mt-4 text-lg font-semibold text-ink">{env.title}</h3>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{env.description}</p>
               <span className="mt-4 text-sm font-medium text-brand-600 transition-colors group-hover:text-brand-700">
-                View safe options →
+                Переглянути безпечні варіанти →
               </span>
             </Link>
           ))}

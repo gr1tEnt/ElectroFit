@@ -23,10 +23,10 @@ export function ModularSetPreview({
     <div className="rounded-2xl border-2 border-dashed border-brand-200 bg-gradient-to-b from-white to-brand-50/40 p-6">
       <div className="mb-4 text-center">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-          Your modular assembly
+          Ваш модульний комплект
         </p>
         <p className="mt-1 text-sm text-muted">
-          Click any slot to swap the mechanism — mix sockets, switches, USB ports, and more.
+          Натисніть на позицію, щоб змінити механізм — комбінуйте розетки, вимикачі, USB-порти тощо.
         </p>
       </div>
 
@@ -45,7 +45,7 @@ export function ModularSetPreview({
 
         <div className="flex items-center justify-center gap-2 text-brand-400">
           <span className="h-px flex-1 bg-brand-200" />
-          <span className="text-xs font-medium">fits into</span>
+          <span className="text-xs font-medium">встановлюється в</span>
           <span className="h-px flex-1 bg-brand-200" />
         </div>
 
@@ -78,10 +78,10 @@ function MechanismSlot({
       type="button"
       onClick={onChange}
       className={`group relative flex shrink-0 flex-col items-center rounded-xl border border-border bg-white p-2 shadow-sm transition hover:border-brand-500 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 sm:p-3 ${cardSize}`}
-      aria-label={`Change mechanism in slot ${slotIndex + 1}: ${product.name}`}
+      aria-label={`Змінити механізм у позиції ${slotIndex + 1}: ${product.name}`}
     >
       <span className="absolute right-1 top-1 rounded-full bg-brand-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
-        Change
+        Змінити
       </span>
 
       <div className={`flex items-center justify-center rounded-lg bg-white p-2 ${imageSize}`}>
@@ -91,7 +91,7 @@ function MechanismSlot({
           className="h-full w-full object-contain"
         />
       </div>
-      <p className="mt-2 text-center text-xs font-medium text-ink">Slot {slotIndex + 1}</p>
+      <p className="mt-2 text-center text-xs font-medium text-ink">Позиція {slotIndex + 1}</p>
       <p className="line-clamp-2 text-center text-[10px] leading-tight text-muted">{product.name}</p>
     </button>
   );
@@ -106,7 +106,7 @@ function FrameSlot({ frame, posts }: { frame: Product; posts: number }) {
         </div>
         <div className="min-w-0 flex-1">
           <span className="inline-block rounded-full bg-accent px-2.5 py-0.5 text-xs font-bold text-white">
-            {posts}-post frame
+            {posts}-позиційна рамка
           </span>
           <p className="mt-1 font-semibold text-ink">{frame.name}</p>
           <p className="font-mono text-xs text-muted">{frame.sku}</p>

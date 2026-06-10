@@ -9,30 +9,30 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
         <div className="mx-auto max-w-2xl text-center">
           <h1 className="text-4xl font-bold tracking-tight text-ink sm:text-5xl">
-            Electrical accessories for professionals
+            Електроаксесуари для професіоналів
           </h1>
           <p className="mt-4 text-lg text-muted">
-            Sockets, switches, frames, and mechanisms — filter by IP rating, amperage, and safety
-            specs.
+            Розетки, вимикачі, рамки та механізми — фільтруйте за IP, струмом і параметрами
+            безпеки.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/configurator"
               className="inline-flex rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand-700"
             >
-              Modular configurator
+              Конфігуратор рамок
             </Link>
             <Link
               href="/smart-select"
               className="inline-flex rounded-xl border border-border bg-white px-6 py-3 text-sm font-semibold text-ink shadow-sm transition hover:bg-slate-50"
             >
-              Smart Selector
+              Розумний підбір
             </Link>
             <Link
               href="/catalog"
               className="inline-flex rounded-xl border border-border bg-white px-6 py-3 text-sm font-semibold text-ink shadow-sm transition hover:bg-slate-50"
             >
-              Professional catalog
+              Професійний каталог
             </Link>
           </div>
         </div>

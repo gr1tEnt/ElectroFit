@@ -1,9 +1,9 @@
 import { cartSubtotal, lineSubtotal } from "@/lib/cartUtils";
 import type { CartLine } from "@/types/cart";
 
-const TITLE = "Electrical Accessories Estimate";
+const TITLE = "Кошторис електроаксесуарів";
 const DISCLAIMER =
-  "Attention: Installation must be performed by a certified electrician";
+  "Увага: монтаж має виконувати сертифікований електрик";
 
 function formatMoney(amount: number): string {
   return `€${amount.toFixed(2)}`;
@@ -19,10 +19,10 @@ function brandLabel(line: CartLine): string {
 
 export async function exportEstimateToPdf(items: CartLine[]): Promise<void> {
   if (typeof window === "undefined") {
-    throw new Error("PDF export is only available in the browser.");
+    throw new Error("Експорт PDF доступний лише в браузері.");
   }
   if (items.length === 0) {
-    throw new Error("Add items to the cart before exporting.");
+    throw new Error("Додайте товари до кошика перед експортом.");
   }
 
   const { default: jsPDF } = await import("jspdf");
@@ -43,16 +43,18 @@ export async function exportEstimateToPdf(items: CartLine[]): Promise<void> {
 
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  const dateLabel = new Date().toLocaleDateString(undefined, {
+  const dateLabel = new Date().toLocaleDateString("uk-UA", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
-  doc.text(`Generated: ${dateLabel}`, margin, 26);
+  doc.text(`Створено: ${dateLabel}`, margin, 26);
 
   doc.setTextColor(30, 41, 59);
   doc.setFontSize(10);
-  doc.text(`${items.length} line item${items.length === 1 ? "" : "s"}`, margin, 42);
+  const lineItemLabel =
+    items.length === 1 ? "1 позиція" : `${items.length} позицій`;
+  doc.text(lineItemLabel, margin, 42);
 
   const tableBody = items.map((line) => [
     line.product.name,
@@ -64,7 +66,7 @@ export async function exportEstimateToPdf(items: CartLine[]): Promise<void> {
 
   autoTable(doc, {
     startY: 48,
-    head: [["Name", "Brand", "SKU", "Quantity", "Price"]],
+    head: [["Назва", "Бренд", "SKU", "Кількість", "Ціна"]],
     body: tableBody,
     margin: { left: margin, right: margin },
     styles: {
@@ -97,7 +99,7 @@ export async function exportEstimateToPdf(items: CartLine[]): Promise<void> {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(15, 23, 42);
-  doc.text("Total", margin, finalY + 14);
+  doc.text("Разом", margin, finalY + 14);
   doc.text(formatMoney(subtotal), pageWidth - margin, finalY + 14, { align: "right" });
 
   const disclaimerY = finalY + 28;
@@ -114,7 +116,7 @@ export async function exportEstimateToPdf(items: CartLine[]): Promise<void> {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
-  doc.text("ElectroFit — estimate for planning purposes only.", margin, disclaimerY + 24);
+  doc.text("ElectroFit — кошторис лише для планування.", margin, disclaimerY + 24);
 
   doc.save(`electrofit-estimate-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

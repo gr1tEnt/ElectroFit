@@ -6,8 +6,13 @@ import { ProductImage } from "@/components/product/ProductImage";
 import { isFrameProduct } from "@/lib/productUtils";
 import { lineUnitPrice } from "@/lib/cartUtils";
 import { toastAddedToCart } from "@/lib/toast";
-import type { Product } from "@/types/product";
+import type { Product, ProductType } from "@/types/product";
 import type { MouseEvent } from "react";
+
+const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
+  MECHANISM: "Механізм",
+  FRAME: "Рамка",
+};
 
 interface ProductCardProps {
   product: Product;
@@ -58,7 +63,7 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
 
         {isFrame && product.framePostsCount != null && (
           <span className="absolute left-3 top-3 rounded-full bg-accent px-3 py-1 text-xs font-bold text-white shadow">
-            {product.framePostsCount}-post frame
+            {product.framePostsCount}-постова рамка
           </span>
         )}
 
@@ -88,11 +93,11 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
 
         <ul className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
           {!isFrame && product.maxAmps != null && (
-            <li className="rounded-md bg-slate-100 px-2 py-0.5">{product.maxAmps} A max</li>
+            <li className="rounded-md bg-slate-100 px-2 py-0.5">до {product.maxAmps} А</li>
           )}
           {!isFrame && product.hasChildProtection && (
             <li className="rounded-md bg-emerald-50 px-2 py-0.5 text-emerald-700">
-              Child protection
+              Дитячий захист
             </li>
           )}
           {product.categoryName && (
@@ -104,7 +109,7 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
           <div className="flex items-end justify-between">
             <p className="text-lg font-bold text-ink">€{price.toFixed(2)}</p>
             <span className="rounded-md bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700">
-              {product.type}
+              {PRODUCT_TYPE_LABELS[product.type]}
             </span>
           </div>
           <button
@@ -113,7 +118,7 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
             className="w-full rounded-lg border border-brand-600 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
             onMouseDown={(e) => e.stopPropagation()}
           >
-            Add to cart
+            Додати до кошика
           </button>
         </div>
       </div>

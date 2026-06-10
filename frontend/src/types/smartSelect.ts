@@ -9,35 +9,35 @@ export interface RoomOption {
 export const ROOM_OPTIONS: RoomOption[] = [
   {
     id: "BATHROOM",
-    label: "Bathroom",
-    description: "Wet areas with zone-specific rules",
+    label: "Ванна кімната",
+    description: "Вологі зони з правилами для окремих ділянок",
   },
   {
     id: "KITCHEN",
-    label: "Kitchen",
-    description: "Splash-prone work surfaces",
+    label: "Кухня",
+    description: "Робочі поверхні, схильні до бризок",
   },
   {
     id: "BEDROOM",
-    label: "Bedroom",
-    description: "Standard dry living spaces",
+    label: "Спальня",
+    description: "Стандартні сухі житлові приміщення",
   },
   {
     id: "KIDS_ROOM",
-    label: "Kids room",
-    description: "Child-safe protection required",
+    label: "Дитяча кімната",
+    description: "Потрібен захист від дітей",
   },
   {
     id: "OUTDOOR",
-    label: "Outdoor",
-    description: "Weather-exposed installations",
+    label: "На відкритому повітрі",
+    description: "Монтаж у відкритих умовах",
   },
 ];
 
 export const ROOM_LABELS: Record<RoomId, string> = {
-  BATHROOM: "Bathroom",
-  KITCHEN: "Kitchen",
-  BEDROOM: "Bedroom",
-  KIDS_ROOM: "Kids room",
-  OUTDOOR: "Outdoor",
+  BATHROOM: "Ванна кімната",
+  KITCHEN: "Кухня",
+  BEDROOM: "Спальня",
+  KIDS_ROOM: "Дитяча кімната",
+  OUTDOOR: "На відкритому повітрі",
 };

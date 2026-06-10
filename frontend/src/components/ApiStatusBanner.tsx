@@ -34,11 +34,11 @@ export function ApiStatusBanner() {
       role="alert"
       className="border-b border-amber-300 bg-amber-50 px-4 py-2.5 text-center text-sm text-amber-950"
     >
-      <strong>API offline.</strong> Cannot reach {getApiBase()}. Run{" "}
+      <strong>API недоступний.</strong> Не вдається підключитися до {getApiBase()}. Запустіть{" "}
       <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">
         mvn spring-boot:run
       </code>{" "}
-      in the project root, then refresh.
+      у корені проєкту, потім оновіть сторінку.
     </div>
   );
 }

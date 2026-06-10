@@ -161,7 +161,7 @@ export function CreateProductModal({
   const applyImageFile = (file: File | null) => {
     if (!file) return;
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      setError("Please upload a PNG or JPG image.");
+      setError("Завантажте зображення у форматі PNG або JPG.");
       return;
     }
     setError(null);
@@ -215,7 +215,7 @@ export function CreateProductModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (form.compatibleRoomTypes.length === 0) {
-      setError("Select at least one compatible room type.");
+      setError("Оберіть принаймні один тип приміщення.");
       return;
     }
     const productId = editingProductIdRef.current;
@@ -233,7 +233,7 @@ export function CreateProductModal({
       }
       onClose();
     } catch (err) {
-      setError(getErrorMessage(err, editMode ? "Failed to update product" : "Failed to create product"));
+      setError(getErrorMessage(err, editMode ? "Не вдалося оновити товар" : "Не вдалося створити товар"));
     } finally {
       setSubmitting(false);
     }
@@ -258,13 +258,13 @@ export function CreateProductModal({
       >
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-800 bg-slate-900 px-6 py-4">
           <h2 id="create-product-title" className="text-lg font-semibold text-white">
-            {isEditMode ? "Edit Product" : "Add New Product"}
+            {isEditMode ? "Редагувати товар" : "Додати товар"}
           </h2>
           <button
             type="button"
             onClick={handleClose}
             className="text-slate-400 hover:text-white"
-            aria-label="Close"
+            aria-label="Закрити"
           >
             ✕
           </button>
@@ -277,9 +277,9 @@ export function CreateProductModal({
 
           <section>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-amber-400">
-              Product image
+              Зображення товару
             </h3>
-            <p className="mt-1 text-xs text-slate-500">PNG or JPG, up to 10 MB.</p>
+            <p className="mt-1 text-xs text-slate-500">PNG або JPG, до 10 МБ.</p>
             <div className="mt-3 grid gap-4 sm:grid-cols-[1fr_140px]">
               <div
                 role="button"
@@ -307,9 +307,9 @@ export function CreateProductModal({
               >
                 <CloudUploadIcon />
                 <p className="mt-3 text-center text-sm font-medium text-slate-200">
-                  {isEditMode ? "Click to replace image or drag and drop" : "Click to upload or drag and drop"}
+                  {isEditMode ? "Натисніть, щоб замінити зображення, або перетягніть файл" : "Натисніть для завантаження або перетягніть файл"}
                 </p>
-                <p className="mt-1 text-center text-xs text-slate-500">PNG, JPG up to 10 MB</p>
+                <p className="mt-1 text-center text-xs text-slate-500">PNG, JPG до 10 МБ</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -325,7 +325,7 @@ export function CreateProductModal({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={imagePreviewSrc}
-                      alt="Product preview"
+                      alt="Попередній перегляд товару"
                       className="h-28 w-full rounded-lg object-contain"
                     />
                     <button
@@ -337,11 +337,11 @@ export function CreateProductModal({
                       }}
                       className="mt-2 text-xs text-red-300 hover:text-red-200"
                     >
-                      Remove
+                      Видалити
                     </button>
                   </>
                 ) : (
-                  <p className="text-center text-xs text-slate-500">Preview</p>
+                  <p className="text-center text-xs text-slate-500">Попередній перегляд</p>
                 )}
               </div>
             </div>
@@ -349,7 +349,7 @@ export function CreateProductModal({
 
           <section>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-amber-400">
-              Basic info
+              Основна інформація
             </h3>
             <div className="mt-3 grid gap-4 sm:grid-cols-2">
               <Field label="SKU" required>
@@ -360,7 +360,7 @@ export function CreateProductModal({
                   className={inputClass}
                 />
               </Field>
-              <Field label="Name" required>
+              <Field label="Назва" required>
                 <input
                   required
                   value={form.name}
@@ -368,7 +368,7 @@ export function CreateProductModal({
                   className={inputClass}
                 />
               </Field>
-              <Field label="Price (€)" required>
+              <Field label="Ціна (€)" required>
                 <input
                   required
                   type="number"
@@ -379,7 +379,7 @@ export function CreateProductModal({
                   className={inputClass}
                 />
               </Field>
-              <Field label="Product type" required>
+              <Field label="Тип товару" required>
                 <select
                   value={form.type}
                   onChange={(e) => handleTypeChange(e.target.value as ProductType)}
@@ -392,7 +392,7 @@ export function CreateProductModal({
                   ))}
                 </select>
               </Field>
-              <Field label="Category" required className="sm:col-span-2">
+              <Field label="Категорія" required className="sm:col-span-2">
                 <select
                   required
                   value={form.categoryName}
@@ -400,13 +400,13 @@ export function CreateProductModal({
                   className={inputClass}
                 >
                   {CATEGORY_OPTIONS.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
+                    <option key={category.value} value={category.value}>
+                      {category.label}
                     </option>
                   ))}
                 </select>
               </Field>
-              <Field label="Description" className="sm:col-span-2">
+              <Field label="Опис" className="sm:col-span-2">
                 <textarea
                   rows={2}
                   value={form.description}
@@ -419,10 +419,10 @@ export function CreateProductModal({
 
           <section>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-amber-400">
-              Brand & series
+              Бренд і серія
             </h3>
             <div className="mt-3 grid gap-4 sm:grid-cols-2">
-              <Field label="Brand" required>
+              <Field label="Бренд" required>
                 <input
                   required
                   value={form.brandName}
@@ -431,7 +431,7 @@ export function CreateProductModal({
                   className={inputClass}
                 />
               </Field>
-              <Field label="Series" required>
+              <Field label="Серія" required>
                 <input
                   required
                   value={form.seriesName}
@@ -446,10 +446,10 @@ export function CreateProductModal({
           {isFrame ? (
             <section>
               <h3 className="text-sm font-semibold uppercase tracking-wide text-amber-400">
-                Frame configuration
+                Конфігурація рамки
               </h3>
               <div className="mt-3 grid gap-4 sm:grid-cols-2">
-                <Field label="Frame posts" required>
+                <Field label="Пости рамки" required>
                   <select
                     required
                     value={form.framePostsCount ?? 1}
@@ -460,7 +460,7 @@ export function CreateProductModal({
                   >
                     {FRAME_POST_OPTIONS.map((count) => (
                       <option key={count} value={count}>
-                        {count} {count === 1 ? "post" : "posts"}
+                        {count} {count === 1 ? "пост" : "постів"}
                       </option>
                     ))}
                   </select>
@@ -470,10 +470,10 @@ export function CreateProductModal({
           ) : (
             <section>
               <h3 className="text-sm font-semibold uppercase tracking-wide text-amber-400">
-                Technical specs
+                Технічні характеристики
               </h3>
               <div className="mt-3 grid gap-4 sm:grid-cols-2">
-                <Field label="IP rating" required>
+                <Field label="Ступінь захисту IP" required>
                   <select
                     value={form.ipRating}
                     onChange={(e) =>
@@ -491,7 +491,7 @@ export function CreateProductModal({
                     ))}
                   </select>
                 </Field>
-                <Field label="Max amps" required>
+                <Field label="Макс. струм (А)" required>
                   <input
                     required
                     type="number"
@@ -510,7 +510,7 @@ export function CreateProductModal({
                     }
                     className="rounded border-slate-600"
                   />
-                  Child protection
+                  Захист від дітей
                 </label>
                 <label className="flex items-center gap-2 text-sm text-slate-300">
                   <input
@@ -519,7 +519,7 @@ export function CreateProductModal({
                     onChange={(e) => setForm({ ...form, hasGrounding: e.target.checked })}
                     className="rounded border-slate-600"
                   />
-                  Grounding
+                  Заземлення
                 </label>
                 <label className="flex items-center gap-2 text-sm text-slate-300">
                   <input
@@ -528,7 +528,7 @@ export function CreateProductModal({
                     onChange={(e) => setForm({ ...form, lowVoltage: e.target.checked })}
                     className="rounded border-slate-600"
                   />
-                  Low voltage (SELV)
+                  Низька напруга (SELV)
                 </label>
               </div>
             </section>
@@ -536,23 +536,23 @@ export function CreateProductModal({
 
           <section>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-amber-400">
-              Detailed attributes
+              Детальні атрибути
             </h3>
-            <p className="mt-1 text-xs text-slate-500">Optional datasheet fields.</p>
+            <p className="mt-1 text-xs text-slate-500">Необов&apos;язкові поля з технічного паспорта.</p>
             <div className="mt-3 grid gap-4 sm:grid-cols-2">
-              <Field label="Material">
+              <Field label="Матеріал">
                 <input
                   value={form.material}
                   onChange={(e) => setForm({ ...form, material: e.target.value })}
-                  placeholder="e.g. Thermoplastic ABS"
+                  placeholder="напр. термопластичний ABS"
                   className={inputClass}
                 />
               </Field>
-              <Field label="Dimensions">
+              <Field label="Розміри">
                 <input
                   value={form.dimensions}
                   onChange={(e) => setForm({ ...form, dimensions: e.target.value })}
-                  placeholder="e.g. 86 × 86 mm"
+                  placeholder="напр. 86 × 86 мм"
                   className={inputClass}
                 />
               </Field>
@@ -561,9 +561,9 @@ export function CreateProductModal({
 
           <section>
             <h3 className="text-sm font-semibold uppercase tracking-wide text-amber-400">
-              Room compatibility
+              Сумісність з приміщеннями
             </h3>
-            <p className="mt-1 text-xs text-slate-500">Used for Smart Selector recommendations.</p>
+            <p className="mt-1 text-xs text-slate-500">Використовується для рекомендацій Розумного підбору.</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {ROOM_TYPE_OPTIONS.map((room) => (
                 <button
@@ -588,14 +588,14 @@ export function CreateProductModal({
               onClick={handleClose}
               className="rounded-lg border border-slate-700 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800"
             >
-              Cancel
+              Скасувати
             </button>
             <button
               type="submit"
               disabled={submitting}
               className="rounded-lg bg-amber-500 px-5 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400 disabled:opacity-50"
             >
-              {submitting ? "Saving…" : isEditMode ? "Save Changes" : "Add Product"}
+              {submitting ? "Збереження…" : isEditMode ? "Зберегти зміни" : "Додати товар"}
             </button>
           </div>
         </form>
