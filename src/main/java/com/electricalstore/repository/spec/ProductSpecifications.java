@@ -1,0 +1,112 @@
+package com.electricalstore.repository.spec;
+
+import com.electricalstore.entity.IpRating;
+import com.electricalstore.entity.Product;
+import com.electricalstore.entity.ProductType;
+import com.electricalstore.entity.TechnicalSpec;
+import com.electricalstore.selection.SelectionCriteria;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.StringUtils;
+
+public final class ProductSpecifications {
+
+    private ProductSpecifications() {
+    }
+
+    public static Specification<Product> withFilters(String brand, String series, String category) {
+        return withFilters(brand, series, category, null);
+    }
+
+    public static Specification<Product> withFilters(
+            String brand, String series, String category, String search) {
+        return withFilters(brand, series, category, search, null);
+    }
+
+    public static Specification<Product> withFilters(
+            String brand, String series, String category, String search, String type) {
+        return (root, query, cb) -> {
+            if (query != null) {
+                query.distinct(true);
+            }
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (StringUtils.hasText(brand)) {
+                predicates.add(cb.equal(
+                        cb.lower(root.get("brand").get("name")),
+                        brand.trim().toLowerCase()));
+            }
+            if (StringUtils.hasText(series)) {
+                predicates.add(cb.equal(
+                        cb.lower(root.get("brand").get("seriesName")),
+                        series.trim().toLowerCase()));
+            }
+            if (StringUtils.hasText(category)) {
+                predicates.add(cb.equal(
+                        cb.lower(root.get("category").get("name")),
+                        category.trim().toLowerCase()));
+            }
+            if (StringUtils.hasText(search)) {
+                String pattern = "%" + search.trim().toLowerCase() + "%";
+                var brandJoin = root.join("brand", JoinType.LEFT);
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("name")), pattern),
+                        cb.like(cb.lower(brandJoin.get("name")), pattern)));
+            }
+            if (StringUtils.hasText(type)) {
+                predicates.add(cb.equal(root.get("type"), ProductType.valueOf(type.trim().toUpperCase())));
+            }
+
+            if (predicates.isEmpty()) {
+                return cb.conjunction();
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public static Specification<Product> forCriteria(SelectionCriteria criteria) {
+        return (root, query, cb) -> {
+            query.distinct(true);
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (criteria.lowVoltageOnly()) {
+                predicates.add(cb.isTrue(root.get("lowVoltage")));
+            }
+
+            boolean needsSpecFilter =
+                    (!criteria.lowVoltageOnly() && criteria.minIpRating() > 0)
+                            || criteria.requireChildProtection();
+
+            if (needsSpecFilter) {
+                predicates.add(root.get("id").in(technicalSpecSubquery(query, cb, criteria)));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    private static Subquery<Long> technicalSpecSubquery(
+            jakarta.persistence.criteria.CriteriaQuery<?> query,
+            jakarta.persistence.criteria.CriteriaBuilder cb,
+            SelectionCriteria criteria) {
+        Subquery<Long> subquery = query.subquery(Long.class);
+        Root<TechnicalSpec> spec = subquery.from(TechnicalSpec.class);
+        subquery.select(spec.get("product").get("id"));
+
+        List<Predicate> specPredicates = new ArrayList<>();
+        if (!criteria.lowVoltageOnly() && criteria.minIpRating() > 0) {
+            specPredicates.add(spec.get("ipRating").in(IpRating.withMinimumRating(criteria.minIpRating())));
+        }
+        if (criteria.requireChildProtection()) {
+            specPredicates.add(cb.isTrue(spec.get("hasChildProtection")));
+        }
+
+        subquery.where(specPredicates.toArray(new Predicate[0]));
+        return subquery;
+    }
+}
