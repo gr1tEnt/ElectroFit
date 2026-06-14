@@ -22,19 +22,16 @@ public class EmailService {
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
     private final JavaMailSender mailSender;
-    private final String fromAddress;
+    private final String senderEmail;
     private final String fromName;
-    private final String replyToAddress;
 
     public EmailService(
             JavaMailSender mailSender,
-            @Value("${spring.mail.username}") String fromAddress,
-            @Value("${app.mail.from-name:ElectroFit Support}") String fromName,
-            @Value("${app.contact.email:${spring.mail.username}}") String replyToAddress) {
+            @Value("${CONTACT_EMAIL:${app.contact.email:electrofit.support@gmail.com}}") String senderEmail,
+            @Value("${app.mail.from-name:ElectroFit Support}") String fromName) {
         this.mailSender = mailSender;
-        this.fromAddress = fromAddress;
+        this.senderEmail = senderEmail;
         this.fromName = fromName;
-        this.replyToAddress = replyToAddress;
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -48,22 +45,30 @@ public class EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-            helper.setFrom(new InternetAddress(fromAddress, fromName));
-            helper.setReplyTo(replyToAddress);
+            helper.setFrom(new InternetAddress(senderEmail, fromName));
+            helper.setReplyTo(senderEmail);
             helper.setTo(toEmail);
             helper.setSubject("Підтвердження замовлення ElectroFit №" + orderId);
             helper.setText(
                     buildPlainText(customerName, orderId, totalAmount),
                     buildHtmlBody(customerName, orderId, totalAmount));
             mailSender.send(message);
-            log.info("Order confirmation email sent to {} for order #{}", toEmail, orderId);
+            log.info(
+                    "Order confirmation email sent from {} to {} for order #{}",
+                    senderEmail,
+                    toEmail,
+                    orderId);
         } catch (Exception ex) {
             log.error(
-                    "Failed to send order confirmation email to {} for order #{}: {}",
+                    "Failed to send order confirmation email from {} to {} for order #{}: {}",
+                    senderEmail,
                     toEmail,
                     orderId,
                     ex.getMessage(),
                     ex);
+            if (ex.getCause() != null) {
+                log.error("Mail send root cause for order #{}: {}", orderId, ex.getCause().getMessage());
+            }
         }
     }
 
