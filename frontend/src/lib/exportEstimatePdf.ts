@@ -1,4 +1,5 @@
 import { cartSubtotal, lineSubtotal } from "@/lib/cartUtils";
+import { applyPdfCyrillicFont, PDF_FONT_FAMILY } from "@/lib/pdfCyrillicFont";
 import type { CartLine } from "@/types/cart";
 
 const TITLE = "Кошторис електроаксесуарів";
@@ -29,6 +30,7 @@ export async function exportEstimateToPdf(items: CartLine[]): Promise<void> {
   const { default: autoTable } = await import("jspdf-autotable");
 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
+  await applyPdfCyrillicFont(doc);
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 18;
   const subtotal = cartSubtotal(items);
@@ -38,11 +40,11 @@ export async function exportEstimateToPdf(items: CartLine[]): Promise<void> {
 
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
-  doc.setFont("helvetica", "bold");
+  doc.setFont(PDF_FONT_FAMILY, "bold");
   doc.text(TITLE, margin, 18);
 
   doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
+  doc.setFont(PDF_FONT_FAMILY, "normal");
   const dateLabel = new Date().toLocaleDateString("uk-UA", {
     year: "numeric",
     month: "long",
@@ -70,6 +72,7 @@ export async function exportEstimateToPdf(items: CartLine[]): Promise<void> {
     body: tableBody,
     margin: { left: margin, right: margin },
     styles: {
+      font: PDF_FONT_FAMILY,
       fontSize: 9,
       cellPadding: 3,
       textColor: [30, 41, 59],
@@ -77,6 +80,7 @@ export async function exportEstimateToPdf(items: CartLine[]): Promise<void> {
       lineWidth: 0.1,
     },
     headStyles: {
+      font: PDF_FONT_FAMILY,
       fillColor: [37, 99, 235],
       textColor: [255, 255, 255],
       fontStyle: "bold",
@@ -96,7 +100,7 @@ export async function exportEstimateToPdf(items: CartLine[]): Promise<void> {
   doc.setLineWidth(0.3);
   doc.line(margin, finalY + 6, pageWidth - margin, finalY + 6);
 
-  doc.setFont("helvetica", "bold");
+  doc.setFont(PDF_FONT_FAMILY, "bold");
   doc.setFontSize(12);
   doc.setTextColor(15, 23, 42);
   doc.text("Разом", margin, finalY + 14);
@@ -107,13 +111,13 @@ export async function exportEstimateToPdf(items: CartLine[]): Promise<void> {
   doc.setDrawColor(251, 191, 36);
   doc.roundedRect(margin, disclaimerY, pageWidth - margin * 2, 18, 2, 2, "FD");
 
-  doc.setFont("helvetica", "italic");
+  doc.setFont(PDF_FONT_FAMILY, "italic");
   doc.setFontSize(9);
   doc.setTextColor(120, 53, 15);
   const disclaimerLines = doc.splitTextToSize(DISCLAIMER, pageWidth - margin * 2 - 8);
   doc.text(disclaimerLines, margin + 4, disclaimerY + 8);
 
-  doc.setFont("helvetica", "normal");
+  doc.setFont(PDF_FONT_FAMILY, "normal");
   doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
   doc.text("ElectroFit — кошторис лише для планування.", margin, disclaimerY + 24);

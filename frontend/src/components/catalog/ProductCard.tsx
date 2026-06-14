@@ -1,9 +1,10 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { useCompare } from "@/context/CompareContext";
 import { BrandLink } from "@/components/catalog/BrandLink";
 import { ProductImage } from "@/components/product/ProductImage";
-import { isFrameProduct } from "@/lib/productUtils";
+import { isFrameProduct, productGalleryUrls } from "@/lib/productUtils";
 import { lineUnitPrice } from "@/lib/cartUtils";
 import { toastAddedToCart } from "@/lib/toast";
 import type { Product, ProductType } from "@/types/product";
@@ -21,9 +22,12 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onSelect }: ProductCardProps) {
   const { addProduct } = useCart();
+  const { isInCompare, addToCompare, removeFromCompare, canAddToCompare } = useCompare();
   const isFrame = isFrameProduct(product);
   const price = lineUnitPrice(product);
-  const primaryImage = product.imageUrl ?? product.imageUrls?.[0] ?? null;
+  const primaryImage = productGalleryUrls(product)[0] ?? null;
+  const inCompare = isInCompare(product.id);
+  const compareDisabled = !inCompare && !canAddToCompare(product.id);
 
   const handleOpenQuickView = () => {
     onSelect?.(product);
@@ -33,6 +37,15 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
     e.stopPropagation();
     addProduct(product, 1);
     toastAddedToCart(product.name);
+  };
+
+  const handleCompareToggle = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (inCompare) {
+      removeFromCompare(product.id);
+      return;
+    }
+    addToCompare(product);
   };
 
   return (
@@ -119,6 +132,21 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
             onMouseDown={(e) => e.stopPropagation()}
           >
             Додати до кошика
+          </button>
+          <button
+            type="button"
+            onClick={handleCompareToggle}
+            disabled={compareDisabled}
+            className={`w-full rounded-lg py-2 text-sm font-semibold transition ${
+              inCompare
+                ? "border border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200"
+                : compareDisabled
+                  ? "cursor-not-allowed border border-border bg-slate-50 text-slate-400"
+                  : "border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
+            }`}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            {inCompare ? "Видалити з порівняння" : "Додати до порівняння"}
           </button>
         </div>
       </div>

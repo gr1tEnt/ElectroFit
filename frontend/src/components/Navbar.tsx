@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
+import { useCompare } from "@/context/CompareContext";
 import Link from "next/link";
 
 const navLinks = [
@@ -13,6 +14,7 @@ const navLinks = [
 
 export function Navbar() {
   const { itemCount, subtotal } = useCart();
+  const { count: compareCount } = useCompare();
   const { isAuthenticated, user, logout } = useAuth();
 
   return (
@@ -73,6 +75,17 @@ export function Navbar() {
               </Link>
             </>
           )}
+          <Link
+            href="/compare"
+            className="relative rounded-lg border border-border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Порівняння
+            {compareCount > 0 && (
+              <span className="ml-1.5 inline-flex min-w-[1.25rem] justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-xs font-bold text-white">
+                {compareCount}
+              </span>
+            )}
+          </Link>
           <Link
             href="/cart"
             className="relative rounded-lg border border-border px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"

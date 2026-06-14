@@ -261,6 +261,7 @@ public class ProductService {
             return imageUrls.stream()
                     .filter(StringUtils::hasText)
                     .map(String::trim)
+                    .distinct()
                     .toList();
         }
         if (StringUtils.hasText(imageUrl)) {

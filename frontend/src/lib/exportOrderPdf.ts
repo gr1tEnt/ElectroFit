@@ -1,4 +1,5 @@
 import type { OrderHistoryItem } from "@/types/auth";
+import { applyPdfCyrillicFont, PDF_FONT_FAMILY } from "@/lib/pdfCyrillicFont";
 
 const DISCLAIMER =
   "Увага: монтаж має виконувати сертифікований електрик";
@@ -23,6 +24,7 @@ export async function exportOrderToPdf(
   const { default: autoTable } = await import("jspdf-autotable");
 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
+  await applyPdfCyrillicFont(doc);
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 18;
   const orderId = order.orderNumber.replace(/^ORD-/, "");
@@ -32,11 +34,11 @@ export async function exportOrderToPdf(
 
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
+  doc.setFont(PDF_FONT_FAMILY, "bold");
   doc.text("Електроаксесуари — Замовлення", margin, 16);
 
   doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
+  doc.setFont(PDF_FONT_FAMILY, "normal");
   doc.text(`Замовлення №${orderId} · ${customerName}`, margin, 26);
   doc.text(
     `Оформлено: ${new Date(order.placedAt).toLocaleDateString("uk-UA", {
@@ -62,6 +64,7 @@ export async function exportOrderToPdf(
     body: tableBody,
     margin: { left: margin, right: margin },
     styles: {
+      font: PDF_FONT_FAMILY,
       fontSize: 9,
       cellPadding: 3,
       textColor: [30, 41, 59],
@@ -69,6 +72,7 @@ export async function exportOrderToPdf(
       lineWidth: 0.1,
     },
     headStyles: {
+      font: PDF_FONT_FAMILY,
       fillColor: [37, 99, 235],
       textColor: [255, 255, 255],
       fontStyle: "bold",
@@ -84,7 +88,7 @@ export async function exportOrderToPdf(
   const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
     .finalY;
 
-  doc.setFont("helvetica", "bold");
+  doc.setFont(PDF_FONT_FAMILY, "bold");
   doc.setFontSize(12);
   doc.setTextColor(15, 23, 42);
   doc.text("Разом", margin, finalY + 12);
@@ -96,7 +100,7 @@ export async function exportOrderToPdf(
   doc.setFillColor(254, 243, 199);
   doc.setDrawColor(251, 191, 36);
   doc.roundedRect(margin, disclaimerY, pageWidth - margin * 2, 16, 2, 2, "FD");
-  doc.setFont("helvetica", "italic");
+  doc.setFont(PDF_FONT_FAMILY, "italic");
   doc.setFontSize(8);
   doc.setTextColor(120, 53, 15);
   doc.text(doc.splitTextToSize(DISCLAIMER, pageWidth - margin * 2 - 8), margin + 4, disclaimerY + 7);

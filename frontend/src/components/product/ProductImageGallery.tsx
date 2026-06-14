@@ -3,8 +3,6 @@
 import { ProductImageWithFallback } from "@/components/product/ProductImage";
 import {
   PRODUCT_IMAGE_PLACEHOLDER,
-  productImageSrc,
-  resolveProductImageUrl,
 } from "@/lib/productUtils";
 import { useEffect, useState } from "react";
 
@@ -29,7 +27,7 @@ export function ProductImageGallery({
   }, [images]);
 
   const isContain = imageFit === "contain";
-  const mainSrc = resolveProductImageUrl(galleryImages[activeIndex] ?? galleryImages[0]);
+  const mainImage = galleryImages[activeIndex] ?? galleryImages[0];
 
   return (
     <div className="space-y-4">
@@ -42,7 +40,7 @@ export function ProductImageGallery({
       >
         <div className={isContain ? "aspect-[4/3] w-full" : undefined}>
           <ProductImageWithFallback
-            src={mainSrc}
+            src={mainImage}
             alt={alt}
             className={
               isContain
@@ -71,7 +69,7 @@ export function ProductImageGallery({
                 }`}
               >
                 <ProductImageWithFallback
-                  src={productImageSrc(url)}
+                  src={url}
                   alt=""
                   className="h-20 w-28 object-contain sm:h-24 sm:w-32"
                 />
