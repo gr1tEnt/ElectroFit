@@ -36,19 +36,19 @@ export function CatalogSidebar({
       <div className="sticky top-20 rounded-2xl border border-border bg-white p-5 shadow-sm">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-            Technical filters
+            Технічні фільтри
           </h2>
           <button
             type="button"
             onClick={onReset}
             className="cursor-pointer rounded-md px-2 py-1 text-xs font-medium text-brand-600 transition-colors hover:bg-brand-50 hover:text-brand-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1"
           >
-            Reset
+            Скинути
           </button>
         </div>
 
         <div className="space-y-6">
-          <FilterSection label="Brand">
+          <FilterSection label="Бренд">
             <select
               value={filters.brand}
               onChange={(e) =>
@@ -56,7 +56,7 @@ export function CatalogSidebar({
               }
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
             >
-              <option value="">All brands</option>
+              <option value="">Усі бренди</option>
               {brands.map((brand) => (
                 <option key={brand} value={brand}>
                   {brand}
@@ -65,14 +65,14 @@ export function CatalogSidebar({
             </select>
           </FilterSection>
 
-          <FilterSection label="Series">
+          <FilterSection label="Серія">
             <select
               value={filters.series}
               onChange={(e) => onChange({ ...filters, series: e.target.value })}
               disabled={!filters.brand && series.length === 0}
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:opacity-50"
             >
-              <option value="">All series</option>
+              <option value="">Усі серії</option>
               {series.map((s) => (
                 <option key={s} value={s}>
                   {s}
@@ -81,9 +81,9 @@ export function CatalogSidebar({
             </select>
           </FilterSection>
 
-          <FilterSection label="IP rating (min.)">
+          <FilterSection label="Клас IP (мін.)">
             <p className="mb-2 text-xs text-muted">
-              Select minimum protection levels; products at or above are shown.
+              Оберіть мінімальний рівень захисту; показуються товари з відповідним або вищим класом.
             </p>
             <div className="space-y-2">
               {ALL_IP_RATINGS.map((rating) => (
@@ -104,10 +104,10 @@ export function CatalogSidebar({
             </div>
           </FilterSection>
 
-          <FilterSection label={`Amperage (${filters.minAmps}–${filters.maxAmps} A)`}>
+          <FilterSection label={`Ампераж (${filters.minAmps}–${filters.maxAmps} А)`}>
             <div className="space-y-3">
               <div>
-                <label className="mb-1 block text-xs text-muted">Minimum</label>
+                <label className="mb-1 block text-xs text-muted">Мінімум</label>
                 <input
                   type="range"
                   min={ampsBounds.min}
@@ -123,7 +123,7 @@ export function CatalogSidebar({
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-muted">Maximum</label>
+                <label className="mb-1 block text-xs text-muted">Максимум</label>
                 <input
                   type="range"
                   min={ampsBounds.min}
@@ -141,7 +141,7 @@ export function CatalogSidebar({
             </div>
           </FilterSection>
 
-          <FilterSection label="Child protection">
+          <FilterSection label="Дитячий захист">
             <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
               <input
                 type="checkbox"
@@ -151,7 +151,7 @@ export function CatalogSidebar({
                 }
                 className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
               />
-              <span className="text-sm">Has child protection only</span>
+              <span className="text-sm">Лише з дитячим захистом</span>
             </label>
           </FilterSection>
         </div>

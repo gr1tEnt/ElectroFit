@@ -1,3 +1,4 @@
+import { enrichCartProductSeries } from "@/lib/cartCompatibility";
 import type { CartLine } from "@/types/cart";
 
 const STORAGE_KEY = "electrofit-cart";
@@ -18,7 +19,10 @@ function isCartLine(value: unknown): value is CartLine {
 
 function sanitizeCartLines(parsed: unknown): CartLine[] {
   if (!Array.isArray(parsed)) return [];
-  return parsed.filter(isCartLine);
+  return parsed.filter(isCartLine).map((line) => ({
+    ...line,
+    product: enrichCartProductSeries(line.product),
+  }));
 }
 
 export function loadCartFromStorage(): CartLine[] {

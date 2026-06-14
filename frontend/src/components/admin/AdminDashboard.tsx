@@ -1,8 +1,9 @@
 "use client";
 
 import { getErrorMessage } from "@/lib/apiError";
-import { fetchAdminStats, fetchDashboardStats } from "@/lib/adminApi";
+import { fetchAdminStats, fetchDashboardStats, updateOrderStatus } from "@/lib/adminApi";
 import type { AdminStats, DashboardStats, OrderStatus } from "@/types/admin";
+import { ORDER_STATUS_LABELS, ORDER_STATUS_OPTIONS } from "@/types/admin";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Area,
@@ -22,6 +23,7 @@ export function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
 
   const loadDashboard = useCallback(async (isInitial = false) => {
     if (isInitial) setLoading(true);
@@ -40,10 +42,10 @@ export function AdminDashboard() {
 
     const failures: string[] = [];
     if (kpiResult.status === "rejected") {
-      failures.push(getErrorMessage(kpiResult.reason, "Failed to load overview stats"));
+      failures.push(getErrorMessage(kpiResult.reason, "Не вдалося завантажити зведену статистику"));
     }
     if (analyticsResult.status === "rejected") {
-      failures.push(getErrorMessage(analyticsResult.reason, "Failed to load sales analytics"));
+      failures.push(getErrorMessage(analyticsResult.reason, "Не вдалося завантажити аналітику продажів"));
     }
     setError(failures.length > 0 ? failures.join(" ") : null);
 
@@ -53,6 +55,22 @@ export function AdminDashboard() {
 
     if (isInitial) setLoading(false);
   }, []);
+
+  const handleStatusChange = useCallback(
+    async (orderId: number, status: OrderStatus) => {
+      setUpdatingOrderId(orderId);
+      setError(null);
+      try {
+        await updateOrderStatus(orderId, status);
+        await loadDashboard(false);
+      } catch (err) {
+        setError(getErrorMessage(err, "Не вдалося оновити статус замовлення"));
+      } finally {
+        setUpdatingOrderId(null);
+      }
+    },
+    [loadDashboard],
+  );
 
   useEffect(() => {
     loadDashboard(true);
@@ -73,8 +91,8 @@ export function AdminDashboard() {
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">Dashboard</h2>
-          <p className="mt-1 text-slate-400">Overview metrics and live sales analytics.</p>
+          <h2 className="text-2xl font-bold text-white">Панель управління</h2>
+          <p className="mt-1 text-slate-400">Зведені показники та аналітика продажів у реальному часі.</p>
         </div>
         <LiveIndicator lastUpdated={lastUpdated} loading={loading} />
       </div>
@@ -85,23 +103,23 @@ export function AdminDashboard() {
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <KpiCard
-          label="Total Products"
+          label="Усього товарів"
           value={loading ? "…" : String(kpiStats?.totalProducts ?? 0)}
-          hint="Items in catalog"
+          hint="Позицій у каталозі"
           accent="amber"
           loading={loading}
         />
         <KpiCard
-          label="Unresolved Inquiries"
+          label="Невирішені звернення"
           value={loading ? "…" : String(kpiStats?.unresolvedInquiries ?? 0)}
-          hint="Support messages in queue"
+          hint="Повідомлення підтримки в черзі"
           accent="sky"
           loading={loading}
         />
         <KpiCard
-          label="Total Brands"
+          label="Усього брендів"
           value={loading ? "…" : String(kpiStats?.totalBrands ?? 0)}
-          hint="Active brand series"
+          hint="Активні серії брендів"
           accent="emerald"
           loading={loading}
         />
@@ -110,11 +128,11 @@ export function AdminDashboard() {
       <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/80 p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 className="text-lg font-semibold text-white">Revenue trend</h3>
-            <p className="mt-1 text-sm text-slate-400">Monthly completed-order revenue</p>
+            <h3 className="text-lg font-semibold text-white">Динаміка виручки</h3>
+            <p className="mt-1 text-sm text-slate-400">Місячна виручка від виконаних замовлень</p>
           </div>
           <p className="text-sm font-semibold text-indigo-300">
-            Total revenue:{" "}
+            Загальна виручка:{" "}
             <span className="text-xl text-white">
               {loading ? "…" : formatCurrency(dashboard?.totalRevenue ?? 0)}
             </span>
@@ -124,7 +142,7 @@ export function AdminDashboard() {
         <div className="mt-6 h-72 w-full">
           {loading && chartData.length === 0 ? (
             <div className="flex h-full items-center justify-center rounded-xl bg-slate-800/40">
-              <p className="text-sm text-slate-500">Loading chart…</p>
+              <p className="text-sm text-slate-500">Завантаження графіка…</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
@@ -165,9 +183,9 @@ export function AdminDashboard() {
       </section>
 
       <section className="mt-8">
-        <h3 className="text-lg font-semibold text-white">Recent orders</h3>
+        <h3 className="text-lg font-semibold text-white">Останні замовлення</h3>
         <p className="mt-1 text-sm text-slate-400">
-          Latest customer orders — auto-refreshes every 15 seconds.
+          Останні замовлення клієнтів — оновлення кожні 15 секунд.
         </p>
 
         <div className="mt-4 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
@@ -175,11 +193,11 @@ export function AdminDashboard() {
             <table className="w-full min-w-[720px] text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-800 bg-slate-800/50 text-xs uppercase tracking-wide text-slate-400">
-                  <th className="px-4 py-3 font-medium">Order ID</th>
-                  <th className="px-4 py-3 font-medium">Customer</th>
-                  <th className="px-4 py-3 font-medium">Date</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium text-right">Total Price</th>
+                  <th className="px-4 py-3 font-medium">ID замовлення</th>
+                  <th className="px-4 py-3 font-medium">Клієнт</th>
+                  <th className="px-4 py-3 font-medium">Дата</th>
+                  <th className="px-4 py-3 font-medium">Статус</th>
+                  <th className="px-4 py-3 font-medium text-right">Сума</th>
                 </tr>
               </thead>
               <tbody>
@@ -194,7 +212,7 @@ export function AdminDashboard() {
                 {!loading && (dashboard?.recentOrders.length ?? 0) === 0 && (
                   <tr>
                     <td colSpan={5} className="px-4 py-12 text-center text-slate-500">
-                      No orders yet.
+                      Замовлень ще немає.
                     </td>
                   </tr>
                 )}
@@ -215,7 +233,11 @@ export function AdminDashboard() {
                         {formatDate(order.createdAt)}
                       </td>
                       <td className="px-4 py-3">
-                        <StatusBadge status={order.status} />
+                        <StatusSelect
+                          status={order.status}
+                          disabled={updatingOrderId === order.id}
+                          onChange={(status) => void handleStatusChange(order.id, status)}
+                        />
                       </td>
                       <td className="px-4 py-3 text-right font-semibold text-white">
                         {formatCurrency(order.totalAmount)}
@@ -252,19 +274,35 @@ function ChartTooltip({
   );
 }
 
-function StatusBadge({ status }: { status: OrderStatus }) {
+function StatusSelect({
+  status,
+  disabled,
+  onChange,
+}: {
+  status: OrderStatus;
+  disabled?: boolean;
+  onChange: (status: OrderStatus) => void;
+}) {
   const styles: Record<OrderStatus, string> = {
-    COMPLETED: "bg-emerald-500/15 text-emerald-300 ring-emerald-500/30",
-    PENDING: "bg-amber-500/15 text-amber-300 ring-amber-500/30",
-    SHIPPED: "bg-sky-500/15 text-sky-300 ring-sky-500/30",
+    COMPLETED: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+    PENDING: "border-amber-500/40 bg-amber-500/10 text-amber-300",
+    SHIPPED: "border-sky-500/40 bg-sky-500/10 text-sky-300",
   };
 
   return (
-    <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${styles[status]}`}
+    <select
+      value={status}
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.value as OrderStatus)}
+      aria-label={`Статус замовлення: ${ORDER_STATUS_LABELS[status]}`}
+      className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold outline-none transition focus:ring-2 focus:ring-indigo-500/40 disabled:cursor-not-allowed disabled:opacity-50 ${styles[status]}`}
     >
-      {status}
-    </span>
+      {ORDER_STATUS_OPTIONS.map((option) => (
+        <option key={option} value={option} className="bg-slate-900 text-white">
+          {ORDER_STATUS_LABELS[option]}
+        </option>
+      ))}
+    </select>
   );
 }
 
@@ -276,8 +314,8 @@ function LiveIndicator({ lastUpdated, loading }: { lastUpdated: Date | null; loa
         aria-hidden
       />
       {lastUpdated
-        ? `Live · updated ${lastUpdated.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`
-        : "Connecting…"}
+        ? `Наживо · оновлено ${lastUpdated.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`
+        : "Підключення…"}
     </div>
   );
 }
@@ -333,7 +371,7 @@ function normalizeDashboardStats(raw: DashboardStats): DashboardStats {
 }
 
 function formatCurrency(value: number): string {
-  return new Intl.NumberFormat(undefined, {
+  return new Intl.NumberFormat("uk-UA", {
     style: "currency",
     currency: "EUR",
   }).format(value);
@@ -341,7 +379,7 @@ function formatCurrency(value: number): string {
 
 function formatDate(iso: string): string {
   try {
-    return new Date(iso).toLocaleString(undefined, {
+    return new Date(iso).toLocaleString("uk-UA", {
       dateStyle: "medium",
       timeStyle: "short",
     });

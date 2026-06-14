@@ -17,7 +17,7 @@ function formatTotal(item: OrderHistoryItem): string {
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
+  return new Date(iso).toLocaleDateString("uk-UA", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -29,7 +29,6 @@ function formatUnit(price: number, currency: string): string {
   return `${symbol}${price.toFixed(2)}`;
 }
 
-/** SKU = Stock Keeping Unit — the product's unique catalog code. */
 function formatSku(line: { sku: string; productId?: number }): string {
   if (line.sku) {
     return line.sku;
@@ -55,7 +54,7 @@ export function OrderHistoryCard({ order, customerName }: OrderHistoryCardProps)
     try {
       await exportOrderToPdf(orderForExport, customerName);
     } catch (err) {
-      window.alert(getErrorMessage(err, "Could not export order PDF."));
+      window.alert(getErrorMessage(err, "Не вдалося експортувати PDF замовлення."));
     } finally {
       setExporting(false);
     }
@@ -71,10 +70,10 @@ export function OrderHistoryCard({ order, customerName }: OrderHistoryCardProps)
       >
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-ink">
-            Order #{orderId}: {order.summary}
+            Замовлення №{orderId}: {order.summary}
           </p>
           <p className="mt-1 text-sm text-muted">
-            Placed {formatDate(order.placedAt)} · Total: {formatTotal(order)}
+            Оформлено {formatDate(order.placedAt)} · Разом: {formatTotal(order)}
           </p>
         </div>
         <span
@@ -89,19 +88,19 @@ export function OrderHistoryCard({ order, customerName }: OrderHistoryCardProps)
       {expanded && (
         <div className="border-t border-border bg-slate-50/50 px-4 pb-4 pt-3">
           {lines.length === 0 ? (
-            <p className="text-sm text-muted">No line items recorded for this order.</p>
+            <p className="text-sm text-muted">Для цього замовлення немає записаних позицій.</p>
           ) : (
             <div className="overflow-x-auto rounded-lg border border-border bg-white">
               <table className="w-full min-w-[28rem] text-left text-sm">
                 <thead>
                   <tr className="border-b border-border bg-slate-50 text-xs font-semibold uppercase tracking-wide text-muted">
-                    <th className="px-3 py-2">Product</th>
-                    <th className="px-3 py-2" title="Stock Keeping Unit — unique product code">
+                    <th className="px-3 py-2">Товар</th>
+                    <th className="px-3 py-2" title="Stock Keeping Unit — унікальний код товару">
                       SKU
                     </th>
-                    <th className="px-3 py-2 text-center">Qty</th>
-                    <th className="px-3 py-2 text-right">Unit</th>
-                    <th className="px-3 py-2 text-right">Total</th>
+                    <th className="px-3 py-2 text-center">К-сть</th>
+                    <th className="px-3 py-2 text-right">За од.</th>
+                    <th className="px-3 py-2 text-right">Сума</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -129,14 +128,14 @@ export function OrderHistoryCard({ order, customerName }: OrderHistoryCardProps)
           )}
 
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-ink">Total: {formatTotal(order)}</p>
+            <p className="text-sm font-semibold text-ink">Разом: {formatTotal(order)}</p>
             <button
               type="button"
               onClick={() => void handleExport()}
               disabled={exporting || lines.length === 0}
               className="rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm font-semibold text-amber-900 hover:bg-amber-50 disabled:opacity-50"
             >
-              {exporting ? "Generating…" : "Export order to PDF"}
+              {exporting ? "Створення…" : "Експортувати замовлення в PDF"}
             </button>
           </div>
         </div>

@@ -32,7 +32,7 @@ export function AuthForm({ mode, onSubmit }: AuthFormProps) {
       });
       router.push("/profile");
     } catch (err) {
-      setError(getErrorMessage(err, isRegister ? "Registration failed" : "Login failed"));
+      setError(getErrorMessage(err, isRegister ? "Реєстрація не вдалася" : "Вхід не вдався"));
     } finally {
       setSubmitting(false);
     }
@@ -43,7 +43,7 @@ export function AuthForm({ mode, onSubmit }: AuthFormProps) {
       {isRegister && (
         <div>
           <label htmlFor="fullName" className="block text-sm font-medium text-ink">
-            Full name
+            Повне ім&apos;я
           </label>
           <input
             id="fullName"
@@ -59,7 +59,7 @@ export function AuthForm({ mode, onSubmit }: AuthFormProps) {
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-ink">
-          Email
+          Електронна пошта
         </label>
         <input
           id="email"
@@ -74,7 +74,7 @@ export function AuthForm({ mode, onSubmit }: AuthFormProps) {
 
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-ink">
-          Password
+          Пароль
         </label>
         <input
           id="password"
@@ -87,7 +87,7 @@ export function AuthForm({ mode, onSubmit }: AuthFormProps) {
           autoComplete={isRegister ? "new-password" : "current-password"}
         />
         {isRegister && (
-          <p className="mt-1 text-xs text-muted">At least 8 characters</p>
+          <p className="mt-1 text-xs text-muted">Щонайменше 8 символів</p>
         )}
       </div>
 
@@ -100,22 +100,22 @@ export function AuthForm({ mode, onSubmit }: AuthFormProps) {
         disabled={submitting}
         className="w-full rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
       >
-        {submitting ? "Please wait…" : isRegister ? "Create account" : "Sign in"}
+        {submitting ? "Зачекайте…" : isRegister ? "Створити обліковий запис" : "Увійти"}
       </button>
 
       <p className="text-center text-sm text-muted">
         {isRegister ? (
           <>
-            Already have an account?{" "}
+            Вже маєте обліковий запис?{" "}
             <Link href="/login" className="font-semibold text-brand-600 hover:underline">
-              Sign in
+              Увійти
             </Link>
           </>
         ) : (
           <>
-            New here?{" "}
+            Вперше тут?{" "}
             <Link href="/register" className="font-semibold text-brand-600 hover:underline">
-              Register
+              Зареєструватися
             </Link>
           </>
         )}

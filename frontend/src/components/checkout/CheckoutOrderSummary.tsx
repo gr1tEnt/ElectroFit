@@ -11,8 +11,8 @@ interface CheckoutOrderSummaryProps {
 export function CheckoutOrderSummary({ items, subtotal }: CheckoutOrderSummaryProps) {
   return (
     <div className="sticky top-24 rounded-2xl border border-border bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-ink">Order summary</h2>
-      <p className="mt-1 text-sm text-muted">{items.length} line item(s)</p>
+      <h2 className="text-lg font-semibold text-ink">Підсумок замовлення</h2>
+      <p className="mt-1 text-sm text-muted">{items.length} позицій</p>
 
       <ul className="mt-5 max-h-80 space-y-3 overflow-y-auto pr-1">
         {items.map((line) => {
@@ -38,15 +38,15 @@ export function CheckoutOrderSummary({ items, subtotal }: CheckoutOrderSummaryPr
 
       <dl className="mt-6 space-y-2 border-t border-border pt-4 text-sm">
         <div className="flex justify-between text-muted">
-          <dt>Subtotal</dt>
+          <dt>Проміжна сума</dt>
           <dd className="font-medium text-ink">€{subtotal.toFixed(2)}</dd>
         </div>
         <div className="flex justify-between text-muted">
-          <dt>Shipping</dt>
-          <dd className="font-medium text-emerald-700">Free</dd>
+          <dt>Доставка</dt>
+          <dd className="font-medium text-emerald-700">Безкоштовно</dd>
         </div>
         <div className="flex justify-between border-t border-border pt-3 text-base font-semibold text-ink">
-          <dt>Total</dt>
+          <dt>Разом</dt>
           <dd className="text-brand-700">€{subtotal.toFixed(2)}</dd>
         </div>
       </dl>

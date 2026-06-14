@@ -116,27 +116,32 @@ public class ProductService {
     }
 
     @Transactional
-    public Product updateProduct(Long id, UpdateProductRequest request) {
+    public Product updateProduct(Long id, UpdateProductRequest request, MultipartFile imageFile) {
         Product product = findProductById(id);
 
         productRepository
                 .findBySku(request.sku().trim())
                 .filter(existing -> !existing.getId().equals(id))
                 .ifPresent(existing -> {
-                    throw new IllegalArgumentException("SKU already exists: " + request.sku());
+                    throw new org.springframework.web.server.ResponseStatusException(
+                            org.springframework.http.HttpStatus.CONFLICT,
+                            "SKU already exists: " + request.sku());
                 });
 
         Brand brand = resolveBrand(request.brandName(), request.seriesName());
         Category category = resolveCategory(request.categoryName());
 
         List<String> imageUrls = resolveImageUrlsForCreate(request.imageUrls(), request.imageUrl());
+        if (imageFile != null && !imageFile.isEmpty()) {
+            imageUrls = List.of(productImageStorageService.store(imageFile));
+        }
         product.setSku(request.sku().trim());
         product.setName(request.name().trim());
         product.setDescription(request.description());
         product.setPrice(request.price());
         product.setImageUrl(imageUrls.isEmpty() ? null : imageUrls.get(0));
-        product.setImageUrls(new ArrayList<>(imageUrls));
-        product.setDetailedAttributes(new LinkedHashMap<>(resolveDetailedAttributes(request.detailedAttributes())));
+        replaceImageUrls(product, imageUrls);
+        replaceDetailedAttributes(product, resolveDetailedAttributes(request.detailedAttributes()));
         product.setType(request.type());
         product.setBrand(brand);
         product.setCategory(category);
@@ -148,7 +153,9 @@ public class ProductService {
         applyTechnicalSpec(spec, product, request);
         technicalSpecRepository.save(spec);
 
-        return productRepository.save(product);
+        Product saved = productRepository.save(product);
+        productRepository.flush();
+        return saved;
     }
 
     @Transactional
@@ -201,10 +208,12 @@ public class ProductService {
         spec.setHasChildProtection(request.hasChildProtection());
         spec.setHasGrounding(request.hasGrounding());
         spec.setFramePostsCount(request.type() == ProductType.FRAME ? request.framePostsCount() : null);
-        spec.setCompatibleRoomTypes(request.compatibleRoomTypes().stream()
-                .map(String::trim)
-                .map(String::toUpperCase)
-                .toList());
+        replaceCompatibleRoomTypes(
+                spec,
+                request.compatibleRoomTypes().stream()
+                        .map(String::trim)
+                        .map(String::toUpperCase)
+                        .toList());
     }
 
     private void applyTechnicalSpec(
@@ -215,10 +224,36 @@ public class ProductService {
         spec.setHasChildProtection(request.hasChildProtection());
         spec.setHasGrounding(request.hasGrounding());
         spec.setFramePostsCount(request.type() == ProductType.FRAME ? request.framePostsCount() : null);
-        spec.setCompatibleRoomTypes(request.compatibleRoomTypes().stream()
-                .map(String::trim)
-                .map(String::toUpperCase)
-                .toList());
+        replaceCompatibleRoomTypes(
+                spec,
+                request.compatibleRoomTypes().stream()
+                        .map(String::trim)
+                        .map(String::toUpperCase)
+                        .toList());
+    }
+
+    private static void replaceImageUrls(Product product, List<String> imageUrls) {
+        if (product.getImageUrls() == null) {
+            product.setImageUrls(new ArrayList<>());
+        }
+        product.getImageUrls().clear();
+        product.getImageUrls().addAll(imageUrls);
+    }
+
+    private static void replaceDetailedAttributes(Product product, Map<String, String> attributes) {
+        if (product.getDetailedAttributes() == null) {
+            product.setDetailedAttributes(new LinkedHashMap<>());
+        }
+        product.getDetailedAttributes().clear();
+        product.getDetailedAttributes().putAll(attributes);
+    }
+
+    private static void replaceCompatibleRoomTypes(TechnicalSpec spec, List<String> roomTypes) {
+        if (spec.getCompatibleRoomTypes() == null) {
+            spec.setCompatibleRoomTypes(new ArrayList<>());
+        }
+        spec.getCompatibleRoomTypes().clear();
+        spec.getCompatibleRoomTypes().addAll(roomTypes);
     }
 
     private static List<String> resolveImageUrlsForCreate(List<String> imageUrls, String imageUrl) {
@@ -226,6 +261,7 @@ public class ProductService {
             return imageUrls.stream()
                     .filter(StringUtils::hasText)
                     .map(String::trim)
+                    .distinct()
                     .toList();
         }
         if (StringUtils.hasText(imageUrl)) {

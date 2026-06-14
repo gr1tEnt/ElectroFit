@@ -7,18 +7,69 @@ const UPLOADED_PRODUCT_IMAGE =
   /\/images\/products\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\./i;
 
 export function productGalleryUrls(product: Product): string[] {
+  const candidates: string[] = [];
+
+  if (product.imageUrl?.trim()) {
+    candidates.push(product.imageUrl.trim());
+  }
   if (product.imageUrls?.length) {
-    return product.imageUrls;
+    for (const url of product.imageUrls) {
+      if (url?.trim()) {
+        candidates.push(url.trim());
+      }
+    }
   }
-  if (product.imageUrl) {
-    return [product.imageUrl];
+
+  return dedupeGalleryUrls(candidates);
+}
+
+function galleryUrlKey(url: string): string {
+  const trimmed = url.trim();
+  if (!trimmed) {
+    return "";
   }
-  return [];
+
+  const resolved = resolveProductImageUrl(trimmed);
+  const base = getApiBase();
+
+  if (resolved.startsWith(base)) {
+    return resolved.slice(base.length).toLowerCase();
+  }
+
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    try {
+      return new URL(trimmed).pathname.toLowerCase();
+    } catch {
+      return trimmed.toLowerCase();
+    }
+  }
+
+  return productImageSrc(trimmed).toLowerCase();
+}
+
+function dedupeGalleryUrls(urls: string[]): string[] {
+  const seen = new Set<string>();
+  const unique: string[] = [];
+
+  for (const url of urls) {
+    const key = galleryUrlKey(url);
+    if (!key || seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    unique.push(url.trim());
+  }
+
+  return unique;
 }
 
 export function productGalleryUrlsWithFallback(product: Product): string[] {
   const urls = productGalleryUrls(product);
   return urls.length > 0 ? urls : [PRODUCT_IMAGE_PLACEHOLDER];
+}
+
+export function primaryProductImagePath(product: Product): string {
+  return productGalleryUrlsWithFallback(product)[0];
 }
 
 /** Encode local /images/... paths so spaces and special chars load correctly. */
@@ -28,9 +79,19 @@ export function productImageSrc(path: string): string {
   }
   const lastSlash = path.lastIndexOf("/");
   if (lastSlash === -1) {
-    return encodeURI(path);
+    try {
+      return encodeURIComponent(decodeURIComponent(path));
+    } catch {
+      return encodeURIComponent(path);
+    }
   }
-  return `${path.slice(0, lastSlash + 1)}${encodeURIComponent(path.slice(lastSlash + 1))}`;
+  const directory = path.slice(0, lastSlash + 1);
+  const filename = path.slice(lastSlash + 1);
+  try {
+    return `${directory}${encodeURIComponent(decodeURIComponent(filename))}`;
+  } catch {
+    return `${directory}${encodeURIComponent(filename)}`;
+  }
 }
 
 export function resolveProductImageUrl(url: string | null | undefined): string {

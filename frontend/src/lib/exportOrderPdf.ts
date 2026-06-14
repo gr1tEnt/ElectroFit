@@ -1,7 +1,8 @@
 import type { OrderHistoryItem } from "@/types/auth";
+import { applyPdfCyrillicFont, PDF_FONT_FAMILY } from "@/lib/pdfCyrillicFont";
 
 const DISCLAIMER =
-  "Attention: Installation must be performed by a certified electrician";
+  "Увага: монтаж має виконувати сертифікований електрик";
 
 function formatMoney(amount: number, currency: string): string {
   const symbol = currency === "EUR" ? "€" : "$";
@@ -13,16 +14,17 @@ export async function exportOrderToPdf(
   customerName: string,
 ): Promise<void> {
   if (typeof window === "undefined") {
-    throw new Error("PDF export is only available in the browser.");
+    throw new Error("Експорт PDF доступний лише в браузері.");
   }
   if (order.items.length === 0) {
-    throw new Error("This order has no line items to export.");
+    throw new Error("У цьому замовленні немає позицій для експорту.");
   }
 
   const { default: jsPDF } = await import("jspdf");
   const { default: autoTable } = await import("jspdf-autotable");
 
   const doc = new jsPDF({ unit: "mm", format: "a4" });
+  await applyPdfCyrillicFont(doc);
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 18;
   const orderId = order.orderNumber.replace(/^ORD-/, "");
@@ -32,14 +34,14 @@ export async function exportOrderToPdf(
 
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
-  doc.setFont("helvetica", "bold");
-  doc.text("Electrical Accessories — Order", margin, 16);
+  doc.setFont(PDF_FONT_FAMILY, "bold");
+  doc.text("Електроаксесуари — Замовлення", margin, 16);
 
   doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text(`Order #${orderId} · ${customerName}`, margin, 26);
+  doc.setFont(PDF_FONT_FAMILY, "normal");
+  doc.text(`Замовлення №${orderId} · ${customerName}`, margin, 26);
   doc.text(
-    `Placed: ${new Date(order.placedAt).toLocaleDateString(undefined, {
+    `Оформлено: ${new Date(order.placedAt).toLocaleDateString("uk-UA", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -58,10 +60,11 @@ export async function exportOrderToPdf(
 
   autoTable(doc, {
     startY: 44,
-    head: [["Name", "SKU", "Qty", "Unit price", "Line total"]],
+    head: [["Назва", "SKU", "К-сть", "Ціна за од.", "Сума"]],
     body: tableBody,
     margin: { left: margin, right: margin },
     styles: {
+      font: PDF_FONT_FAMILY,
       fontSize: 9,
       cellPadding: 3,
       textColor: [30, 41, 59],
@@ -69,6 +72,7 @@ export async function exportOrderToPdf(
       lineWidth: 0.1,
     },
     headStyles: {
+      font: PDF_FONT_FAMILY,
       fillColor: [37, 99, 235],
       textColor: [255, 255, 255],
       fontStyle: "bold",
@@ -84,10 +88,10 @@ export async function exportOrderToPdf(
   const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable
     .finalY;
 
-  doc.setFont("helvetica", "bold");
+  doc.setFont(PDF_FONT_FAMILY, "bold");
   doc.setFontSize(12);
   doc.setTextColor(15, 23, 42);
-  doc.text("Order total", margin, finalY + 12);
+  doc.text("Разом", margin, finalY + 12);
   doc.text(formatMoney(order.total, order.currency), pageWidth - margin, finalY + 12, {
     align: "right",
   });
@@ -96,7 +100,7 @@ export async function exportOrderToPdf(
   doc.setFillColor(254, 243, 199);
   doc.setDrawColor(251, 191, 36);
   doc.roundedRect(margin, disclaimerY, pageWidth - margin * 2, 16, 2, 2, "FD");
-  doc.setFont("helvetica", "italic");
+  doc.setFont(PDF_FONT_FAMILY, "italic");
   doc.setFontSize(8);
   doc.setTextColor(120, 53, 15);
   doc.text(doc.splitTextToSize(DISCLAIMER, pageWidth - margin * 2 - 8), margin + 4, disclaimerY + 7);

@@ -37,30 +37,30 @@ function QuickViewSpecBadges({ product }: { product: Product }) {
     <div className="flex flex-wrap gap-2">
       {spec.ipRating && waterResistant && (
         <SpecBadge className="bg-brand-100 text-brand-800">
-          {spec.ipRating} Water Resistant
+          {spec.ipRating} вологостійкий
         </SpecBadge>
       )}
       {spec.ipRating && !waterResistant && (
         <SpecBadge className="bg-slate-100 text-slate-800">{spec.ipRating}</SpecBadge>
       )}
       {!isFrame && spec.maxAmps != null && (
-        <SpecBadge className="bg-slate-100 text-slate-700">{spec.maxAmps} A max</SpecBadge>
+        <SpecBadge className="bg-slate-100 text-slate-700">до {spec.maxAmps} А</SpecBadge>
       )}
       {!isFrame && spec.hasChildProtection && (
-        <SpecBadge className="bg-emerald-100 text-emerald-800">Child Protection</SpecBadge>
+        <SpecBadge className="bg-emerald-100 text-emerald-800">Дитячий захист</SpecBadge>
       )}
       {!isFrame && spec.hasGrounding && (
-        <SpecBadge className="bg-teal-50 text-teal-800">PE Grounding</SpecBadge>
+        <SpecBadge className="bg-teal-50 text-teal-800">Заземлення PE</SpecBadge>
       )}
       {!isFrame && spec.hasGrounding === false && (
-        <SpecBadge className="bg-amber-100 text-amber-900">No PE grounding</SpecBadge>
+        <SpecBadge className="bg-amber-100 text-amber-900">Без заземлення PE</SpecBadge>
       )}
       {!isFrame && product.lowVoltage && (
-        <SpecBadge className="bg-violet-100 text-violet-800">SELV / Low voltage</SpecBadge>
+        <SpecBadge className="bg-violet-100 text-violet-800">SELV / низька напруга</SpecBadge>
       )}
       {isFrame && spec.framePostsCount != null && (
         <SpecBadge className="bg-accent/15 text-amber-950">
-          {spec.framePostsCount}-post frame
+          {spec.framePostsCount}-постова рамка
         </SpecBadge>
       )}
     </div>
@@ -80,7 +80,7 @@ export function ProductQuickViewModal({ isOpen, onClose, product }: ProductQuick
       const data = await fetchProductById(id);
       setDetails(data);
     } catch (err) {
-      setLoadError(getErrorMessage(err, "Could not load product details"));
+      setLoadError(getErrorMessage(err, "Не вдалося завантажити деталі товару"));
       setDetails(fallback);
     } finally {
       setLoading(false);
@@ -134,7 +134,7 @@ export function ProductQuickViewModal({ isOpen, onClose, product }: ProductQuick
       <button
         type="button"
         className="absolute inset-0 bg-black/60"
-        aria-label="Close quick view"
+        aria-label="Закрити швидкий перегляд"
         onClick={onClose}
       />
 
@@ -149,7 +149,7 @@ export function ProductQuickViewModal({ isOpen, onClose, product }: ProductQuick
           type="button"
           onClick={onClose}
           className="absolute right-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-slate-600 shadow-md transition hover:bg-slate-100 hover:text-ink"
-          aria-label="Close"
+          aria-label="Закрити"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -158,7 +158,7 @@ export function ProductQuickViewModal({ isOpen, onClose, product }: ProductQuick
 
         <div className="p-5 sm:p-8">
           {loading && !details?.imageUrls?.length && (
-            <p className="mb-4 text-center text-sm text-muted">Loading product details…</p>
+            <p className="mb-4 text-center text-sm text-muted">Завантаження деталей товару…</p>
           )}
           {loadError && (
             <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">{loadError}</p>
@@ -203,12 +203,12 @@ export function ProductQuickViewModal({ isOpen, onClose, product }: ProductQuick
                 onClick={handleAddToCart}
                 className="mt-6 w-full rounded-xl bg-brand-600 px-6 py-3.5 text-base font-semibold text-white transition hover:bg-brand-700 sm:w-auto"
               >
-                Add to cart
+                Додати до кошика
               </button>
 
               <div className="mt-8">
                 <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">
-                  Technical specifications
+                  Технічні характеристики
                 </h3>
                 <div className="mt-3">
                   <QuickViewSpecBadges product={display} />

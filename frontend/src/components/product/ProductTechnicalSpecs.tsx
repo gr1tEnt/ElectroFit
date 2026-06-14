@@ -1,6 +1,6 @@
 import { isWaterResistant, resolveProductSpec, isFrameProduct } from "@/lib/productUtils";
-import type { Product } from "@/types/product";
-import type { ReactNode } from "react";
+import { ROOM_LABELS, type RoomId } from "@/types/smartSelect";
+import type { Product } from "@/types/product";import type { ReactNode } from "react";
 
 interface ProductTechnicalSpecsProps {
   product: Product;
@@ -56,30 +56,30 @@ export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
 
   return (
     <section className="mt-10 border-t border-border pt-8">
-      <h2 className="text-lg font-semibold text-ink">Technical specifications</h2>
+      <h2 className="text-lg font-semibold text-ink">Технічні характеристики</h2>
 
       <div className="mt-4 flex flex-wrap gap-2">
         {spec.ipRating && (
           <Badge className="bg-slate-800 text-white">{spec.ipRating}</Badge>
         )}
         {waterResistant && (
-          <Badge className="bg-brand-100 text-brand-700">Water resistant</Badge>
+          <Badge className="bg-brand-100 text-brand-700">Вологостійкий</Badge>
         )}
         {!isFrame && spec.hasChildProtection && (
-          <Badge className="bg-emerald-100 text-emerald-800">Child protection</Badge>
+          <Badge className="bg-emerald-100 text-emerald-800">Дитячий захист</Badge>
         )}
         {!isFrame && product.lowVoltage && (
-          <Badge className="bg-violet-100 text-violet-800">SELV / low voltage</Badge>
+          <Badge className="bg-violet-100 text-violet-800">SELV / низька напруга</Badge>
         )}
         {!isFrame && spec.hasGrounding === false && (
-          <Badge className="bg-amber-100 text-amber-900">No PE grounding</Badge>
+          <Badge className="bg-amber-100 text-amber-900">Без заземлення PE</Badge>
         )}
       </div>
 
       <ul className="mt-6 grid gap-3 sm:grid-cols-2">
         {spec.ipRating && (
           <SpecRow
-            label="IP rating"
+            label="Клас IP"
             icon={
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
                 <path
@@ -94,7 +94,7 @@ export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
               <span>
                 {spec.ipRating}
                 {waterResistant && (
-                  <span className="ml-2 font-normal text-brand-600">— suitable for splash zones</span>
+                  <span className="ml-2 font-normal text-brand-600">— підходить для зон бризок</span>
                 )}
               </span>
             }
@@ -103,7 +103,7 @@ export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
 
         {!isFrame && spec.maxAmps != null && (
           <SpecRow
-            label="Maximum amperage"
+            label="Максимальний ампераж"
             icon={
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
                 <path
@@ -120,7 +120,7 @@ export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
 
         {!isFrame && spec.hasChildProtection != null && (
           <SpecRow
-            label="Child protection"
+            label="Дитячий захист"
             icon={
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
                 <path
@@ -131,13 +131,13 @@ export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
                 />
               </svg>
             }
-            value={spec.hasChildProtection ? "Shuttered / protected" : "Standard outlet"}
+            value={spec.hasChildProtection ? "Зі шторками / захищений" : "Стандартна розетка"}
           />
         )}
 
         {!isFrame && spec.hasGrounding != null && (
           <SpecRow
-            label="Grounding"
+            label="Заземлення"
             icon={
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
                 <path
@@ -148,13 +148,13 @@ export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
                 />
               </svg>
             }
-            value={spec.hasGrounding ? "With protective earth (PE)" : "No PE (SELV or special use)"}
+            value={spec.hasGrounding ? "З захисним заземленням (PE)" : "Без PE (SELV або спеціальне використання)"}
           />
         )}
 
         {isFrame && spec.framePostsCount != null && (
           <SpecRow
-            label="Frame size"
+            label="Розмір рамки"
             icon={
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
                 <path
@@ -165,19 +165,20 @@ export function ProductTechnicalSpecs({ product }: ProductTechnicalSpecsProps) {
                 />
               </svg>
             }
-            value={`${spec.framePostsCount}-post modular frame`}
+            value={`${spec.framePostsCount}-постова модульна рамка`}
           />
         )}
       </ul>
 
       {spec.compatibleRoomTypes.length > 0 && (
         <p className="mt-4 text-sm text-muted">
-          Suitable for:{" "}
+          Підходить для:{" "}
           <span className="font-medium text-ink">
-            {spec.compatibleRoomTypes.map((r) => r.replace(/_/g, " ").toLowerCase()).join(", ")}
+            {spec.compatibleRoomTypes
+              .map((room) => ROOM_LABELS[room as RoomId] ?? room.replace(/_/g, " ").toLowerCase())
+              .join(", ")}
           </span>
         </p>
-      )}
-    </section>
+      )}    </section>
   );
 }

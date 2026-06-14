@@ -1,0 +1,17 @@
+# Backend build context (repository root)
+target/
+.git/
+.gitignore
+.idea/
+.vscode/
+*.md
+frontend/
+node_modules/
+**/*.log
+appendix_*.txt
+START.bat
+README_REVIEWER.txt
+docker-compose.yml
+src/main/resources/static/images/products/*.jpg
+src/main/resources/static/images/products/*.png
+src/main/resources/static/images/products/*.jpeg

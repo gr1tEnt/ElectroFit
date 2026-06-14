@@ -3,11 +3,12 @@ import { AppToaster } from "@/components/ui/AppToaster";
 import { StoreShell } from "@/components/StoreShell";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
+import { CompareProvider } from "@/context/CompareContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ElectroFit — Electrical Accessories",
-  description: "Professional electrical accessories catalog",
+  title: "ElectroFit — Електроаксесуари",
+  description: "Каталог професійних електроаксесуарів",
 };
 
 export default function RootLayout({
@@ -16,12 +17,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="font-sans antialiased" suppressHydrationWarning>
+    <html lang="uk" className="font-sans antialiased" suppressHydrationWarning>
       <body className="min-h-screen bg-surface text-ink" suppressHydrationWarning>
         <AuthProvider>
           <CartProvider>
-            <StoreShell>{children}</StoreShell>
-            <AppToaster />
+            <CompareProvider>
+              <StoreShell>{children}</StoreShell>
+              <AppToaster />
+            </CompareProvider>
           </CartProvider>
         </AuthProvider>
       </body>

@@ -2,7 +2,7 @@ import { ApiError } from "@/lib/apiError";
 import { getAuthToken } from "@/lib/authStorage";
 
 const API_UNAVAILABLE_MESSAGE =
-  "Cannot reach the API at {base}. Start the backend: mvn spring-boot:run";
+  "Не вдається підключитися до API за адресою {base}. Запустіть backend: mvn spring-boot:run";
 
 export function getApiBase(): string {
   return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
@@ -11,7 +11,7 @@ export function getApiBase(): string {
 async function parseErrorMessage(response: Response): Promise<{ message: string; title?: string }> {
   const text = await response.text();
   if (!text) {
-    return { message: `Request failed (${response.status})` };
+    return { message: `Запит не вдався (${response.status})` };
   }
 
   try {
@@ -33,8 +33,8 @@ async function parseErrorMessage(response: Response): Promise<{ message: string;
       if (status === 404 && json.path.startsWith("/api/auth")) {
         return {
           message:
-            "Auth API not found. Restart the backend from the project root: mvn spring-boot:run (then register again).",
-          title: "API out of date",
+            "API автентифікації не знайдено. Перезапустіть backend з кореня проєкту: mvn spring-boot:run (потім зареєструйтеся знову).",
+          title: "API застарів",
         };
       }
       return {
@@ -74,7 +74,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
     throw new ApiError(
       API_UNAVAILABLE_MESSAGE.replace("{base}", base),
       0,
-      "API unavailable",
+      "API недоступний",
     );
   }
 

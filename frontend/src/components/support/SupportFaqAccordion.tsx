@@ -4,24 +4,24 @@ import { useState } from "react";
 
 const faqItems = [
   {
-    question: "What does 'IP Rating' mean and why is it important?",
+    question: "Що означає «ступінь захисту IP» і чому це важливо?",
     answer:
-      "IP (Ingress Protection) ratings are defined by IEC 60529. The first digit indicates protection against solid objects and dust; the second digit indicates protection against water. Choosing the correct IP rating prevents electrical shock, corrosion, and equipment failure in your specific environment.",
+      "Ступінь захисту IP (Ingress Protection) визначена стандартом IEC 60529. Перша цифра показує захист від твердих предметів і пилу; друга — від води. Правильний вибір IP запобігає ураженню електричним струмом, корозії та виходу з ладу обладнання у вашому середовищі.",
   },
   {
-    question: "Can I install a standard IP20 socket in my bathroom?",
+    question: "Чи можна встановити стандартну розетку IP20 у ванній кімнаті?",
     answer:
-      "Strictly no. Standard IP20 sockets are designed for dry rooms only. In bathrooms — especially within 60 cm of water sources — at least IP44 with appropriate splash protection is required by safety regulations. Use our Smart Selector to find compliant products for wet zones.",
+      "Категорично ні. Стандартні розетки IP20 призначені лише для сухих приміщень. У ванних кімнатах — особливо в межах 60 см від джерел води — згідно з нормами безпеки потрібен мінімум IP44 з відповідним захистом від бризок. Скористайтеся Розумним підбором, щоб знайти відповідні товари для вологих зон.",
   },
   {
-    question: "How does the Modular Configurator guarantee compatibility?",
+    question: "Як Конфігуратор рамок гарантує сумісність?",
     answer:
-      "The configurator automatically filters and selects frames and single-post mechanisms from the exact same brand and series. It matches post count to mechanism quantity and excludes incompatible double sockets, so every set you add to cart is physically and electrically coherent.",
+      "Конфігуратор автоматично відбирає рамки та однопостові механізми одного бренду й серії. Він узгоджує кількість позицій із кількістю механізмів і виключає несумісні подвійні розетки, тож кожен комплект у кошику є фізично та електрично цілісним.",
   },
   {
-    question: "What if I need a custom block (e.g., 3 sockets and 1 TV port)?",
+    question: "Що робити, якщо потрібен нестандартний блок (наприклад, 3 розетки та 1 TV-порт)?",
     answer:
-      "Use our Catalog to select individual mechanisms from the same series, then choose a frame with the matching post count (e.g., a 4-post frame for four modules). The system will suggest the correct frame size based on your selected series and total module count.",
+      "Скористайтеся Каталогом, щоб обрати окремі механізми однієї серії, потім оберіть рамку з відповідною кількістю позицій (наприклад, 4-позиційну рамку для чотирьох модулів). Система запропонує правильний розмір рамки залежно від обраної серії та загальної кількості модулів.",
   },
 ];
 
@@ -43,7 +43,7 @@ export function SupportFaqAccordion({ query = "" }: SupportFaqAccordionProps) {
   if (visibleItems.length === 0) {
     return (
       <p className="rounded-xl border border-border bg-slate-50 px-4 py-6 text-center text-sm text-muted">
-        No FAQ matches your search. Try different keywords or contact us below.
+        За вашим запитом нічого не знайдено. Спробуйте інші ключові слова або зв&apos;яжіться з нами нижче.
       </p>
     );
   }

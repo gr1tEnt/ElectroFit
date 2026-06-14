@@ -38,12 +38,12 @@ export function Configurator() {
       setSelectedIndex(0);
       if (results.length === 0) {
         setError(
-          `No matching ${posts}-post frame and socket set found. Add products with category "Sockets" and matching brand series.`,
+          `Не знайдено відповідного комплекту рамки на ${posts} позиції та розеток. Додайте товари з категорією «Розетки» та однаковою серією бренду.`,
         );
       }
     } catch (err) {
       setSets([]);
-      setError(getErrorMessage(err, "Failed to load configurator data"));
+      setError(getErrorMessage(err, "Не вдалося завантажити дані конфігуратора"));
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,7 @@ export function Configurator() {
         setAvailableMechanisms(mechanisms);
       } catch (err) {
         setAvailableMechanisms([]);
-        setMechanismError(getErrorMessage(err, "Failed to load mechanisms"));
+        setMechanismError(getErrorMessage(err, "Не вдалося завантажити механізми"));
       } finally {
         setLoadingMechanisms(false);
       }
@@ -116,41 +116,41 @@ export function Configurator() {
       brandName: selectedSet.brandName,
       seriesName: selectedSet.seriesName,
     });
-    toastAddedSet(`Modular set (${selectedSlots.length}-post ${selectedSet.seriesName})`);
+    toastAddedSet(`Модульний комплект (${selectedSlots.length}-позиційна ${selectedSet.seriesName})`);
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mb-8 text-center">
-        <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
-          Modular system
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 md:py-10 lg:px-8">
+      <div className="mb-6 text-center md:mb-8">
+        <p className="text-xs font-semibold uppercase tracking-wide text-brand-600 sm:text-sm">
+          Модульна система
         </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-ink">Configurator</h1>
-        <p className="mt-2 text-muted">
-          Pick a frame size, then mix different mechanisms from the same brand and series in each
-          slot.
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink md:text-3xl">Конфігуратор рамок</h1>
+        <p className="mt-2 text-sm text-muted md:text-base">
+          Оберіть розмір рамки, а потім комбінуйте різні механізми одного бренду та серії в кожній
+          позиції.
         </p>
       </div>
 
-      <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-ink">What do you need?</h2>
-        <p className="mt-1 text-sm text-muted">Select how many mechanism slots your frame has.</p>
+      <section className="rounded-2xl border border-border bg-white p-4 shadow-sm md:p-6">
+        <h2 className="text-base font-semibold text-ink md:text-lg">Що вам потрібно?</h2>
+        <p className="mt-1 text-sm text-muted">Оберіть кількість позицій для механізмів у вашій рамці.</p>
 
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:mt-5 md:grid-cols-5">
           {BLOCK_SIZE_OPTIONS.map((size) => (
             <button
               key={size}
               type="button"
               onClick={() => setBlockSize(size)}
-              className={`rounded-xl border-2 px-4 py-4 text-center transition ${
+              className={`min-h-11 rounded-xl border-2 px-3 py-3 text-center transition md:px-4 md:py-4 ${
                 blockSize === size
                   ? "border-brand-600 bg-brand-50 text-brand-700"
                   : "border-border hover:border-brand-300"
               }`}
             >
-              <span className="block text-2xl font-bold">{size}</span>
+              <span className="block text-xl font-bold md:text-2xl">{size}</span>
               <span className="mt-1 block text-xs font-medium">
-                {size === 1 ? "slot" : "slots"}
+                {size === 1 ? "позиція" : "позиції"}
               </span>
             </button>
           ))}
@@ -158,8 +158,8 @@ export function Configurator() {
 
         {blockSize === 3 && (
           <p className="mt-4 rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-800">
-            Selected: <strong>3-post frame</strong> — e.g. 1 socket + 1 switch + 1 USB in the same
-            Valena Life series.
+            Обрано: <strong>3-позиційна рамка</strong> — наприклад, 1 розетка + 1 вимикач + 1 USB в одній
+            серії Valena Life.
           </p>
         )}
       </section>
@@ -180,7 +180,7 @@ export function Configurator() {
         <div className="mt-8 space-y-6">
           {sets.length > 1 && (
             <div>
-              <label className="text-sm font-medium text-ink">Brand / series</label>
+              <label className="text-sm font-medium text-ink">Бренд / серія</label>
               <select
                 value={selectedIndex}
                 onChange={(e) => {
@@ -205,35 +205,35 @@ export function Configurator() {
             onSlotClick={(slotIndex) => void openSlotSelector(slotIndex)}
           />
 
-          <div className="rounded-xl border border-border bg-slate-50 p-4 text-sm">
+          <div className="rounded-xl border border-border bg-slate-50 p-4 text-sm md:p-5">
             <ul className="space-y-2 text-slate-700">
               <li>
-                <span className="font-medium">Frame:</span> 1× {selectedSet.frame.name} (
+                <span className="font-medium">Рамка:</span> 1× {selectedSet.frame.name} (
                 {selectedSet.frame.sku}) — €{selectedSet.frame.price.toFixed(2)}
               </li>
               {mechanismSummary.map(({ product, quantity }) => (
                 <li key={product.id}>
-                  <span className="font-medium">Mechanism:</span> {quantity}× {product.name} (
+                  <span className="font-medium">Механізм:</span> {quantity}× {product.name} (
                   {product.sku}) — €{(product.price * quantity).toFixed(2)}
                 </li>
               ))}
             </ul>
             {setPrice != null && !Number.isNaN(setPrice) && (
-              <p className="mt-4 text-lg font-bold text-ink">Set price: €{setPrice.toFixed(2)}</p>
+              <p className="mt-4 text-base font-bold text-ink md:text-lg">Ціна комплекту: €{setPrice.toFixed(2)}</p>
             )}
           </div>
 
           <button
             type="button"
             onClick={handleAddToCart}
-            className="w-full rounded-xl bg-brand-600 py-4 text-base font-semibold text-white shadow-lg transition hover:bg-brand-700"
+            className="min-h-11 w-full rounded-xl bg-brand-600 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-brand-700 md:py-4 md:text-base"
           >
-            Add full set to cart
+            Додати повний комплект до кошика
           </button>
 
           <p className="text-center text-sm text-muted">
             <a href="/cart" className="font-medium text-brand-600 hover:underline">
-              View cart ({itemCount} items)
+              Переглянути кошик ({itemCount} шт.)
             </a>
           </p>
         </div>

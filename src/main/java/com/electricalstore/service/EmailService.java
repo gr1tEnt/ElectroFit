@@ -51,7 +51,7 @@ public class EmailService {
             helper.setFrom(new InternetAddress(fromAddress, fromName));
             helper.setReplyTo(replyToAddress);
             helper.setTo(toEmail);
-            helper.setSubject("ElectroFit order confirmation #" + orderId);
+            helper.setSubject("Підтвердження замовлення ElectroFit №" + orderId);
             helper.setText(
                     buildPlainText(customerName, orderId, totalAmount),
                     buildHtmlBody(customerName, orderId, totalAmount));
@@ -69,14 +69,14 @@ public class EmailService {
 
     private static String buildPlainText(String customerName, Long orderId, BigDecimal totalAmount) {
         return """
-                Hello %s,
+                Вітаємо, %s!
 
-                Thank you for your order!
+                Дякуємо за ваше замовлення!
 
-                Order ID: #%d
-                Total Paid: %s
+                Номер замовлення: №%d
+                Загальна сума: %s
 
-                Thank you for choosing safe electrical solutions!
+                Дякуємо, що обрали безпечні електротехнічні рішення!
                 """
                 .formatted(customerName, orderId, formatEuro(totalAmount));
     }
@@ -87,11 +87,11 @@ public class EmailService {
 
         return """
                 <!DOCTYPE html>
-                <html lang="en">
+                <html lang="uk">
                   <head>
                     <meta charset="UTF-8"/>
                     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-                    <title>Order Confirmation</title>
+                    <title>Підтвердження замовлення</title>
                   </head>
                   <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: 'Segoe UI', Arial, sans-serif;">
                     <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="background-color: #f1f5f9; padding: 32px 16px;">
@@ -108,21 +108,21 @@ public class EmailService {
                             <tr>
                               <td style="padding: 32px;">
                                 <p style="margin: 0 0 8px; color: #1e293b; font-size: 18px; font-weight: 600;">
-                                  Hello %s,
+                                  Вітаємо, %s!
                                 </p>
                                 <p style="margin: 0 0 24px; color: #64748b; font-size: 15px; line-height: 1.6;">
-                                  Thank you for your order! Here is your receipt summary.
+                                  Дякуємо за ваше замовлення! Нижче — короткий підсумок вашого чека.
                                 </p>
                                 <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden;">
                                   <tr>
                                     <td style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0;">
-                                      <span style="display: block; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Order ID</span>
+                                      <span style="display: block; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Номер замовлення</span>
                                       <span style="display: block; margin-top: 4px; color: #0f172a; font-size: 20px; font-weight: 700;">#%d</span>
                                     </td>
                                   </tr>
                                   <tr>
                                     <td style="padding: 16px 20px;">
-                                      <span style="display: block; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Total Paid</span>
+                                      <span style="display: block; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Загальна сума</span>
                                       <span style="display: block; margin-top: 4px; color: #1d4ed8; font-size: 24px; font-weight: 700;">%s</span>
                                     </td>
                                   </tr>
@@ -132,7 +132,7 @@ public class EmailService {
                             <tr>
                               <td style="padding: 0 32px 32px; text-align: center;">
                                 <p style="margin: 0; color: #475569; font-size: 14px; line-height: 1.6; font-style: italic;">
-                                  Thank you for choosing safe electrical solutions!
+                                  Дякуємо, що обрали безпечні електротехнічні рішення!
                                 </p>
                               </td>
                             </tr>

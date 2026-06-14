@@ -1,18 +1,22 @@
 package com.electricalstore.controller;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.electricalstore.dto.DashboardStatsResponse;
 import com.electricalstore.dto.MonthlySalesResponse;
 import com.electricalstore.dto.RecentOrderResponse;
+import com.electricalstore.entity.Order;
 import com.electricalstore.entity.OrderStatus;
 import com.electricalstore.repository.UserRepository;
 import com.electricalstore.security.JwtService;
 import com.electricalstore.service.AdminDashboardService;
 import com.electricalstore.service.AdminService;
+import com.electricalstore.service.OrderService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,6 +42,9 @@ class AdminControllerTest {
 
     @MockitoBean
     private AdminDashboardService adminDashboardService;
+
+    @MockitoBean
+    private OrderService orderService;
 
     @MockitoBean
     private JwtService jwtService;
@@ -68,5 +75,27 @@ class AdminControllerTest {
                 .andExpect(jsonPath("$.recentOrders[0].customerName").value("Olena Kovalenko"))
                 .andExpect(jsonPath("$.salesChartData[0].month").value("Feb"))
                 .andExpect(jsonPath("$.salesChartData[1].revenue").value(890.00));
+    }
+
+    @Test
+    void updateOrderStatus_returnsUpdatedOrder() throws Exception {
+        Order updated = Order.builder()
+                .id(7L)
+                .customerName("Jane Doe")
+                .customerEmail("jane@example.com")
+                .totalAmount(new BigDecimal("99.50"))
+                .status(OrderStatus.COMPLETED)
+                .createdAt(LocalDateTime.parse("2026-06-07T10:30:00"))
+                .build();
+
+        when(orderService.updateStatus(eq(7L), eq(OrderStatus.COMPLETED))).thenReturn(updated);
+
+        mockMvc.perform(patch("/api/admin/orders/7/status")
+                        .contentType("application/json")
+                        .content("{\"status\":\"COMPLETED\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(7))
+                .andExpect(jsonPath("$.status").value("COMPLETED"))
+                .andExpect(jsonPath("$.customerName").value("Jane Doe"));
     }
 }

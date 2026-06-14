@@ -6,6 +6,7 @@ import com.electricalstore.entity.ProductType;
 import com.electricalstore.entity.TechnicalSpec;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -86,13 +87,18 @@ public record ProductResponse(
     }
 
     private static List<String> resolveImageUrls(Product product) {
-        if (product.getImageUrls() != null && !product.getImageUrls().isEmpty()) {
-            return List.copyOf(product.getImageUrls());
-        }
+        List<String> merged = new ArrayList<>();
         if (product.getImageUrl() != null && !product.getImageUrl().isBlank()) {
-            return List.of(product.getImageUrl());
+            merged.add(product.getImageUrl().trim());
         }
-        return Collections.emptyList();
+        if (product.getImageUrls() != null) {
+            for (String url : product.getImageUrls()) {
+                if (url != null && !url.isBlank()) {
+                    merged.add(url.trim());
+                }
+            }
+        }
+        return merged.stream().distinct().toList();
     }
 
     public static List<ProductResponse> fromList(List<Product> products) {

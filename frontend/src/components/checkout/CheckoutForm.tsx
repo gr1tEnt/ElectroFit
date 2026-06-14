@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { getErrorMessage } from "@/lib/apiError";
 import { submitOrder } from "@/lib/api";
 import { lineUnitPrice } from "@/lib/cartUtils";
+import { loadSavedShippingAddress } from "@/lib/shippingAddressStorage";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,7 +14,8 @@ import { CheckoutOrderSummary } from "@/components/checkout/CheckoutOrderSummary
 interface CheckoutFormState {
   customerName: string;
   email: string;
-  address: string;
+  streetAddress: string;
+  city: string;
   phone: string;
   cardNumber: string;
   cardExpiry: string;
@@ -23,7 +25,8 @@ interface CheckoutFormState {
 const initialForm: CheckoutFormState = {
   customerName: "",
   email: "",
-  address: "",
+  streetAddress: "",
+  city: "",
   phone: "",
   cardNumber: "",
   cardExpiry: "",
@@ -45,16 +48,17 @@ function formatExpiry(value: string): string {
 }
 
 function validateForm(form: CheckoutFormState): string | null {
-  if (!form.customerName.trim()) return "Please enter your full name.";
-  if (!form.email.trim()) return "Please enter a valid email.";
-  if (!form.address.trim()) return "Please enter your shipping address.";
-  if (!form.phone.trim()) return "Please enter your phone number.";
+  if (!form.customerName.trim()) return "Введіть повне ім'я.";
+  if (!form.email.trim()) return "Введіть дійсну електронну адресу.";
+  if (!form.streetAddress.trim()) return "Введіть адресу.";
+  if (!form.city.trim()) return "Введіть місто.";
+  if (!form.phone.trim()) return "Введіть номер телефону.";
   const cardDigits = form.cardNumber.replace(/\D/g, "");
-  if (cardDigits.length < 16) return "Please enter a valid 16-digit card number.";
+  if (cardDigits.length < 16) return "Введіть дійсний 16-значний номер картки.";
   if (!/^\d{2}\/\d{2}$/.test(form.cardExpiry.trim())) {
-    return "Expiry must be in MM/YY format.";
+    return "Термін дії має бути у форматі ММ/РР.";
   }
-  if (!/^\d{3,4}$/.test(form.cardCvv.trim())) return "Please enter a valid CVV.";
+  if (!/^\d{3,4}$/.test(form.cardCvv.trim())) return "Введіть дійсний CVV.";
   return null;
 }
 
@@ -67,13 +71,17 @@ export function CheckoutForm() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isAuthenticated && user) {
-      setForm((prev) => ({
-        ...prev,
-        customerName: user.fullName,
-        email: user.email,
-      }));
-    }
+    if (!isAuthenticated || !user) return;
+
+    const saved = loadSavedShippingAddress(user.email);
+    setForm((prev) => ({
+      ...prev,
+      customerName: user.fullName,
+      email: user.email,
+      streetAddress: saved?.streetAddress ?? prev.streetAddress,
+      city: saved?.city ?? prev.city,
+      phone: saved?.phone ?? prev.phone,
+    }));
   }, [isAuthenticated, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,7 +110,7 @@ export function CheckoutForm() {
       clearCart();
       router.push(`/success?orderId=${encodeURIComponent(result.orderId)}`);
     } catch (err) {
-      setError(getErrorMessage(err, "Could not place order. Please try again."));
+      setError(getErrorMessage(err, "Не вдалося оформити замовлення. Спробуйте ще раз."));
     } finally {
       setSubmitting(false);
     }
@@ -111,10 +119,10 @@ export function CheckoutForm() {
   if (itemCount === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-border bg-white p-12 text-center">
-        <p className="text-lg font-semibold text-ink">Your cart is empty</p>
-        <p className="mt-2 text-sm text-muted">Add products before checking out.</p>
+        <p className="text-lg font-semibold text-ink">Ваш кошик порожній</p>
+        <p className="mt-2 text-sm text-muted">Додайте товари перед оформленням замовлення.</p>
         <Link href="/catalog" className="mt-6 inline-block text-brand-600 hover:underline">
-          Browse catalog
+          Переглянути каталог
         </Link>
       </div>
     );
@@ -127,13 +135,13 @@ export function CheckoutForm() {
     <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-5">
       <div className="space-y-6 lg:col-span-3">
         <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-ink">Shipping information</h2>
-          <p className="mt-1 text-sm text-muted">Where should we deliver your order?</p>
+          <h2 className="text-lg font-semibold text-ink">Дані для доставки</h2>
+          <p className="mt-1 text-sm text-muted">Куди доставити ваше замовлення?</p>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="checkout-name" className="block text-sm font-medium text-ink">
-                Full name
+                Повне ім&apos;я
               </label>
               <input
                 id="checkout-name"
@@ -141,12 +149,12 @@ export function CheckoutForm() {
                 value={form.customerName}
                 onChange={(e) => setForm({ ...form, customerName: e.target.value })}
                 className={inputClass}
-                placeholder="John Smith"
+                placeholder="Іван Петренко"
               />
             </div>
             <div>
               <label htmlFor="checkout-email" className="block text-sm font-medium text-ink">
-                Email
+                Електронна пошта
               </label>
               <input
                 id="checkout-email"
@@ -155,12 +163,12 @@ export function CheckoutForm() {
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className={inputClass}
-                placeholder="you@example.com"
+                placeholder="vi@example.com"
               />
             </div>
             <div>
               <label htmlFor="checkout-phone" className="block text-sm font-medium text-ink">
-                Phone
+                Телефон
               </label>
               <input
                 id="checkout-phone"
@@ -169,21 +177,33 @@ export function CheckoutForm() {
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 className={inputClass}
-                placeholder="+420 123 456 789"
+                placeholder="+380 67 123 4567"
               />
             </div>
             <div className="sm:col-span-2">
-              <label htmlFor="checkout-address" className="block text-sm font-medium text-ink">
-                Shipping address
+              <label htmlFor="checkout-street" className="block text-sm font-medium text-ink">
+                Адреса
               </label>
-              <textarea
-                id="checkout-address"
+              <input
+                id="checkout-street"
                 required
-                rows={3}
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                className={`${inputClass} resize-y`}
-                placeholder="Street, city, postal code, country"
+                value={form.streetAddress}
+                onChange={(e) => setForm({ ...form, streetAddress: e.target.value })}
+                className={inputClass}
+                placeholder="вул. Хрещатик, 1, кв. 4"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label htmlFor="checkout-city" className="block text-sm font-medium text-ink">
+                Місто
+              </label>
+              <input
+                id="checkout-city"
+                required
+                value={form.city}
+                onChange={(e) => setForm({ ...form, city: e.target.value })}
+                className={inputClass}
+                placeholder="Київ"
               />
             </div>
           </div>
@@ -192,20 +212,20 @@ export function CheckoutForm() {
         <section className="rounded-2xl border border-border bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-ink">Payment</h2>
+              <h2 className="text-lg font-semibold text-ink">Оплата</h2>
               <p className="mt-1 text-sm text-muted">
-                Simulated checkout — no real payment is processed.
+                Імітоване оформлення — реальна оплата не проводиться.
               </p>
             </div>
             <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-              Demo only
+              Лише демо
             </span>
           </div>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="checkout-card" className="block text-sm font-medium text-ink">
-                Card number
+                Номер картки
               </label>
               <input
                 id="checkout-card"
@@ -222,7 +242,7 @@ export function CheckoutForm() {
             </div>
             <div>
               <label htmlFor="checkout-expiry" className="block text-sm font-medium text-ink">
-                Expiry
+                Термін дії
               </label>
               <input
                 id="checkout-expiry"
@@ -234,7 +254,7 @@ export function CheckoutForm() {
                   setForm({ ...form, cardExpiry: formatExpiry(e.target.value) })
                 }
                 className={`${inputClass} font-mono`}
-                placeholder="MM/YY"
+                placeholder="ММ/РР"
               />
             </div>
             <div>
@@ -269,7 +289,7 @@ export function CheckoutForm() {
           disabled={submitting}
           className="w-full rounded-xl bg-brand-600 py-4 text-base font-semibold text-white shadow-md transition hover:bg-brand-700 disabled:opacity-50 lg:hidden"
         >
-          {submitting ? "Placing order…" : `Place order — €${subtotal.toFixed(2)}`}
+          {submitting ? "Оформлення замовлення…" : `Оформити замовлення — €${subtotal.toFixed(2)}`}
         </button>
       </div>
 
@@ -280,13 +300,13 @@ export function CheckoutForm() {
           disabled={submitting}
           className="mt-4 hidden w-full rounded-xl bg-brand-600 py-4 text-base font-semibold text-white shadow-md transition hover:bg-brand-700 disabled:opacity-50 lg:block"
         >
-          {submitting ? "Placing order…" : "Place order"}
+          {submitting ? "Оформлення замовлення…" : "Оформити замовлення"}
         </button>
         <Link
           href="/cart"
           className="mt-3 block text-center text-sm text-muted hover:text-brand-600"
         >
-          Back to cart
+          Назад до кошика
         </Link>
       </aside>
     </form>

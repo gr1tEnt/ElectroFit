@@ -20,18 +20,18 @@ export function ModularSetPreview({
   const compact = slots.length >= 5;
 
   return (
-    <div className="rounded-2xl border-2 border-dashed border-brand-200 bg-gradient-to-b from-white to-brand-50/40 p-6">
+    <div className="rounded-2xl border-2 border-dashed border-brand-200 bg-gradient-to-b from-white to-brand-50/40 p-4 md:p-6">
       <div className="mb-4 text-center">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-          Your modular assembly
+          Ваш модульний комплект
         </p>
         <p className="mt-1 text-sm text-muted">
-          Click any slot to swap the mechanism — mix sockets, switches, USB ports, and more.
+          Натисніть на позицію, щоб змінити механізм — комбінуйте розетки, вимикачі, USB-порти тощо.
         </p>
       </div>
 
       <div className="mx-auto flex max-w-lg flex-col items-stretch gap-3">
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="-mx-1 flex flex-nowrap gap-3 overflow-x-auto px-1 pb-2 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0">
           {slots.map((product, slotIndex) => (
             <MechanismSlot
               key={`${product.id}-${slotIndex}`}
@@ -45,7 +45,7 @@ export function ModularSetPreview({
 
         <div className="flex items-center justify-center gap-2 text-brand-400">
           <span className="h-px flex-1 bg-brand-200" />
-          <span className="text-xs font-medium">fits into</span>
+          <span className="text-xs font-medium">встановлюється в</span>
           <span className="h-px flex-1 bg-brand-200" />
         </div>
 
@@ -70,18 +70,18 @@ function MechanismSlot({
   compact?: boolean;
   onChange: () => void;
 }) {
-  const cardSize = compact ? "w-20" : "w-24";
-  const imageSize = compact ? "h-20 w-20" : "h-24 w-24";
+  const cardSize = compact ? "w-[5.5rem] min-w-[5.5rem] sm:w-20" : "w-24 min-w-24";
+  const imageSize = compact ? "h-11 w-11 min-h-11 min-w-11 sm:h-20 sm:w-20" : "h-11 w-11 min-h-11 min-w-11 sm:h-24 sm:w-24";
 
   return (
     <button
       type="button"
       onClick={onChange}
-      className={`group relative flex shrink-0 flex-col items-center rounded-xl border border-border bg-white p-2 shadow-sm transition hover:border-brand-500 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 sm:p-3 ${cardSize}`}
-      aria-label={`Change mechanism in slot ${slotIndex + 1}: ${product.name}`}
+      className={`group relative flex min-h-11 shrink-0 flex-col items-center rounded-xl border border-border bg-white p-2 shadow-sm transition hover:border-brand-500 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 sm:p-3 ${cardSize}`}
+      aria-label={`Змінити механізм у позиції ${slotIndex + 1}: ${product.name}`}
     >
       <span className="absolute right-1 top-1 rounded-full bg-brand-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
-        Change
+        Змінити
       </span>
 
       <div className={`flex items-center justify-center rounded-lg bg-white p-2 ${imageSize}`}>
@@ -91,7 +91,7 @@ function MechanismSlot({
           className="h-full w-full object-contain"
         />
       </div>
-      <p className="mt-2 text-center text-xs font-medium text-ink">Slot {slotIndex + 1}</p>
+      <p className="mt-2 text-center text-xs font-medium text-ink">Позиція {slotIndex + 1}</p>
       <p className="line-clamp-2 text-center text-[10px] leading-tight text-muted">{product.name}</p>
     </button>
   );
@@ -100,13 +100,13 @@ function MechanismSlot({
 function FrameSlot({ frame, posts }: { frame: Product; posts: number }) {
   return (
     <div className="rounded-xl border-2 border-brand-600 bg-white p-4 shadow-md">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:gap-4 sm:text-left">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-brand-100 text-brand-700">
           <FrameIcon posts={posts} />
         </div>
         <div className="min-w-0 flex-1">
           <span className="inline-block rounded-full bg-accent px-2.5 py-0.5 text-xs font-bold text-white">
-            {posts}-post frame
+            {posts}-позиційна рамка
           </span>
           <p className="mt-1 font-semibold text-ink">{frame.name}</p>
           <p className="font-mono text-xs text-muted">{frame.sku}</p>

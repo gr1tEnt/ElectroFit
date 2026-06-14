@@ -111,7 +111,22 @@ public class ProductController {
     @ApiResponse(responseCode = "404", description = "Product not found")
     public ProductResponse updateProduct(
             @PathVariable Long id, @Valid @RequestBody UpdateProductRequest request) {
-        return productResponseMapper.toResponse(productService.updateProduct(id, request));
+        return productResponseMapper.toResponse(productService.updateProduct(id, request, null));
+    }
+
+    @PutMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+            summary = "Update product with image",
+            description =
+                    "Updates product data with an optional image upload. Send multipart/form-data with a JSON"
+                            + " `product` part and an optional `image` file part.")
+    @ApiResponse(responseCode = "200", description = "Product updated")
+    @ApiResponse(responseCode = "404", description = "Product not found")
+    public ProductResponse updateProductWithImage(
+            @PathVariable Long id,
+            @RequestPart("product") @Valid UpdateProductRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile) {
+        return productResponseMapper.toResponse(productService.updateProduct(id, request, imageFile));
     }
 
     @DeleteMapping(path = "/{id}")

@@ -1,8 +1,8 @@
 const advantages = [
   {
-    title: "Smart IP Rating Filtering",
+    title: "Розумна фільтрація за IP",
     description:
-      "Our system automatically calculates environmental risks and blocks unsafe products (IP20) in wet or dusty zones.",
+      "Система автоматично оцінює ризики середовища та блокує небезпечні товари (IP20) у вологих або запилених зонах.",
     icon: (
       <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
         <path
@@ -15,9 +15,9 @@ const advantages = [
     ),
   },
   {
-    title: "Guaranteed Frame Compatibility",
+    title: "Гарантована сумісність рамок",
     description:
-      "Never buy incompatible parts. The modular configurator automatically pairs mechanisms with the correct size frame from the same series.",
+      "Більше не купуйте несумісні деталі. Конфігуратор рамок автоматично підбирає механізми до рамок правильного розміру з тієї ж серії.",
     icon: (
       <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
         <path
@@ -30,9 +30,9 @@ const advantages = [
     ),
   },
   {
-    title: "Multi-Brand Catalog",
+    title: "Каталог кількох брендів",
     description:
-      "Compare products from industry leaders like Legrand and Schneider Electric in one single interface.",
+      "Порівнюйте товари від лідерів галузі, таких як Legrand і Schneider Electric, в одному інтерфейсі.",
     icon: (
       <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
         <path
@@ -51,8 +51,8 @@ export function HomeAdvantagesSection() {
     <section className="border-t border-border bg-white py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-ink">Why ElectroFit?</h2>
-          <p className="mt-3 text-muted">Engineering approach to home safety</p>
+          <h2 className="text-3xl font-bold tracking-tight text-ink">Чому ElectroFit?</h2>
+          <p className="mt-3 text-muted">Інженерний підхід до безпеки вдома</p>
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
