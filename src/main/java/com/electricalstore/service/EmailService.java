@@ -1,35 +1,43 @@
 package com.electricalstore.service;
 
 import com.electricalstore.dto.OrderPlacedEvent;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+    private static final String BREVO_SEND_URL = "https://api.brevo.com/v3/smtp/email";
 
-    private final JavaMailSender mailSender;
+    private final RestTemplate restTemplate;
+    private final String brevoApiKey;
     private final String senderEmail;
     private final String fromName;
 
     public EmailService(
-            JavaMailSender mailSender,
+            RestTemplate restTemplate,
+            @Value("${BREVO_API_KEY:}") String brevoApiKey,
             @Value("${CONTACT_EMAIL:${app.contact.email:electrofit.support@gmail.com}}") String senderEmail,
-            @Value("${app.mail.from-name:ElectroFit Support}") String fromName) {
-        this.mailSender = mailSender;
+            @Value("${app.mail.from-name:ElectroFit}") String fromName) {
+        this.restTemplate = restTemplate;
+        this.brevoApiKey = brevoApiKey;
         this.senderEmail = senderEmail;
         this.fromName = fromName;
     }
@@ -42,48 +50,57 @@ public class EmailService {
 
     public void sendOrderConfirmation(
             String toEmail, String customerName, Long orderId, BigDecimal totalAmount) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
-            helper.setFrom(new InternetAddress(senderEmail, fromName));
-            helper.setReplyTo(senderEmail);
-            helper.setTo(toEmail);
-            helper.setSubject("Підтвердження замовлення ElectroFit №" + orderId);
-            helper.setText(
-                    buildPlainText(customerName, orderId, totalAmount),
-                    buildHtmlBody(customerName, orderId, totalAmount));
-            mailSender.send(message);
-            log.info(
-                    "Order confirmation email sent from {} to {} for order #{}",
-                    senderEmail,
+        if (brevoApiKey == null || brevoApiKey.isBlank()) {
+            log.warn(
+                    "BREVO_API_KEY is not configured; skipping order confirmation email to {} for order #{}",
                     toEmail,
                     orderId);
+            return;
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", brevoApiKey);
+
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("sender", Map.of("email", senderEmail, "name", fromName));
+            payload.put("to", List.of(Map.of("email", toEmail)));
+            payload.put("subject", "Підтвердження замовлення ElectroFit №" + orderId);
+            payload.put("htmlContent", buildHtmlBody(customerName, orderId, totalAmount));
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+            ResponseEntity<String> response =
+                    restTemplate.postForEntity(BREVO_SEND_URL, request, String.class);
+
+            log.info(
+                    "Order confirmation email sent via Brevo from {} to {} for order #{} (status={})",
+                    senderEmail,
+                    toEmail,
+                    orderId,
+                    response.getStatusCode());
+        } catch (HttpStatusCodeException ex) {
+            log.error(
+                    "Brevo API rejected order confirmation email from {} to {} for order #{}: {} — {}",
+                    senderEmail,
+                    toEmail,
+                    orderId,
+                    ex.getStatusCode(),
+                    ex.getResponseBodyAsString(),
+                    ex);
         } catch (Exception ex) {
             log.error(
-                    "Failed to send order confirmation email from {} to {} for order #{}: {}",
+                    "Failed to send order confirmation email via Brevo from {} to {} for order #{}: {}",
                     senderEmail,
                     toEmail,
                     orderId,
                     ex.getMessage(),
                     ex);
             if (ex.getCause() != null) {
-                log.error("Mail send root cause for order #{}: {}", orderId, ex.getCause().getMessage());
+                log.error("Brevo send root cause for order #{}: {}", orderId, ex.getCause().getMessage());
             }
         }
-    }
-
-    private static String buildPlainText(String customerName, Long orderId, BigDecimal totalAmount) {
-        return """
-                Вітаємо, %s!
-
-                Дякуємо за ваше замовлення!
-
-                Номер замовлення: №%d
-                Загальна сума: %s
-
-                Дякуємо, що обрали безпечні електротехнічні рішення!
-                """
-                .formatted(customerName, orderId, formatEuro(totalAmount));
     }
 
     private static String buildHtmlBody(String customerName, Long orderId, BigDecimal totalAmount) {
