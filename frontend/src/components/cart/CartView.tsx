@@ -1,14 +1,17 @@
 "use client";
 
+import { CartCompatibilityAlert } from "@/components/cart/CartCompatibilityAlert";
 import { CartLineItem } from "@/components/cart/CartLineItem";
 import { ExportEstimateButton } from "@/components/cart/ExportEstimateButton";
 import { ExportTechSpecsButton } from "@/components/export/ExportTechSpecsButton";
 import { useCart } from "@/context/CartContext";
+import { useCartSeriesCompatibility } from "@/hooks/useCartSeriesCompatibility";
 import Link from "next/link";
 import { useMemo } from "react";
 
 export function CartView() {
   const { items, subtotal, itemCount } = useCart();
+  const compatibility = useCartSeriesCompatibility(items);
   const cartProducts = useMemo(() => {
     const seen = new Set<number>();
     return items
@@ -47,6 +50,7 @@ export function CartView() {
 
   return (
     <div className="space-y-4">
+      {compatibility.hasRisk && <CartCompatibilityAlert series={compatibility.series} />}
       <ul className="space-y-3">
         {items.map((line) => (
           <CartLineItem key={line.lineId} line={line} />
