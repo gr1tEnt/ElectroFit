@@ -99,13 +99,13 @@ export function SmartSelectWizard() {
   }, [searchParams]);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mb-6 text-center">
-        <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
+    <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 md:py-10 lg:px-8">
+      <div className="mb-4 text-center md:mb-6">
+        <p className="text-xs font-semibold uppercase tracking-wide text-brand-600 sm:text-sm">
           Для початківців
         </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-ink">Розумний підбір</h1>
-        <p className="mt-2 text-muted">
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink md:text-3xl">Розумний підбір</h1>
+        <p className="mt-2 text-sm text-muted md:text-base">
           Відповідайте на кілька простих запитань, і ми підберемо товари, безпечні для вашого простору.
         </p>
       </div>
@@ -114,7 +114,7 @@ export function SmartSelectWizard() {
 
       {step === 1 && (
         <section>
-          <h2 className="text-xl font-semibold text-ink">Крок 1 — Оберіть кімнату</h2>
+          <h2 className="text-lg font-semibold text-ink md:text-xl">Крок 1 — Оберіть кімнату</h2>
           <p className="mt-1 text-sm text-muted">Де ви встановлюватимете електричні аксесуари?</p>
 
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -125,7 +125,7 @@ export function SmartSelectWizard() {
                   key={option.id}
                   type="button"
                   onClick={() => handleRoomSelect(option.id)}
-                  className={`flex items-start gap-4 rounded-2xl border-2 p-5 text-left transition ${
+                  className={`flex min-h-11 items-center gap-3 rounded-2xl border-2 p-4 text-left transition md:gap-4 md:p-5 ${
                     selected
                       ? "border-brand-600 bg-brand-50 shadow-md"
                       : "border-border bg-white hover:border-brand-300 hover:shadow-sm"
@@ -133,10 +133,10 @@ export function SmartSelectWizard() {
                 >
                   <span
                     className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${
-                      selected ? "bg-brand-600 text-white" : "bg-slate-100 text-brand-600"
+                      selected ? "bg-brand-600 text-white" : "bg-brand-50 text-brand-600"
                     }`}
                   >
-                    <RoomIcon room={option.id} className="h-8 w-8" />
+                    <RoomIcon room={option.id} className="h-7 w-7" />
                   </span>
                   <div>
                     <p className="font-semibold text-ink">{option.label}</p>
@@ -147,12 +147,12 @@ export function SmartSelectWizard() {
             })}
           </div>
 
-          <div className="mt-8 flex justify-end">
+          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:justify-end">
             <button
               type="button"
               disabled={!room}
               onClick={() => setStep(2)}
-              className="rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+              className="min-h-11 w-full rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
             >
               Продовжити
             </button>
@@ -162,7 +162,7 @@ export function SmartSelectWizard() {
 
       {step === 2 && room && (
         <section>
-          <h2 className="text-xl font-semibold text-ink">Крок 2 — Ще кілька деталей</h2>
+          <h2 className="text-lg font-semibold text-ink md:text-xl">Крок 2 — Ще кілька деталей</h2>
           <p className="mt-1 text-sm text-muted">
             Обрано: <strong>{ROOM_LABELS[room]}</strong>
           </p>
@@ -173,7 +173,7 @@ export function SmartSelectWizard() {
             </div>
           )}
 
-          <div className="mt-6 rounded-2xl border border-border bg-white p-6 shadow-sm">
+          <div className="mt-6 rounded-2xl border border-border bg-white p-4 shadow-sm md:p-6">
             {room === "BATHROOM" && (
               <div>
                 <h3 className="font-medium text-ink">
@@ -233,18 +233,18 @@ export function SmartSelectWizard() {
             )}
           </div>
 
-          <div className="mt-8 flex justify-between">
+          <div className="mt-6 flex flex-col-reverse gap-3 sm:mt-8 sm:flex-row sm:justify-between">
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="rounded-xl border border-border px-5 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50"
+              className="min-h-11 w-full rounded-xl border border-border px-5 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 sm:w-auto"
             >
               Назад
             </button>
             <button
               type="button"
               onClick={runSmartSelect}
-              className="rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-700"
+              className="min-h-11 w-full rounded-xl bg-brand-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 sm:w-auto"
             >
               Знайти безпечні товари
             </button>
@@ -285,11 +285,11 @@ export function SmartSelectWizard() {
             </EmptyState>
           ) : (
             <>
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-xl text-white">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-center md:p-6">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 text-lg text-white md:h-12 md:w-12 md:text-xl">
                   ✓
                 </span>
-                <h2 className="mt-4 text-xl font-bold text-emerald-900">
+                <h2 className="mt-4 text-lg font-bold text-emerald-900 md:text-xl">
                   Ці товари безпечні для обраного середовища
                 </h2>
                 <p className="mt-2 text-sm text-emerald-800">
@@ -353,7 +353,7 @@ function ChoiceButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-xl border-2 px-5 py-3 text-sm font-semibold transition ${
+      className={`min-h-11 rounded-xl border-2 px-5 py-3 text-sm font-semibold transition ${
         selected
           ? "border-brand-600 bg-brand-50 text-brand-700"
           : "border-border bg-white text-slate-600 hover:border-slate-300"

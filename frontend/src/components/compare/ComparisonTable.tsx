@@ -1,5 +1,6 @@
 "use client";
 
+import { ExportTechSpecsButton } from "@/components/export/ExportTechSpecsButton";
 import { ProductImageWithFallback } from "@/components/product/ProductImage";
 import {
   COMPARE_DIFF_CELL_CLASS,
@@ -23,7 +24,11 @@ export function ComparisonTable({ products, onRemove }: ComparisonTableProps) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-border bg-white shadow-sm">
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <ExportTechSpecsButton products={products} />
+      </div>
+      <div className="overflow-x-auto rounded-2xl border border-border bg-white shadow-sm">
       <table className="min-w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-border bg-slate-50">
@@ -95,6 +100,7 @@ export function ComparisonTable({ products, onRemove }: ComparisonTableProps) {
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

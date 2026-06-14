@@ -5,13 +5,16 @@ interface RoomIconProps {
   className?: string;
 }
 
-export function RoomIcon({ room, className = "h-10 w-10" }: RoomIconProps) {
+export function RoomIcon({ room, className = "h-8 w-8" }: RoomIconProps) {
   const props = {
-    className,
+    className: `${className} shrink-0 stroke-current`,
     fill: "none",
     viewBox: "0 0 24 24",
     stroke: "currentColor",
     strokeWidth: 1.5,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true,
   };
 
   switch (room) {

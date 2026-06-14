@@ -136,13 +136,13 @@ export function CatalogPageClient() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 md:py-8 lg:px-8">
+      <div className="mb-6 md:mb-8">
+        <p className="text-xs font-semibold uppercase tracking-wide text-brand-600 sm:text-sm">
           Професіоналам
         </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-ink">Каталог товарів</h1>
-        <p className="mt-2 max-w-2xl text-muted">
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-ink md:text-3xl">Каталог товарів</h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted md:text-base">
           Переглядайте механізми та рамки з глибокою технічною фільтрацією — клас IP, ампераж і
           функції безпеки для відповідних монтажів.
         </p>

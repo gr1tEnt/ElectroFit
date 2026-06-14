@@ -2,11 +2,23 @@
 
 import { CartLineItem } from "@/components/cart/CartLineItem";
 import { ExportEstimateButton } from "@/components/cart/ExportEstimateButton";
+import { ExportTechSpecsButton } from "@/components/export/ExportTechSpecsButton";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
+import { useMemo } from "react";
 
 export function CartView() {
   const { items, subtotal, itemCount } = useCart();
+  const cartProducts = useMemo(() => {
+    const seen = new Set<number>();
+    return items
+      .map((line) => line.product)
+      .filter((product) => {
+        if (seen.has(product.id)) return false;
+        seen.add(product.id);
+        return true;
+      });
+  }, [items]);
 
   if (itemCount === 0) {
     return (
@@ -45,6 +57,9 @@ export function CartView() {
         <span className="text-xl font-bold text-ink">€{subtotal.toFixed(2)}</span>
       </div>
       <ExportEstimateButton items={items} />
+      <div className="flex justify-end">
+        <ExportTechSpecsButton products={cartProducts} />
+      </div>
       <Link
         href="/checkout"
         className="block w-full rounded-xl bg-brand-600 py-3 text-center text-sm font-semibold text-white hover:bg-brand-700"

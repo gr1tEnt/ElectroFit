@@ -9,7 +9,7 @@ interface ProductGridProps {
 export function ProductGrid({ products, onProductSelect }: ProductGridProps) {
   if (products.length === 0) {
     return (
-      <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-white p-12 text-center">
+      <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-white p-6 text-center md:p-12">
         <p className="text-lg font-semibold text-ink">Жоден товар не відповідає вашим фільтрам</p>
         <p className="mt-2 max-w-md text-sm text-muted">
           Змініть технічні фільтри на бічній панелі або скиньте їх, щоб побачити більше результатів.
@@ -19,7 +19,7 @@ export function ProductGrid({ products, onProductSelect }: ProductGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((product) => (
         <ProductCard
           key={product.id}
