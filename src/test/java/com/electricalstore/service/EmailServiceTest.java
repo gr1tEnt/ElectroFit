@@ -26,8 +26,7 @@ class EmailServiceTest {
 
     @BeforeEach
     void setUp() {
-        emailService = new EmailService(
-                mailSender, "electrofit.support@gmail.com", "ElectroFit Support", "electrofit.support@gmail.com");
+        emailService = new EmailService(mailSender, "electrofit.support@gmail.com", "ElectroFit Support");
     }
 
     @Test
