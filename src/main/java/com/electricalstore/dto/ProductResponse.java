@@ -34,9 +34,16 @@ public record ProductResponse(
         @Schema(example = "2") Integer framePostsCount,
         @Schema(example = "[\"BEDROOM\", \"LIVING_ROOM\"]") List<String> compatibleRoomTypes,
         @Schema(description = "Extended technical parameters for detail views")
-                Map<String, String> detailedAttributes) {
+                Map<String, String> detailedAttributes,
+        @Schema(example = "22") long reviewCount,
+        @Schema(example = "4.91") double averageRating) {
 
     public static ProductResponse from(Product product, TechnicalSpec spec) {
+        return from(product, spec, 0L, 0.0);
+    }
+
+    public static ProductResponse from(
+            Product product, TechnicalSpec spec, long reviewCount, double averageRating) {
         String brandName = null;
         String seriesName = null;
         if (product.getBrand() != null) {
@@ -83,7 +90,9 @@ public record ProductResponse(
                 hasGrounding,
                 framePostsCount,
                 compatibleRoomTypes,
-                detailedAttributes);
+                detailedAttributes,
+                reviewCount,
+                averageRating);
     }
 
     private static List<String> resolveImageUrls(Product product) {

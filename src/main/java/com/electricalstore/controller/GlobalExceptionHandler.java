@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
-        detail.setTitle("Invalid request");
+        detail.setTitle("Некоректний запит");
         return detail;
     }
 
@@ -29,9 +29,9 @@ public class GlobalExceptionHandler {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .findFirst()
-                .orElse("Validation failed");
+                .orElse("Помилка валідації даних");
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, message);
-        detail.setTitle("Validation error");
+        detail.setTitle("Помилка валідації");
         detail.setProperty(
                 "errors",
                 ex.getBindingResult().getFieldErrors().stream()
@@ -44,16 +44,16 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleUnreadableBody(HttpMessageNotReadableException ex) {
         log.debug("Malformed request body", ex);
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST, "Request body is missing or invalid JSON.");
-        detail.setTitle("Invalid request body");
+                HttpStatus.BAD_REQUEST, "Тіло запиту відсутнє або містить некоректний JSON.");
+        detail.setTitle("Некоректне тіло запиту");
         return detail;
     }
 
     @ExceptionHandler({AuthenticationException.class, AccessDeniedException.class})
     public ProblemDetail handleUnauthorized(Exception ex) {
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.UNAUTHORIZED, "Authentication required. Please log in.");
-        detail.setTitle("Unauthorized");
+                HttpStatus.UNAUTHORIZED, "Потрібна авторизація. Будь ласка, увійдіть у систему.");
+        detail.setTitle("Не авторизовано");
         return detail;
     }
 
@@ -62,8 +62,8 @@ public class GlobalExceptionHandler {
         log.error("Database error", ex);
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.SERVICE_UNAVAILABLE,
-                "Database is unavailable. Ensure PostgreSQL is running and application.properties credentials are correct.");
-        detail.setTitle("Database error");
+                "База даних недоступна. Переконайтеся, що PostgreSQL працює та налаштування підключення коректні.");
+        detail.setTitle("Помилка бази даних");
         return detail;
     }
 
@@ -72,8 +72,8 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception", ex);
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "An unexpected error occurred. Please try again.");
-        detail.setTitle("Internal server error");
+                "Сталася непередбачена помилка. Спробуйте ще раз.");
+        detail.setTitle("Внутрішня помилка сервера");
         return detail;
     }
 }

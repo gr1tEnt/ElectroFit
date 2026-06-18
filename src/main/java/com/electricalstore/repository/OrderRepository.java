@@ -24,6 +24,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query(
             """
+            SELECT CASE WHEN COUNT(o) > 0 THEN true ELSE false END
+            FROM Order o
+            JOIN o.items i
+            WHERE i.productId = :productId
+              AND (o.user.id = :userId OR LOWER(o.customerEmail) = LOWER(:email))
+            """)
+    boolean existsPurchasedProduct(
+            @Param("userId") Long userId, @Param("email") String email, @Param("productId") Long productId);
+
+    @Query(
+            """
             SELECT COALESCE(SUM(o.totalAmount), 0.0) FROM Order o
             WHERE o.status = :status
             """)

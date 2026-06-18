@@ -4,6 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { useCompare } from "@/context/CompareContext";
 import { BrandLink } from "@/components/catalog/BrandLink";
 import { ProductImage } from "@/components/product/ProductImage";
+import { CatalogStarRating } from "@/components/ui/CatalogStarRating";
 import { isFrameProduct, productGalleryUrls } from "@/lib/productUtils";
 import { lineUnitPrice } from "@/lib/cartUtils";
 import { toastAddedToCart } from "@/lib/toast";
@@ -102,7 +103,11 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
         <h3 className="mt-1 line-clamp-2 text-base font-semibold text-ink group-hover:text-brand-700">
           {product.name}
         </h3>
-        <p className="mt-1 font-mono text-xs text-muted">{product.sku}</p>
+        <CatalogStarRating
+          className="mt-1.5"
+          averageRating={product.averageRating ?? 0}
+          reviewCount={product.reviewCount ?? 0}
+        />
 
         <ul className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
           {!isFrame && product.maxAmps != null && (
