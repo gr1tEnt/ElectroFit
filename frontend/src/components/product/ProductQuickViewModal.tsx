@@ -3,6 +3,7 @@
 import { BrandLink } from "@/components/catalog/BrandLink";
 import { DetailedSpecificationsAccordion } from "@/components/product/DetailedSpecificationsAccordion";
 import { ProductImageGallery } from "@/components/product/ProductImageGallery";
+import { ProductReviewsSection } from "@/components/product/ProductReviewsSection";
 import { useCart } from "@/context/CartContext";
 import { fetchProductById } from "@/lib/api";
 import { getErrorMessage } from "@/lib/apiError";
@@ -220,6 +221,8 @@ export function ProductQuickViewModal({ isOpen, onClose, product }: ProductQuick
           <DetailedSpecificationsAccordion
             attributes={filterDetailedAttributesForProduct(display, display.detailedAttributes)}
           />
+
+          <ProductReviewsSection productId={display.id} />
         </div>
       </div>
     </div>

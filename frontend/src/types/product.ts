@@ -33,6 +33,8 @@ export interface Product {
   framePostsCount: number | null;
   compatibleRoomTypes?: string[];
   detailedAttributes?: Record<string, string>;
+  reviewCount?: number;
+  averageRating?: number;
 }
 
 export interface CatalogFilters {
