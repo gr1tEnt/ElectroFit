@@ -4,6 +4,7 @@ import com.electricalstore.dto.AdminStatsResponse;
 import com.electricalstore.repository.BrandRepository;
 import com.electricalstore.repository.ProductRepository;
 import com.electricalstore.repository.SupportMessageRepository;
+import com.electricalstore.entity.SupportTicketStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,7 @@ public class AdminService {
     public AdminStatsResponse getStats() {
         return new AdminStatsResponse(
                 productRepository.count(),
-                supportMessageRepository.count(),
+                supportMessageRepository.countByStatus(SupportTicketStatus.OPEN),
                 brandRepository.count());
     }
 }

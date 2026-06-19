@@ -2,6 +2,7 @@ package com.electricalstore.controller;
 
 import com.electricalstore.dto.CreateSupportMessageRequest;
 import com.electricalstore.dto.SupportMessageResponse;
+import com.electricalstore.dto.SupportReplyRequest;
 import com.electricalstore.service.SupportMessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,6 +35,17 @@ public class SupportMessageController {
     @ApiResponse(responseCode = "201", description = "Message saved")
     public SupportMessageResponse submitMessage(@Valid @RequestBody CreateSupportMessageRequest request) {
         return supportMessageService.createMessage(request);
+    }
+
+    @PostMapping(path = "/api/support/reply/{ticketId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+            summary = "Reply to support ticket",
+            description = "Sends an email reply to the customer and marks the ticket as resolved.")
+    @ApiResponse(responseCode = "200", description = "Reply sent and ticket resolved")
+    @ApiResponse(responseCode = "404", description = "Ticket not found")
+    public SupportMessageResponse replyToMessage(
+            @PathVariable Long ticketId, @Valid @RequestBody SupportReplyRequest request) {
+        return supportMessageService.replyToMessage(ticketId, request);
     }
 
     @GetMapping(path = "/api/admin/support-messages", produces = MediaType.APPLICATION_JSON_VALUE)

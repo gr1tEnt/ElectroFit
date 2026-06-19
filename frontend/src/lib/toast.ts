@@ -23,3 +23,7 @@ export function toastCompareRemoved(productId: number, productName: string) {
 export function toastCompareLimitReached() {
   toast.error("Можна порівняти не більше 4 товарів", { id: "compare-limit" });
 }
+
+export function toastSupportReplySent() {
+  toast.success("Відповідь успішно надіслана");
+}

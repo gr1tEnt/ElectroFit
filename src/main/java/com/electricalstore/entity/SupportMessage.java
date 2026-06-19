@@ -2,6 +2,8 @@ package com.electricalstore.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -13,6 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "support_messages")
@@ -39,6 +42,12 @@ public class SupportMessage {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @ColumnDefault("'OPEN'")
+    @Builder.Default
+    private SupportTicketStatus status = SupportTicketStatus.OPEN;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -46,6 +55,9 @@ public class SupportMessage {
     void onCreate() {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
+        }
+        if (status == null) {
+            status = SupportTicketStatus.OPEN;
         }
     }
 }

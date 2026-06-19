@@ -1,6 +1,7 @@
 package com.electricalstore.dto;
 
 import com.electricalstore.entity.SupportMessage;
+import com.electricalstore.entity.SupportTicketStatus;
 import java.time.LocalDateTime;
 
 public record SupportMessageResponse(
@@ -9,6 +10,7 @@ public record SupportMessageResponse(
         String email,
         String inquiryType,
         String message,
+        SupportTicketStatus status,
         LocalDateTime createdAt) {
 
     public static SupportMessageResponse from(SupportMessage message) {
@@ -18,6 +20,7 @@ public record SupportMessageResponse(
                 message.getEmail(),
                 message.getInquiryType(),
                 message.getMessage(),
+                message.getStatus(),
                 message.getCreatedAt());
     }
 }

@@ -2,10 +2,33 @@ import { ApiError } from "@/lib/apiError";
 import { getAuthToken } from "@/lib/authStorage";
 
 const API_UNAVAILABLE_MESSAGE =
-  "Не вдається підключитися до API за адресою {base}. Запустіть backend: mvn spring-boot:run";
+  "Не вдається підключитися до API за адресою {base}. Перевірте NEXT_PUBLIC_API_URL і що backend працює.";
 
+const DEFAULT_API_BASE = "http://localhost:8080";
+
+/**
+ * Base API origin from NEXT_PUBLIC_API_URL (no trailing slash, no /api suffix).
+ * Paths passed to apiFetch must start with /api/...
+ */
 export function getApiBase(): string {
-  return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+  const raw = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!raw) {
+    return DEFAULT_API_BASE;
+  }
+
+  let base = raw.replace(/\/+$/, "");
+  if (base.endsWith("/api")) {
+    base = base.slice(0, -4);
+  }
+
+  return base;
+}
+
+/** Builds a full API URL from a path such as `/api/admin/orders/1/status`. */
+export function buildApiUrl(path: string): string {
+  const base = getApiBase();
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${base}${normalizedPath}`;
 }
 
 async function parseErrorMessage(response: Response): Promise<{ message: string; title?: string }> {
@@ -54,7 +77,7 @@ async function parseErrorMessage(response: Response): Promise<{ message: string;
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const base = getApiBase();
-  const url = path.startsWith("http") ? path : `${base}${path.startsWith("/") ? path : `/${path}`}`;
+  const url = path.startsWith("http") ? path : buildApiUrl(path);
 
   const token = getAuthToken();
   const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
@@ -100,7 +123,7 @@ export async function checkApiHealth(): Promise<boolean> {
 
   for (const path of HEALTH_PROBE_PATHS) {
     try {
-      const response = await fetch(`${base}${path}`, {
+      const response = await fetch(buildApiUrl(path), {
         cache: "no-store",
         signal: AbortSignal.timeout(4000),
       });
