@@ -1,7 +1,13 @@
 "use client";
 
 import { loadCartFromStorage, saveCartToStorage } from "@/lib/cartStorage";
-import { cartSubtotal, lineSubtotal, newBundleId, newLineId } from "@/lib/cartUtils";
+import {
+  cartSubtotal,
+  clampCartQuantity,
+  lineSubtotal,
+  newBundleId,
+  newLineId,
+} from "@/lib/cartUtils";
 import type { ConfiguratorAssembly } from "@/types/configurator";
 import type { CartLine } from "@/types/cart";
 import type { Product } from "@/types/product";
@@ -51,7 +57,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (catalogLine) {
         return prev.map((line) =>
           line.lineId === catalogLine.lineId
-            ? { ...line, quantity: line.quantity + quantity }
+            ? { ...line, quantity: clampCartQuantity(line.quantity + quantity) }
             : line,
         );
       }
@@ -60,7 +66,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         {
           lineId: newLineId(),
           product,
-          quantity,
+          quantity: clampCartQuantity(quantity),
           source: "catalog",
         },
       ];
@@ -82,12 +88,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateQuantity = useCallback((lineId: string, quantity: number) => {
-    if (quantity < 1) {
-      setItems((prev) => prev.filter((line) => line.lineId !== lineId));
-      return;
-    }
+    const clamped = clampCartQuantity(quantity);
     setItems((prev) =>
-      prev.map((line) => (line.lineId === lineId ? { ...line, quantity } : line)),
+      prev.map((line) => (line.lineId === lineId ? { ...line, quantity: clamped } : line)),
     );
   }, []);
 

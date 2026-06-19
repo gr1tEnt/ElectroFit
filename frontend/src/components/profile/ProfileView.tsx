@@ -12,7 +12,7 @@ import { useCallback, useEffect, useState } from "react";
 
 export function ProfileView() {
   const router = useRouter();
-  const { user, isAuthenticated, loading, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [orders, setOrders] = useState<OrderHistoryItem[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState<string | null>(null);
@@ -32,19 +32,10 @@ export function ProfileView() {
   }, []);
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.replace("/login");
-    }
-  }, [loading, isAuthenticated, router]);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
     void loadOrders();
-  }, [isAuthenticated, loadOrders]);
+  }, [loadOrders]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
-
     const refresh = () => void loadOrders();
     window.addEventListener("focus", refresh);
     document.addEventListener("visibilitychange", () => {
@@ -56,14 +47,10 @@ export function ProfileView() {
     return () => {
       window.removeEventListener("focus", refresh);
     };
-  }, [isAuthenticated, loadOrders]);
+  }, [loadOrders]);
 
-  if (loading || !isAuthenticated || !user) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center text-muted">
-        Завантаження профілю…
-      </div>
-    );
+  if (!user) {
+    return null;
   }
 
   return (

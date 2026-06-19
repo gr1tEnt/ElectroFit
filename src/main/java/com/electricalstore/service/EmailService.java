@@ -95,6 +95,28 @@ public class EmailService {
                 true);
     }
 
+    public void sendPasswordResetPin(String clientEmail, String customerName, String pin) {
+        if (brevoApiKey == null || brevoApiKey.isBlank()) {
+            log.warn(
+                    """
+                    BREVO_API_KEY is not configured; password reset PIN was not emailed.
+                    To: {}
+                    PIN: {}
+                    (Valid for 15 minutes)
+                    """,
+                    clientEmail,
+                    pin);
+            return;
+        }
+
+        sendHtmlEmail(
+                clientEmail,
+                "Код відновлення пароля — ElectroFit",
+                buildPasswordResetHtmlBody(customerName, pin),
+                "password reset to " + clientEmail,
+                true);
+    }
+
     private void sendHtmlEmail(
             String toEmail, String subject, String htmlContent, String logContext, boolean failOnError) {
         try {
@@ -265,6 +287,57 @@ public class EmailService {
                 </html>
                 """
                 .formatted(safeName, safeInquiryType, safeOriginal, safeReply);
+    }
+
+    private static String buildPasswordResetHtmlBody(String customerName, String pin) {
+        String safeName = escapeHtml(customerName);
+        String safePin = escapeHtml(pin);
+
+        return """
+                <!DOCTYPE html>
+                <html lang="uk">
+                  <head>
+                    <meta charset="UTF-8"/>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+                    <title>Відновлення пароля</title>
+                  </head>
+                  <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: 'Segoe UI', Arial, sans-serif;">
+                    <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="background-color: #f1f5f9; padding: 32px 16px;">
+                      <tr>
+                        <td align="center">
+                          <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="max-width: 560px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(15, 23, 42, 0.12);">
+                            <tr>
+                              <td style="background: linear-gradient(135deg, #0f2744 0%%, #1e3a5f 100%%); padding: 28px 32px; text-align: center;">
+                                <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">ElectroFit</h1>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 32px;">
+                                <p style="margin: 0 0 8px; color: #1e293b; font-size: 18px; font-weight: 600;">Вітаємо, %s!</p>
+                                <p style="margin: 0 0 24px; color: #64748b; font-size: 15px; line-height: 1.6;">
+                                  Ви запросили відновлення пароля. Використайте код нижче на сторінці входу. Код дійсний протягом 15 хвилин.
+                                </p>
+                                <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
+                                  <tr>
+                                    <td style="padding: 24px; text-align: center;">
+                                      <p style="margin: 0 0 8px; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Ваш код</p>
+                                      <p style="margin: 0; color: #1d4ed8; font-size: 32px; font-weight: 700; letter-spacing: 0.25em;">%s</p>
+                                    </td>
+                                  </tr>
+                                </table>
+                                <p style="margin: 24px 0 0; color: #94a3b8; font-size: 13px; line-height: 1.6;">
+                                  Якщо ви не запитували відновлення пароля, проігноруйте цей лист.
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </body>
+                </html>
+                """
+                .formatted(safeName, safePin);
     }
 
     private static String escapeHtml(String value) {

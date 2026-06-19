@@ -1,3 +1,3 @@
 package com.electricalstore.dto;
 
-public record UserProfileResponse(Long id, String email, String fullName) {}
+public record UserProfileResponse(Long id, String email, String fullName, String role) {}

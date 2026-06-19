@@ -1,20 +1,41 @@
-import type { Product } from "@/types/product";
 import { ProductCard } from "@/components/catalog/ProductCard";
+import { EmptyState } from "@/components/ui/EmptyState";
+import type { Product } from "@/types/product";
 
 interface ProductGridProps {
   products: Product[];
   onProductSelect?: (product: Product) => void;
+  onResetFilters?: () => void;
 }
 
-export function ProductGrid({ products, onProductSelect }: ProductGridProps) {
+function SearchEmptyIcon() {
+  return (
+    <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+      <circle cx="11" cy="11" r="7" />
+      <path strokeLinecap="round" d="M20 20l-3.5-3.5" />
+      <path strokeLinecap="round" d="M8 11h6M11 8v6" opacity="0.35" />
+    </svg>
+  );
+}
+
+export function ProductGrid({ products, onProductSelect, onResetFilters }: ProductGridProps) {
   if (products.length === 0) {
     return (
-      <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-white p-6 text-center md:p-12">
-        <p className="text-lg font-semibold text-ink">Жоден товар не відповідає вашим фільтрам</p>
-        <p className="mt-2 max-w-md text-sm text-muted">
-          Змініть технічні фільтри на бічній панелі або скиньте їх, щоб побачити більше результатів.
-        </p>
-      </div>
+      <EmptyState
+        title="На жаль, за вашим запитом нічого не знайдено."
+        description="Спробуйте змінити пошуковий запит або скиньте фільтри, щоб побачити більше товарів у каталозі."
+        icon={<SearchEmptyIcon />}
+      >
+        {onResetFilters && (
+          <button
+            type="button"
+            onClick={onResetFilters}
+            className="rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+          >
+            Скинути фільтри
+          </button>
+        )}
+      </EmptyState>
     );
   }
 

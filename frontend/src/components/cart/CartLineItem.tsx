@@ -1,7 +1,12 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { lineSubtotal, lineUnitPrice } from "@/lib/cartUtils";
+import {
+  lineSubtotal,
+  lineUnitPrice,
+  MAX_CART_QUANTITY,
+  MIN_CART_QUANTITY,
+} from "@/lib/cartUtils";
 import type { CartLine } from "@/types/cart";
 
 interface CartLineItemProps {
@@ -33,7 +38,8 @@ export function CartLineItem({ line }: CartLineItemProps) {
           <button
             type="button"
             onClick={() => updateQuantity(line.lineId, line.quantity - 1)}
-            className="px-3 py-1.5 text-lg text-slate-600 hover:bg-slate-50"
+            disabled={line.quantity <= MIN_CART_QUANTITY}
+            className="px-3 py-1.5 text-lg text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label="Зменшити кількість"
           >
             −
@@ -42,7 +48,8 @@ export function CartLineItem({ line }: CartLineItemProps) {
           <button
             type="button"
             onClick={() => updateQuantity(line.lineId, line.quantity + 1)}
-            className="px-3 py-1.5 text-lg text-slate-600 hover:bg-slate-50"
+            disabled={line.quantity >= MAX_CART_QUANTITY}
+            className="px-3 py-1.5 text-lg text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label="Збільшити кількість"
           >
             +

@@ -204,6 +204,7 @@ export function CatalogPageClient() {
             <ProductGrid
               products={filtered}
               onProductSelect={setSelectedProduct}
+              onResetFilters={handleReset}
             />
           )}
         </section>

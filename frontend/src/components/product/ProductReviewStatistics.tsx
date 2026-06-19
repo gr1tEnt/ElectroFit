@@ -26,17 +26,18 @@ function RowStarIcon() {
 export function ProductReviewStatistics({ reviews }: ProductReviewStatisticsProps) {
   const { totalReviews, averageRating, distribution } = computeReviewStatistics(reviews);
   const formattedAverage = averageRating.toFixed(2);
+  const hasReviews = totalReviews > 0;
 
   return (
     <aside className="rounded-2xl border border-border bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-center gap-2">
         <SummaryStarIcon />
         <h4 className="text-lg font-bold text-ink">
-          Оцінка користувачів {formattedAverage}/5
+          {hasReviews ? `Оцінка користувачів ${formattedAverage}/5` : "Ще немає оцінок"}
         </h4>
       </div>
       <p className="mt-1 text-sm text-muted">
-        на основі {formatReviewsBasisLabel(totalReviews)}
+        {hasReviews ? `на основі ${formatReviewsBasisLabel(totalReviews)}` : "Будьте першим, хто оцінить товар"}
       </p>
 
       <ul className="mt-5 space-y-2.5" aria-label="Розподіл оцінок">

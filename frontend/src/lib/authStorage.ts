@@ -1,4 +1,19 @@
-import type { AuthSession, AuthUser } from "@/types/auth";
+import { getRoleFromToken } from "@/lib/jwtUtils";
+import type { AuthSession, AuthUser, UserRole } from "@/types/auth";
+
+function resolveUserRole(user: AuthUser, token: string): UserRole {
+  if (user.role === "ADMIN" || user.role === "USER") {
+    return user.role;
+  }
+  return getRoleFromToken(token);
+}
+
+function normalizeStoredUser(user: AuthUser, token: string): AuthUser {
+  return {
+    ...user,
+    role: resolveUserRole(user, token),
+  };
+}
 
 const TOKEN_KEY = "electrofit-auth-token";
 const USER_KEY = "electrofit-auth-user";
@@ -16,7 +31,7 @@ export function loadAuthSession(): AuthSession | null {
   try {
     const user = JSON.parse(rawUser) as AuthUser;
     if (!user.email || !user.fullName || !user.userId) return null;
-    return { token, user };
+    return { token, user: normalizeStoredUser(user, token) };
   } catch {
     clearAuthSession();
     return null;

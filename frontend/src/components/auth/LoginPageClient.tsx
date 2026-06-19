@@ -1,14 +1,16 @@
 "use client";
 
 import { AuthForm } from "@/components/auth/AuthForm";
+import { ForgotPasswordModal } from "@/components/auth/ForgotPasswordModal";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function LoginPageClient() {
   const router = useRouter();
   const { login, isAuthenticated, loading } = useAuth();
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
@@ -26,8 +28,13 @@ export function LoginPageClient() {
         <AuthForm
           mode="login"
           onSubmit={async ({ email, password }) => login(email, password)}
+          onForgotPassword={() => setForgotPasswordOpen(true)}
         />
       </div>
+      <ForgotPasswordModal
+        isOpen={forgotPasswordOpen}
+        onClose={() => setForgotPasswordOpen(false)}
+      />
       <p className="mt-6 text-center text-sm text-muted">
         <Link href="/" className="text-brand-600 hover:underline">
           ← Назад до магазину

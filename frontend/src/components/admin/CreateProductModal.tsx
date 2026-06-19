@@ -214,6 +214,7 @@ export function CreateProductModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     if (form.compatibleRoomTypes.length === 0) {
       setError("Оберіть принаймні один тип приміщення.");
       return;
@@ -593,9 +594,9 @@ export function CreateProductModal({
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-lg bg-amber-500 px-5 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400 disabled:opacity-50"
+              className="rounded-lg bg-amber-500 px-5 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {submitting ? "Збереження…" : isEditMode ? "Зберегти зміни" : "Додати товар"}
+              {submitting ? "Обробка…" : isEditMode ? "Зберегти зміни" : "Додати товар"}
             </button>
           </div>
         </form>
