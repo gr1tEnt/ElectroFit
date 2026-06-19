@@ -256,9 +256,9 @@ export function SupportInbox() {
               key={message.id}
               className="rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-sm"
             >
-              <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4">
                     <h3 className="font-semibold text-white">{message.fullName}</h3>
                     <span className="text-sm text-slate-400">{message.email}</span>
                   </div>
@@ -269,7 +269,7 @@ export function SupportInbox() {
                     <span className="text-slate-500">{formatDate(message.createdAt)}</span>
                   </div>
                 </div>
-                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
                   <button
                     type="button"
                     onClick={() => handleOpenReply(message)}

@@ -3,7 +3,6 @@
 import { ExportTechSpecsButton } from "@/components/export/ExportTechSpecsButton";
 import { ProductImageWithFallback } from "@/components/product/ProductImage";
 import {
-  COMPARE_DIFF_CELL_CLASS,
   COMPARE_DIFF_ROW_CLASS,
   COMPARE_ROWS,
   formatComparePrice,
@@ -28,13 +27,13 @@ export function ComparisonTable({ products, onRemove }: ComparisonTableProps) {
       <div className="flex justify-end">
         <ExportTechSpecsButton products={products} />
       </div>
-      <div className="overflow-x-auto rounded-2xl border border-border bg-white shadow-sm">
+      <div className="w-full overflow-x-auto rounded-2xl border border-border bg-white shadow-sm">
       <table className="min-w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-border bg-slate-50">
             <th
               scope="col"
-              className="sticky left-0 z-10 min-w-[11rem] border-r border-border bg-slate-50 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted"
+              className="sticky left-0 z-10 min-w-[11rem] border-r border-border bg-slate-50 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted shadow-[2px_0_4px_-1px_rgba(15,23,42,0.08)]"
             >
               Характеристика
             </th>
@@ -42,7 +41,7 @@ export function ComparisonTable({ products, onRemove }: ComparisonTableProps) {
               <th
                 key={product.id}
                 scope="col"
-                className="min-w-[12rem] border-l border-border/60 px-4 py-3 text-left align-top first:border-l-0"
+                className="min-w-[150px] border-l border-border/60 px-4 py-3 text-left align-top first:border-l-0"
               >
                 <div className="space-y-2">
                   <p className="line-clamp-2 font-semibold text-ink">{product.name}</p>
@@ -63,20 +62,20 @@ export function ComparisonTable({ products, onRemove }: ComparisonTableProps) {
           {COMPARE_ROWS.map((row) => {
             const differs = rowValuesDiffer(products, row.key);
             const rowClass = differs ? COMPARE_DIFF_ROW_CLASS : "bg-white";
-            const stickyClass = differs ? COMPARE_DIFF_CELL_CLASS : "bg-white";
+            const stickyClass = differs ? "bg-blue-50" : "bg-white";
 
             return (
               <tr key={row.key} className={`border-b border-border last:border-b-0 ${rowClass}`}>
                 <th
                   scope="row"
-                  className={`sticky left-0 z-10 border-r border-border px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 ${stickyClass}`}
+                  className={`sticky left-0 z-10 border-r border-border px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 shadow-[2px_0_4px_-1px_rgba(15,23,42,0.08)] ${stickyClass}`}
                 >
                   {row.label}
                 </th>
                 {products.map((product) => (
                   <td
                     key={`${product.id}-${row.key}`}
-                    className={`border-l border-border/60 px-4 py-3 align-top text-slate-700 first:border-l-0 ${
+                    className={`min-w-[150px] border-l border-border/60 px-4 py-3 align-top text-slate-700 first:border-l-0 ${
                       differs ? "bg-blue-50/60" : ""
                     }`}
                   >

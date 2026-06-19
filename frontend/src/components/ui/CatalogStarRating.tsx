@@ -10,7 +10,7 @@ const STAR_PATH =
 function StarIcon({ filled }: { filled: boolean }) {
   return (
     <svg
-      className={`h-4 w-4 shrink-0 ${filled ? "text-amber-400" : "text-slate-300"}`}
+      className={`h-3 w-3 shrink-0 sm:h-4 sm:w-4 ${filled ? "text-amber-400" : "text-slate-300"}`}
       viewBox="0 0 20 20"
       fill="currentColor"
       aria-hidden
@@ -26,20 +26,20 @@ export function CatalogStarRating({ averageRating, reviewCount, className = "" }
 
   return (
     <div
-      className={`flex min-h-5 items-center ${className}`}
+      className={`flex min-h-4 items-center sm:min-h-5 ${className}`}
       aria-label={
         hasReviews
           ? `Оцінка ${averageRating.toFixed(1)} з 5, ${reviewCount} відгуків`
           : `Немає відгуків`
       }
     >
-      <div className="flex items-center gap-0.5">
+      <div className="flex items-center gap-px sm:gap-0.5">
         {Array.from({ length: 5 }, (_, index) => (
           <StarIcon key={index} filled={index < filledStars} />
         ))}
       </div>
 
-      <span className="ml-1.5 text-xs leading-none text-slate-500">({reviewCount})</span>
+      <span className="ml-1 text-[10px] leading-none text-slate-500 sm:ml-1.5 sm:text-xs">({reviewCount})</span>
     </div>
   );
 }
