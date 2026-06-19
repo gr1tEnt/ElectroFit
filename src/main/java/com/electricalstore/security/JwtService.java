@@ -1,6 +1,7 @@
 package com.electricalstore.security;
 
 import com.electricalstore.entity.User;
+import com.electricalstore.entity.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -29,6 +30,7 @@ public class JwtService {
         return Jwts.builder()
                 .subject(String.valueOf(user.getId()))
                 .claim("email", user.getEmail())
+                .claim("role", user.getRole() != null ? user.getRole().name() : UserRole.USER.name())
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(key)

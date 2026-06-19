@@ -1,8 +1,11 @@
 package com.electricalstore.controller;
 
 import com.electricalstore.dto.AuthResponse;
+import com.electricalstore.dto.ForgotPasswordRequest;
 import com.electricalstore.dto.LoginRequest;
+import com.electricalstore.dto.MessageResponse;
 import com.electricalstore.dto.RegisterRequest;
+import com.electricalstore.dto.ResetPasswordRequest;
 import com.electricalstore.dto.UserProfileResponse;
 import com.electricalstore.entity.User;
 import com.electricalstore.security.UserPrincipal;
@@ -48,6 +51,27 @@ public class AuthController {
     @Operation(summary = "Login and receive JWT")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping(
+            path = "/forgot-password",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Request password reset PIN by email")
+    public MessageResponse forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+        return new MessageResponse(
+                "Якщо обліковий запис існує, код надіслано на вашу електронну пошту.");
+    }
+
+    @PostMapping(
+            path = "/reset-password",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Reset password using email PIN")
+    public MessageResponse resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return new MessageResponse("Пароль успішно змінено. Тепер ви можете увійти.");
     }
 
     @GetMapping(path = "/me", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -1,4 +1,5 @@
 import { enrichCartProductSeries } from "@/lib/cartCompatibility";
+import { clampCartQuantity } from "@/lib/cartUtils";
 import type { CartLine } from "@/types/cart";
 
 const STORAGE_KEY = "electrofit-cart";
@@ -21,6 +22,7 @@ function sanitizeCartLines(parsed: unknown): CartLine[] {
   if (!Array.isArray(parsed)) return [];
   return parsed.filter(isCartLine).map((line) => ({
     ...line,
+    quantity: clampCartQuantity(line.quantity),
     product: enrichCartProductSeries(line.product),
   }));
 }

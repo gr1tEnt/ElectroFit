@@ -33,6 +33,8 @@ const initialForm: CheckoutFormState = {
   cardCvv: "",
 };
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function formatCardNumber(value: string): string {
   return value
     .replace(/\D/g, "")
@@ -49,7 +51,8 @@ function formatExpiry(value: string): string {
 
 function validateForm(form: CheckoutFormState): string | null {
   if (!form.customerName.trim()) return "Введіть повне ім'я.";
-  if (!form.email.trim()) return "Введіть дійсну електронну адресу.";
+  const email = form.email.trim();
+  if (!email || !EMAIL_PATTERN.test(email)) return "Введіть дійсну електронну адресу.";
   if (!form.streetAddress.trim()) return "Введіть адресу.";
   if (!form.city.trim()) return "Введіть місто.";
   if (!form.phone.trim()) return "Введіть номер телефону.";
@@ -86,6 +89,9 @@ export function CheckoutForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
+    if (itemCount === 0) return;
+
     const validationError = validateForm(form);
     if (validationError) {
       setError(validationError);
@@ -286,8 +292,8 @@ export function CheckoutForm() {
 
         <button
           type="submit"
-          disabled={submitting}
-          className="w-full rounded-xl bg-brand-600 py-4 text-base font-semibold text-white shadow-md transition hover:bg-brand-700 disabled:opacity-50 lg:hidden"
+          disabled={submitting || itemCount === 0}
+          className="w-full rounded-xl bg-brand-600 py-4 text-base font-semibold text-white shadow-md transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 lg:hidden"
         >
           {submitting ? "Оформлення замовлення…" : `Оформити замовлення — €${subtotal.toFixed(2)}`}
         </button>
@@ -297,8 +303,8 @@ export function CheckoutForm() {
         <CheckoutOrderSummary items={items} subtotal={subtotal} />
         <button
           type="submit"
-          disabled={submitting}
-          className="mt-4 hidden w-full rounded-xl bg-brand-600 py-4 text-base font-semibold text-white shadow-md transition hover:bg-brand-700 disabled:opacity-50 lg:block"
+          disabled={submitting || itemCount === 0}
+          className="mt-4 hidden w-full rounded-xl bg-brand-600 py-4 text-base font-semibold text-white shadow-md transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 lg:block"
         >
           {submitting ? "Оформлення замовлення…" : "Оформити замовлення"}
         </button>

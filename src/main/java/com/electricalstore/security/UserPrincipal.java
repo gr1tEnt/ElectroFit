@@ -1,6 +1,7 @@
 package com.electricalstore.security;
 
 import com.electricalstore.entity.User;
+import com.electricalstore.entity.UserRole;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,6 +22,12 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        UserRole role = user.getRole() != null ? user.getRole() : UserRole.USER;
+        if (role == UserRole.ADMIN) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_ADMIN"),
+                    new SimpleGrantedAuthority("ROLE_USER"));
+        }
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 

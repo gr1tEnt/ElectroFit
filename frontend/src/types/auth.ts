@@ -1,7 +1,10 @@
+export type UserRole = "USER" | "ADMIN";
+
 export interface AuthUser {
   userId: number;
   email: string;
   fullName: string;
+  role: UserRole;
 }
 
 export interface AuthSession {

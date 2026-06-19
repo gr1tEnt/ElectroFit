@@ -27,3 +27,11 @@ export function toastCompareLimitReached() {
 export function toastSupportReplySent() {
   toast.success("Відповідь успішно надіслана");
 }
+
+export function toastPasswordResetCodeSent() {
+  toast.success("Якщо обліковий запис існує, код надіслано на вашу пошту");
+}
+
+export function toastPasswordResetSuccess() {
+  toast.success("Пароль успішно змінено");
+}
