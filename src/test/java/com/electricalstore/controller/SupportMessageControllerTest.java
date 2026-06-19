@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.electricalstore.dto.SupportMessageResponse;
+import com.electricalstore.entity.SupportTicketStatus;
 import com.electricalstore.repository.UserRepository;
 import com.electricalstore.security.JwtService;
 import com.electricalstore.service.SupportMessageService;
@@ -50,6 +51,7 @@ class SupportMessageControllerTest {
                 "john@example.com",
                 "Technical Safety Advice",
                 "Is IP44 enough for a bathroom?",
+                SupportTicketStatus.OPEN,
                 LocalDateTime.parse("2026-06-07T10:00:00"));
 
         when(supportMessageService.createMessage(org.mockito.ArgumentMatchers.any()))
@@ -76,6 +78,27 @@ class SupportMessageControllerTest {
         when(supportMessageService.findAllMessages()).thenReturn(List.of());
 
         mockMvc.perform(get("/api/admin/support-messages")).andExpect(status().isOk());
+    }
+
+    @Test
+    void replyToMessage_returnsOk() throws Exception {
+        SupportMessageResponse response = new SupportMessageResponse(
+                42L,
+                "Jane Doe",
+                "jane@example.com",
+                "Order issue",
+                "Where is my order?",
+                SupportTicketStatus.RESOLVED,
+                LocalDateTime.parse("2026-06-07T12:00:00"));
+
+        when(supportMessageService.replyToMessage(eq(42L), org.mockito.ArgumentMatchers.any()))
+                .thenReturn(response);
+
+        mockMvc.perform(post("/api/support/reply/42")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"replyMessage\":\"Your order has been shipped.\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("RESOLVED"));
     }
 
     @Test

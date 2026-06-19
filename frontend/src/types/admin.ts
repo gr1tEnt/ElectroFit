@@ -36,13 +36,20 @@ export interface DashboardStats {
   salesChartData: MonthlySales[];
 }
 
+export type SupportTicketStatus = "OPEN" | "RESOLVED";
+
 export interface SupportMessage {
   id: number;
   fullName: string;
   email: string;
   inquiryType: string;
   message: string;
+  status: SupportTicketStatus;
   createdAt: string;
+}
+
+export interface SupportReplyPayload {
+  replyMessage: string;
 }
 
 export interface CreateSupportMessagePayload {

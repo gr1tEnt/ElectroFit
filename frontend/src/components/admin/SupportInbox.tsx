@@ -1,7 +1,8 @@
 "use client";
 
 import { getErrorMessage } from "@/lib/apiError";
-import { fetchSupportMessages, resolveSupportMessage } from "@/lib/adminApi";
+import { fetchSupportMessages, replyToSupportTicket, resolveSupportMessage } from "@/lib/adminApi";
+import { toastSupportReplySent } from "@/lib/toast";
 import type { SupportMessage } from "@/types/admin";
 import { useCallback, useEffect, useState } from "react";
 
@@ -36,10 +37,98 @@ function EnvelopeIcon() {
   );
 }
 
-function buildReplyMailto(message: SupportMessage): string {
-  const subject = `Відповідь: ${message.inquiryType} - ElectroFit`;
-  const body = `Вітаємо, ${message.fullName},\n\nЩодо вашого звернення: «${message.message}»\n\n`;
-  return `mailto:${message.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+interface ReplyModalProps {
+  message: SupportMessage;
+  sending: boolean;
+  error: string | null;
+  onClose: () => void;
+  onSend: (replyMessage: string) => void;
+}
+
+function ReplyModal({ message, sending, error, onClose, onSend }: ReplyModalProps) {
+  const [replyText, setReplyText] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSend(replyText.trim());
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reply-modal-title"
+    >
+      <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 id="reply-modal-title" className="text-lg font-semibold text-white">
+              Відповісти клієнту
+            </h3>
+            <p className="mt-1 text-sm text-slate-400">
+              {message.fullName} · {message.email}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={sending}
+            className="rounded-lg p-1 text-slate-400 transition hover:bg-slate-800 hover:text-white disabled:opacity-50"
+            aria-label="Закрити"
+          >
+            ✕
+          </button>
+        </div>
+
+        <p className="mt-4 rounded-lg bg-slate-800/80 px-3 py-2 text-xs text-slate-400">
+          Звернення: «{message.message.length > 120 ? `${message.message.slice(0, 120)}…` : message.message}»
+        </p>
+
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div>
+            <label htmlFor="support-reply-text" className="mb-1.5 block text-sm font-medium text-slate-200">
+              Текст відповіді
+            </label>
+            <textarea
+              id="support-reply-text"
+              required
+              minLength={3}
+              maxLength={5000}
+              rows={6}
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              disabled={sending}
+              placeholder="Введіть відповідь для клієнта…"
+              className="w-full resize-y rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 disabled:opacity-60"
+            />
+          </div>
+
+          {error && (
+            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</p>
+          )}
+
+          <div className="flex flex-wrap justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={sending}
+              className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 disabled:opacity-50"
+            >
+              Скасувати
+            </button>
+            <button
+              type="submit"
+              disabled={sending || replyText.trim().length < 3}
+              className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {sending ? "Надсилання…" : "Надіслати"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 }
 
 export function SupportInbox() {
@@ -47,6 +136,9 @@ export function SupportInbox() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [resolvingId, setResolvingId] = useState<number | null>(null);
+  const [replyTarget, setReplyTarget] = useState<SupportMessage | null>(null);
+  const [replySending, setReplySending] = useState(false);
+  const [replyError, setReplyError] = useState<string | null>(null);
 
   const loadMessages = useCallback(async () => {
     setLoading(true);
@@ -65,8 +157,37 @@ export function SupportInbox() {
     loadMessages();
   }, [loadMessages]);
 
-  const handleReply = (message: SupportMessage) => {
-    window.location.href = buildReplyMailto(message);
+  const handleOpenReply = (message: SupportMessage) => {
+    setReplyError(null);
+    setReplyTarget(message);
+  };
+
+  const handleCloseReply = () => {
+    if (replySending) return;
+    setReplyTarget(null);
+    setReplyError(null);
+  };
+
+  const handleSendReply = async (replyMessage: string) => {
+    if (!replyTarget) return;
+
+    setReplySending(true);
+    setReplyError(null);
+
+    try {
+      const updated = await replyToSupportTicket(replyTarget.id, { replyMessage });
+      setMessages((prev) => prev.filter((m) => m.id !== replyTarget.id));
+      setReplyTarget(null);
+      toastSupportReplySent();
+
+      if (updated.status === "RESOLVED") {
+        return;
+      }
+    } catch (err) {
+      setReplyError(getErrorMessage(err, "Не вдалося надіслати відповідь"));
+    } finally {
+      setReplySending(false);
+    }
   };
 
   const handleResolve = async (message: SupportMessage) => {
@@ -139,12 +260,7 @@ export function SupportInbox() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                     <h3 className="font-semibold text-white">{message.fullName}</h3>
-                    <a
-                      href={`mailto:${message.email}`}
-                      className="text-sm text-sky-400 hover:underline"
-                    >
-                      {message.email}
-                    </a>
+                    <span className="text-sm text-slate-400">{message.email}</span>
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                     <span className="rounded-full bg-amber-500/15 px-2.5 py-1 font-medium text-amber-300">
@@ -156,7 +272,7 @@ export function SupportInbox() {
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => handleReply(message)}
+                    onClick={() => handleOpenReply(message)}
                     className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-500"
                   >
                     <EnvelopeIcon />
@@ -178,6 +294,16 @@ export function SupportInbox() {
             </article>
           ))}
       </div>
+
+      {replyTarget && (
+        <ReplyModal
+          message={replyTarget}
+          sending={replySending}
+          error={replyError}
+          onClose={handleCloseReply}
+          onSend={(text) => void handleSendReply(text)}
+        />
+      )}
     </div>
   );
 }

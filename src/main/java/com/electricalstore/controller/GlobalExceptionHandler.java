@@ -11,6 +11,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -57,6 +58,21 @@ public class GlobalExceptionHandler {
         return detail;
     }
 
+    @ExceptionHandler(ResponseStatusException.class)
+    public ProblemDetail handleResponseStatus(ResponseStatusException ex) {
+        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        String detail = ex.getReason() != null ? ex.getReason() : status.getReasonPhrase();
+        if (status.is5xxServerError()) {
+            log.error("Request failed with {}: {}", status.value(), detail, ex);
+        }
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
+        problem.setTitle(status.is4xxClientError() ? "Помилка запиту" : "Помилка сервісу");
+        return problem;
+    }
+
     @ExceptionHandler(DataAccessException.class)
     public ProblemDetail handleDataAccess(DataAccessException ex) {
         log.error("Database error", ex);
@@ -69,6 +85,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUnexpected(Exception ex) {
+        if (ex instanceof ResponseStatusException responseStatus) {
+            return handleResponseStatus(responseStatus);
+        }
         log.error("Unhandled exception", ex);
         ProblemDetail detail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,

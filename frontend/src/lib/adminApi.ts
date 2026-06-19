@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/httpClient";
-import type { AdminStats, CreateProductPayload, CreateSupportMessagePayload, DashboardStats, OrderStatus, RecentOrder, SupportMessage } from "@/types/admin";
+import type { AdminStats, CreateProductPayload, CreateSupportMessagePayload, DashboardStats, OrderStatus, RecentOrder, SupportMessage, SupportReplyPayload } from "@/types/admin";
 import type { Product } from "@/types/product";
 
 export async function fetchAdminStats(): Promise<AdminStats> {
@@ -82,6 +82,17 @@ export async function fetchSupportMessages(): Promise<SupportMessage[]> {
 
 export async function resolveSupportMessage(id: number): Promise<void> {
   return apiFetch<void>(`/api/admin/support-messages/${id}`, { method: "DELETE" });
+}
+
+export async function replyToSupportTicket(
+  ticketId: number,
+  payload: SupportReplyPayload,
+): Promise<SupportMessage> {
+  return apiFetch<SupportMessage>(`/api/support/reply/${ticketId}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 }
 
 export async function submitSupportMessage(
