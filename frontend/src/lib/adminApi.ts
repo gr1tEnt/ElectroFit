@@ -14,7 +14,9 @@ export async function updateOrderStatus(
   orderId: number,
   status: OrderStatus,
 ): Promise<RecentOrder> {
-  return apiFetch<RecentOrder>(`/api/admin/orders/${orderId}/status`, {
+  const path = `/api/admin/orders/${orderId}/status`;
+
+  return apiFetch<RecentOrder>(path, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ status }),
