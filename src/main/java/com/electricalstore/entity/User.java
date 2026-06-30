@@ -15,6 +15,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "users")
@@ -49,7 +50,8 @@ public class User {
     private LocalDateTime resetPinExpiry;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
+    @ColumnDefault("'USER'")
     @Builder.Default
     private UserRole role = UserRole.USER;
 }
