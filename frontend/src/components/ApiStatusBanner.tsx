@@ -1,6 +1,6 @@
 "use client";
 
-import { checkApiHealth, getApiBase } from "@/lib/httpClient";
+import { checkApiHealth } from "@/lib/httpClient";
 import { useEffect, useState } from "react";
 
 export function ApiStatusBanner() {
@@ -34,11 +34,9 @@ export function ApiStatusBanner() {
       role="alert"
       className="border-b border-amber-300 bg-amber-50 px-4 py-2.5 text-center text-sm text-amber-950"
     >
-      <strong>API недоступний.</strong> Не вдається підключитися до {getApiBase()}. Запустіть{" "}
-      <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">
-        mvn spring-boot:run
-      </code>{" "}
-      у корені проєкту, потім оновіть сторінку.
+      <strong>Упс! Сервер тимчасово недоступний.</strong> Ми користуємось безкоштовним
+      хостингом, тому після простою бекенд може запускатися до хвилини. Зачекайте трохи
+      і оновіть сторінку.
     </div>
   );
 }

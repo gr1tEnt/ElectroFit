@@ -2,7 +2,7 @@ import { ApiError } from "@/lib/apiError";
 import { getAuthToken } from "@/lib/authStorage";
 
 const API_UNAVAILABLE_MESSAGE =
-  "Не вдається підключитися до API за адресою {base}. Перевірте NEXT_PUBLIC_API_URL і що backend працює.";
+  "Упс! Бекенд тимчасово недоступний — ми на безкоштовному хостингу, тому сервер інколи «засинає». Зачекайте хвилину і спробуйте ще раз.";
 
 const DEFAULT_API_BASE = "http://localhost:8080";
 
@@ -95,7 +95,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
     });
   } catch {
     throw new ApiError(
-      API_UNAVAILABLE_MESSAGE.replace("{base}", base),
+      API_UNAVAILABLE_MESSAGE,
       0,
       "API недоступний",
     );
