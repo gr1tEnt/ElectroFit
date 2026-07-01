@@ -2,6 +2,13 @@
 
 import { getErrorMessage } from "@/lib/apiError";
 import { submitSupportMessage } from "@/lib/adminApi";
+import {
+  INPUT_LIMITS,
+  isValidEmail,
+  sanitizeText,
+  validatePersonName,
+  validateSupportMessage,
+} from "@/lib/inputValidation";
 import { useState } from "react";
 
 const inquiryTypes = [
@@ -37,12 +44,32 @@ export function SupportInquiryForm() {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+
+    const nameError = validatePersonName(form.fullName);
+    const email = sanitizeText(form.email, INPUT_LIMITS.email);
+    const messageError = validateSupportMessage(form.message);
+    if (nameError) {
+      setError(nameError);
+      setSubmitting(false);
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setError("Введіть дійсну електронну адресу.");
+      setSubmitting(false);
+      return;
+    }
+    if (messageError) {
+      setError(messageError);
+      setSubmitting(false);
+      return;
+    }
+
     try {
       await submitSupportMessage({
-        fullName: form.fullName.trim(),
-        email: form.email.trim(),
+        fullName: sanitizeText(form.fullName, INPUT_LIMITS.personName),
+        email,
         inquiryType: form.inquiryType,
-        message: form.message.trim(),
+        message: sanitizeText(form.message, INPUT_LIMITS.supportMessage),
       });
       setSubmitted(true);
     } catch (err) {
@@ -104,6 +131,7 @@ export function SupportInquiryForm() {
             value={form.fullName}
             onChange={(e) => setForm({ ...form, fullName: e.target.value })}
             className="w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            maxLength={INPUT_LIMITS.personName}
             placeholder="Іван Коваленко"
           />
         </div>
@@ -119,6 +147,7 @@ export function SupportInquiryForm() {
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             className="w-full rounded-lg border border-border px-3 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            maxLength={INPUT_LIMITS.email}
             placeholder="ви@example.com"
           />
         </div>
@@ -154,6 +183,8 @@ export function SupportInquiryForm() {
             value={form.message}
             onChange={(e) => setForm({ ...form, message: e.target.value })}
             className="w-full resize-y rounded-lg border border-border px-3 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            minLength={3}
+            maxLength={INPUT_LIMITS.supportMessage}
             placeholder="Опишіть ваше запитання або проблему…"
           />
         </div>

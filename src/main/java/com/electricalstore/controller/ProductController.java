@@ -9,6 +9,7 @@ import com.electricalstore.service.ConfiguratorService;
 import com.electricalstore.service.ProductResponseMapper;
 import com.electricalstore.service.ProductService;
 import java.util.List;
+import com.electricalstore.validation.InputLimits;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,6 +17,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,6 +36,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Validated
 @RestController
 @RequestMapping("/api/products")
 @Tag(name = "Products", description = "Catalog and smart selection endpoints")
@@ -71,18 +77,23 @@ public class ProductController {
     public List<ProductResponse> listProducts(
             @Parameter(description = "Brand name", example = "Legrand")
                     @RequestParam(required = false)
+                    @Size(max = InputLimits.CATALOG_FILTER)
                     String brand,
             @Parameter(description = "Brand series name", example = "Valena Life")
                     @RequestParam(required = false)
+                    @Size(max = InputLimits.CATALOG_FILTER)
                     String series,
             @Parameter(description = "Category name", example = "Sockets")
                     @RequestParam(required = false)
+                    @Size(max = InputLimits.CATALOG_FILTER)
                     String category,
             @Parameter(description = "Search by product name or brand name", example = "Valena")
                     @RequestParam(required = false)
+                    @Size(max = InputLimits.CATALOG_SEARCH)
                     String search,
             @Parameter(description = "Product type filter", example = "MECHANISM")
                     @RequestParam(required = false)
+                    @Size(max = InputLimits.CATALOG_FILTER)
                     String type) {
         return productResponseMapper.toResponses(
                 productService.findProducts(brand, series, category, search, type));
@@ -160,8 +171,11 @@ public class ProductController {
                     "Returns frame and matching mechanism products for the same brand and series (e.g. 3-post frame + 3 sockets).")
     @ApiResponse(responseCode = "200", description = "Compatible modular sets")
     public List<ConfiguratorSetResponse> configurator(
-            @Parameter(description = "Number of posts / mechanisms", example = "3") @RequestParam int postsCount,
-            @Parameter(description = "Mechanism category name", example = "Sockets") @RequestParam(defaultValue = "Sockets")
+            @Parameter(description = "Number of posts / mechanisms", example = "3") @RequestParam @Min(1) @Max(5)
+                    int postsCount,
+            @Parameter(description = "Mechanism category name", example = "Sockets")
+                    @RequestParam(defaultValue = "Sockets")
+                    @Size(max = InputLimits.BRAND_OR_CATEGORY)
                     String category) {
         return configuratorService.findCompatibleSets(postsCount, category);
     }
@@ -174,6 +188,7 @@ public class ProductController {
     public List<ProductResponse> compatibleFrames(
             @Parameter(description = "Brand series name", example = "Valena Life")
                     @PathVariable
+                    @Size(max = InputLimits.SERIES_NAME)
                     String seriesName) {
         return productResponseMapper.toResponses(productService.findCompatibleFrames(seriesName));
     }

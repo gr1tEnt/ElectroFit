@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +69,9 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final SupportMessageRepository supportMessageRepository;
     private final OrderRepository orderRepository;
 
+    @Value("${app.seed.enabled:true}")
+    private boolean seedEnabled;
+
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -89,6 +93,10 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
+        if (!seedEnabled) {
+            log.debug("Database seeding disabled (app.seed.enabled=false)");
+            return;
+        }
         log.info("Clearing catalog data and re-seeding…");
         clearCatalogData();
 

@@ -12,6 +12,8 @@ import com.electricalstore.repository.CategoryRepository;
 import com.electricalstore.repository.ProductRepository;
 import com.electricalstore.repository.TechnicalSpecRepository;
 import com.electricalstore.repository.spec.ProductSpecifications;
+import com.electricalstore.validation.InputLimits;
+import com.electricalstore.validation.InputSanitizer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,14 +59,21 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<Product> findProducts(String brand, String series, String category, String search, String type) {
-        if (!StringUtils.hasText(brand)
-                && !StringUtils.hasText(series)
-                && !StringUtils.hasText(category)
-                && !StringUtils.hasText(search)
-                && !StringUtils.hasText(type)) {
+        String safeBrand = InputSanitizer.optionalFilter(brand, InputLimits.CATALOG_FILTER);
+        String safeSeries = InputSanitizer.optionalFilter(series, InputLimits.CATALOG_FILTER);
+        String safeCategory = InputSanitizer.optionalFilter(category, InputLimits.CATALOG_FILTER);
+        String safeSearch = InputSanitizer.optionalFilter(search, InputLimits.CATALOG_SEARCH);
+        String safeType = validateProductTypeFilter(type);
+
+        if (safeBrand == null
+                && safeSeries == null
+                && safeCategory == null
+                && safeSearch == null
+                && safeType == null) {
             return productRepository.findAll();
         }
-        return productRepository.findAll(ProductSpecifications.withFilters(brand, series, category, search, type));
+        return productRepository.findAll(
+                ProductSpecifications.withFilters(safeBrand, safeSeries, safeCategory, safeSearch, safeType));
     }
 
     @Transactional(readOnly = true)
@@ -79,7 +88,9 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<Product> findCompatibleFrames(String seriesName) {
-        return productRepository.findByTypeAndBrand_SeriesNameIgnoreCase(ProductType.FRAME, seriesName);
+        String safeSeries =
+                InputSanitizer.requiredText(seriesName, InputLimits.SERIES_NAME, "Назва серії");
+        return productRepository.findByTypeAndBrand_SeriesNameIgnoreCase(ProductType.FRAME, safeSeries);
     }
 
     @Transactional
@@ -268,5 +279,18 @@ public class ProductService {
             return List.of(imageUrl.trim());
         }
         return List.of();
+    }
+
+    private static String validateProductTypeFilter(String type) {
+        String safeType = InputSanitizer.optionalFilter(type, InputLimits.CATALOG_FILTER);
+        if (safeType == null) {
+            return null;
+        }
+        try {
+            ProductType.valueOf(safeType.toUpperCase());
+            return safeType;
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Невідомий тип товару: " + safeType);
+        }
     }
 }

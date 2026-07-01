@@ -6,6 +6,8 @@ import com.electricalstore.dto.LoginRequest;
 import com.electricalstore.dto.RegisterRequest;
 import com.electricalstore.dto.ResetPasswordRequest;
 import com.electricalstore.dto.UserProfileResponse;
+import com.electricalstore.validation.InputLimits;
+import com.electricalstore.validation.InputSanitizer;
 import com.electricalstore.entity.User;
 import com.electricalstore.entity.UserRole;
 import com.electricalstore.repository.UserRepository;
@@ -40,14 +42,14 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        String email = request.email().trim().toLowerCase();
+        String email = InputSanitizer.email(request.email());
         if (userRepository.existsByEmailIgnoreCase(email)) {
             throw new IllegalArgumentException("Email is already registered");
         }
 
         User user = userRepository.save(User.builder()
                 .email(email)
-                .fullName(request.fullName().trim())
+                .fullName(InputSanitizer.requiredText(request.fullName(), InputLimits.PERSON_NAME, "Повне ім'я"))
                 .passwordHash(passwordEncoder.encode(request.password()))
                 .build());
 
@@ -56,8 +58,9 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
+        String email = InputSanitizer.email(request.email());
         User user = userRepository
-                .findByEmailIgnoreCase(request.email().trim())
+                .findByEmailIgnoreCase(email)
                 .filter(u -> passwordEncoder.matches(request.password(), u.getPasswordHash()))
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
 
@@ -72,7 +75,7 @@ public class AuthService {
 
     @Transactional
     public void forgotPassword(ForgotPasswordRequest request) {
-        String email = request.email().trim().toLowerCase();
+        String email = InputSanitizer.email(request.email());
         userRepository.findByEmailIgnoreCase(email).ifPresent(user -> {
             String pin = String.format("%06d", SECURE_RANDOM.nextInt(900_000) + 100_000);
             user.setResetPin(pin);
@@ -84,7 +87,7 @@ public class AuthService {
 
     @Transactional
     public void resetPassword(ResetPasswordRequest request) {
-        String email = request.email().trim().toLowerCase();
+        String email = InputSanitizer.email(request.email());
         User user = userRepository
                 .findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new IllegalArgumentException("Невірний або прострочений код"));

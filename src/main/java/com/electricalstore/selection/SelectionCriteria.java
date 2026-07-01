@@ -1,5 +1,7 @@
 package com.electricalstore.selection;
 
+import com.electricalstore.validation.RoomTypes;
+
 public record SelectionCriteria(
         int minIpRating,
         boolean requireChildProtection,
@@ -7,7 +9,7 @@ public record SelectionCriteria(
 ) {
 
     public static SelectionCriteria from(String roomType, boolean nearWater, boolean hasChildren) {
-        String room = roomType == null ? "" : roomType.trim().toUpperCase();
+        String room = RoomTypes.requireAllowed(roomType);
 
         int minIp = 0;
         boolean requireChildProtection = false;

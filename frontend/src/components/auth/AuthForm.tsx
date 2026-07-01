@@ -1,6 +1,13 @@
 "use client";
 
 import { getErrorMessage } from "@/lib/apiError";
+import {
+  INPUT_LIMITS,
+  isValidEmail,
+  sanitizeText,
+  validatePassword,
+  validatePersonName,
+} from "@/lib/inputValidation";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,8 +18,6 @@ interface AuthFormProps {
   onForgotPassword?: () => void;
 }
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MIN_PASSWORD_LENGTH = 6;
 
 export function AuthForm({ mode, onSubmit, onForgotPassword }: AuthFormProps) {
   const router = useRouter();
@@ -29,22 +34,30 @@ export function AuthForm({ mode, onSubmit, onForgotPassword }: AuthFormProps) {
     if (submitting) return;
     setError(null);
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail || !EMAIL_PATTERN.test(trimmedEmail)) {
+    const trimmedEmail = sanitizeText(email, INPUT_LIMITS.email);
+    if (!isValidEmail(trimmedEmail)) {
       setError("Введіть дійсну електронну адресу.");
       return;
     }
-    if (isRegister && password.length < MIN_PASSWORD_LENGTH) {
-      setError(`Пароль має містити щонайменше ${MIN_PASSWORD_LENGTH} символів.`);
-      return;
+    if (isRegister) {
+      const passwordError = validatePassword(password);
+      if (passwordError) {
+        setError(passwordError);
+        return;
+      }
+      const nameError = validatePersonName(fullName);
+      if (nameError) {
+        setError(nameError);
+        return;
+      }
     }
 
     setSubmitting(true);
     try {
       await onSubmit({
-        email: email.trim(),
+        email: trimmedEmail,
         password,
-        fullName: isRegister ? fullName.trim() : undefined,
+        fullName: isRegister ? sanitizeText(fullName, INPUT_LIMITS.personName) : undefined,
       });
       router.push("/profile");
     } catch (err) {
@@ -68,7 +81,7 @@ export function AuthForm({ mode, onSubmit, onForgotPassword }: AuthFormProps) {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             className="mt-1 w-full rounded-xl border border-border px-4 py-2.5 text-sm"
-            autoComplete="name"
+            maxLength={INPUT_LIMITS.personName}
           />
         </div>
       )}
@@ -84,6 +97,7 @@ export function AuthForm({ mode, onSubmit, onForgotPassword }: AuthFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="mt-1 w-full rounded-xl border border-border px-4 py-2.5 text-sm"
+          maxLength={INPUT_LIMITS.email}
           autoComplete="email"
         />
       </div>
@@ -96,14 +110,15 @@ export function AuthForm({ mode, onSubmit, onForgotPassword }: AuthFormProps) {
           id="password"
           type="password"
           required
-          minLength={isRegister ? MIN_PASSWORD_LENGTH : 1}
+          minLength={isRegister ? 8 : 1}
+          maxLength={INPUT_LIMITS.password}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="mt-1 w-full rounded-xl border border-border px-4 py-2.5 text-sm"
           autoComplete={isRegister ? "new-password" : "current-password"}
         />
         {isRegister && (
-          <p className="mt-1 text-xs text-muted">Щонайменше {MIN_PASSWORD_LENGTH} символів</p>
+          <p className="mt-1 text-xs text-muted">Щонайменше 8 символів</p>
         )}
         {!isRegister && onForgotPassword && (
           <div className="mt-2 text-right">
