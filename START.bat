@@ -8,6 +8,19 @@ echo   Запуск проєкту ElectroFit...
 echo ============================================================
 echo.
 
+if not exist ".env" (
+    if exist ".env.example" (
+        echo [INFO] Файл .env не знайдено. Копіюю з .env.example...
+        copy /Y ".env.example" ".env" >nul
+        echo        Відредагуйте .env: пароль БД та JWT_SECRET ^(мін. 32 символи^).
+        echo.
+    ) else (
+        echo [ПОМИЛКА] Відсутні файли .env та .env.example.
+        pause
+        exit /b 1
+    )
+)
+
 docker info >nul 2>&1
 if errorlevel 1 (
     echo [ПОМИЛКА] Docker Desktop не запущений або не встановлений.

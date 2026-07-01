@@ -7,6 +7,8 @@ import com.electricalstore.entity.User;
 import com.electricalstore.repository.OrderRepository;
 import com.electricalstore.repository.ProductRepository;
 import com.electricalstore.repository.ReviewRepository;
+import com.electricalstore.validation.InputLimits;
+import com.electricalstore.validation.InputSanitizer;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -51,9 +53,9 @@ public class ReviewService {
 
         Review saved = reviewRepository.save(Review.builder()
                 .productId(request.productId())
-                .authorName(user.getFullName().trim())
+                .authorName(InputSanitizer.requiredText(user.getFullName(), InputLimits.PERSON_NAME, "Ім'я"))
                 .rating(request.rating())
-                .comment(request.comment().trim())
+                .comment(InputSanitizer.requiredText(request.comment(), InputLimits.REVIEW_COMMENT, "Коментар"))
                 .verifiedBuyer(verifiedBuyer)
                 .build());
 

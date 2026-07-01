@@ -1,11 +1,14 @@
 package com.electricalstore.dto;
 
+import com.electricalstore.validation.InputLimits;
+import com.electricalstore.validation.annotation.AllowedRoomType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "Environmental conditions for smart product selection")
 public record SmartSelectRequest(
         @NotBlank
+        @AllowedRoomType
         @Schema(
                 description = "Room type",
                 example = "KITCHEN",

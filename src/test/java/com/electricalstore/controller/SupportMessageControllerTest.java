@@ -49,7 +49,7 @@ class SupportMessageControllerTest {
                 1L,
                 "John Smith",
                 "john@example.com",
-                "Technical Safety Advice",
+                "Технічна консультація з безпеки",
                 "Is IP44 enough for a bathroom?",
                 SupportTicketStatus.OPEN,
                 LocalDateTime.parse("2026-06-07T10:00:00"));
@@ -64,7 +64,7 @@ class SupportMessageControllerTest {
                                 {
                                   "fullName": "John Smith",
                                   "email": "john@example.com",
-                                  "inquiryType": "Technical Safety Advice",
+                                  "inquiryType": "Технічна консультація з безпеки",
                                   "message": "Is IP44 enough for a bathroom?"
                                 }
                                 """))

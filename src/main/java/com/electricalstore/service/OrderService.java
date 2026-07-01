@@ -11,6 +11,8 @@ import com.electricalstore.repository.OrderRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import com.electricalstore.entity.OrderStatus;
+import com.electricalstore.validation.InputLimits;
+import com.electricalstore.validation.InputSanitizer;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,10 +34,12 @@ public class OrderService {
                 .map(item -> item.unitPrice().multiply(BigDecimal.valueOf(item.quantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        String email = request.email().trim();
+        String email = InputSanitizer.email(request.email());
+        String customerName =
+                InputSanitizer.requiredText(request.customerName(), InputLimits.PERSON_NAME, "Повне ім'я");
 
         Order order = Order.builder()
-                .customerName(request.customerName().trim())
+                .customerName(customerName)
                 .customerEmail(email)
                 .user(authenticatedUser)
                 .totalAmount(total)
@@ -47,8 +51,8 @@ public class OrderService {
             OrderItem item = OrderItem.builder()
                     .order(order)
                     .productId(itemRequest.productId())
-                    .sku(itemRequest.sku())
-                    .name(itemRequest.name())
+                    .sku(InputSanitizer.requiredText(itemRequest.sku(), InputLimits.SKU, "SKU"))
+                    .name(InputSanitizer.requiredText(itemRequest.name(), InputLimits.ORDER_LINE_NAME, "Назва товару"))
                     .quantity(itemRequest.quantity())
                     .unitPrice(itemRequest.unitPrice())
                     .build();

@@ -2,6 +2,7 @@
 
 import { getErrorMessage } from "@/lib/apiError";
 import { fetchSupportMessages, replyToSupportTicket, resolveSupportMessage } from "@/lib/adminApi";
+import { INPUT_LIMITS, safeDisplayText } from "@/lib/inputValidation";
 import { toastSupportReplySent } from "@/lib/toast";
 import type { SupportMessage } from "@/types/admin";
 import { useCallback, useEffect, useState } from "react";
@@ -289,7 +290,7 @@ export function SupportInbox() {
                 </div>
               </div>
               <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-slate-300">
-                {message.message}
+                {safeDisplayText(message.message, INPUT_LIMITS.supportMessage)}
               </p>
             </article>
           ))}

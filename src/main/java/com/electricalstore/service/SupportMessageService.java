@@ -3,6 +3,9 @@ package com.electricalstore.service;
 import com.electricalstore.dto.CreateSupportMessageRequest;
 import com.electricalstore.dto.SupportMessageResponse;
 import com.electricalstore.dto.SupportReplyRequest;
+import com.electricalstore.validation.InputLimits;
+import com.electricalstore.validation.InputSanitizer;
+import com.electricalstore.validation.SupportInquiryTypes;
 import com.electricalstore.entity.SupportMessage;
 import com.electricalstore.entity.SupportTicketStatus;
 import com.electricalstore.repository.SupportMessageRepository;
@@ -27,10 +30,10 @@ public class SupportMessageService {
     @Transactional
     public SupportMessageResponse createMessage(CreateSupportMessageRequest request) {
         SupportMessage saved = supportMessageRepository.save(SupportMessage.builder()
-                .fullName(request.fullName().trim())
-                .email(request.email().trim())
-                .inquiryType(request.inquiryType().trim())
-                .message(request.message().trim())
+                .fullName(InputSanitizer.requiredText(request.fullName(), InputLimits.PERSON_NAME, "Повне ім'я"))
+                .email(InputSanitizer.email(request.email()))
+                .inquiryType(SupportInquiryTypes.requireAllowed(request.inquiryType()))
+                .message(InputSanitizer.requiredText(request.message(), InputLimits.SUPPORT_MESSAGE, "Повідомлення"))
                 .status(SupportTicketStatus.OPEN)
                 .build());
         return SupportMessageResponse.from(saved);
@@ -54,7 +57,8 @@ public class SupportMessageService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Звернення вже вирішене");
         }
 
-        String replyText = request.replyMessage().trim();
+        String replyText =
+                InputSanitizer.requiredText(request.replyMessage(), InputLimits.SUPPORT_REPLY, "Відповідь");
 
         try {
             emailService.sendSupportReply(

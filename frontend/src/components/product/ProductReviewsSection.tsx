@@ -3,6 +3,12 @@
 import { useAuth } from "@/context/AuthContext";
 import { getErrorMessage } from "@/lib/apiError";
 import { fetchProductReviews, submitProductReview } from "@/lib/reviewApi";
+import {
+  INPUT_LIMITS,
+  safeDisplayText,
+  sanitizeText,
+  validateReviewComment,
+} from "@/lib/inputValidation";
 import type { ProductReview } from "@/types/review";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -122,6 +128,13 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
+
+    const commentError = validateReviewComment(comment);
+    if (commentError) {
+      setSubmitError(commentError);
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(false);
@@ -131,7 +144,7 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
         {
           productId,
           rating,
-          comment: comment.trim(),
+          comment: sanitizeText(comment, INPUT_LIMITS.reviewComment),
         },
         token,
       );
@@ -180,14 +193,16 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="space-y-1.5">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-semibold text-ink">{review.authorName}</p>
+                          <p className="font-semibold text-ink">{safeDisplayText(review.authorName, INPUT_LIMITS.personName)}</p>
                           {review.verifiedBuyer && <VerifiedBuyerBadge />}
                         </div>
                         <p className="text-xs text-muted">{formatReviewDate(review.createdAt)}</p>
                       </div>
                       <StarRating rating={review.rating} size="sm" />
                     </div>
-                    <p className="mt-3 text-sm leading-relaxed text-slate-700">{review.comment}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-slate-700">
+                      {safeDisplayText(review.comment, INPUT_LIMITS.reviewComment)}
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -240,7 +255,7 @@ export function ProductReviewsSection({ productId }: ProductReviewsSectionProps)
                   id="review-comment"
                   required
                   minLength={3}
-                  maxLength={2000}
+                  maxLength={INPUT_LIMITS.reviewComment}
                   rows={4}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}

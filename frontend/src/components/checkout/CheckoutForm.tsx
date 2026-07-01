@@ -5,6 +5,12 @@ import { useCart } from "@/context/CartContext";
 import { getErrorMessage } from "@/lib/apiError";
 import { submitOrder } from "@/lib/api";
 import { lineUnitPrice } from "@/lib/cartUtils";
+import {
+  INPUT_LIMITS,
+  isValidEmail,
+  sanitizeText,
+  validatePersonName,
+} from "@/lib/inputValidation";
 import { loadSavedShippingAddress } from "@/lib/shippingAddressStorage";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -33,8 +39,6 @@ const initialForm: CheckoutFormState = {
   cardCvv: "",
 };
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 function formatCardNumber(value: string): string {
   return value
     .replace(/\D/g, "")
@@ -50,12 +54,12 @@ function formatExpiry(value: string): string {
 }
 
 function validateForm(form: CheckoutFormState): string | null {
-  if (!form.customerName.trim()) return "Введіть повне ім'я.";
-  const email = form.email.trim();
-  if (!email || !EMAIL_PATTERN.test(email)) return "Введіть дійсну електронну адресу.";
-  if (!form.streetAddress.trim()) return "Введіть адресу.";
-  if (!form.city.trim()) return "Введіть місто.";
-  if (!form.phone.trim()) return "Введіть номер телефону.";
+  const nameError = validatePersonName(form.customerName);
+  if (nameError) return nameError;
+  if (!isValidEmail(form.email)) return "Введіть дійсну електронну адресу.";
+  if (!sanitizeText(form.streetAddress, 200)) return "Введіть адресу.";
+  if (!sanitizeText(form.city, 100)) return "Введіть місто.";
+  if (!sanitizeText(form.phone, 30)) return "Введіть номер телефону.";
   const cardDigits = form.cardNumber.replace(/\D/g, "");
   if (cardDigits.length < 16) return "Введіть дійсний 16-значний номер картки.";
   if (!/^\d{2}\/\d{2}$/.test(form.cardExpiry.trim())) {
@@ -103,8 +107,8 @@ export function CheckoutForm() {
 
     try {
       const result = await submitOrder({
-        customerName: form.customerName.trim(),
-        email: form.email.trim(),
+        customerName: sanitizeText(form.customerName, INPUT_LIMITS.personName),
+        email: sanitizeText(form.email, INPUT_LIMITS.email),
         items: items.map((line) => ({
           productId: line.product.id,
           sku: line.product.sku,
